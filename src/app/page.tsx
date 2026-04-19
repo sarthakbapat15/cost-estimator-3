@@ -29,6 +29,7 @@ interface ComponentState {
   finish?: FinishType
   handleType?: HandleType
   handlePrice?: string
+  runningFeet?: string
 }
 
 interface KitchenEstimate {
@@ -68,7 +69,7 @@ export default function Home() {
       pantryUnit: { height: '', width: '', quantity: '', price: '' },
       overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
       profileShutter: { quantity: '', price: '350' },
-      handles: { handleType: '', quantity: '', handlePrice: '' }
+      handles: { handleType: '', runningFeet: '', handlePrice: '' }
     }
   })
 
@@ -164,9 +165,9 @@ export default function Home() {
         return profileQty * PRICES.profileShutter
 
       case 'handles':
-        const handleQty = parseFloat(comp.quantity) || 0
+        const handleFeet = parseFloat(comp.runningFeet) || 0
         const handlePrice = parseFloat(comp.handlePrice) || 0
-        return handleQty * handlePrice
+        return handleFeet * handlePrice
 
       default:
         return 0
@@ -836,7 +837,7 @@ export default function Home() {
               {/* Component 10: Handles */}
               <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
                 <h3 className="text-lg font-semibold mb-4">Handles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>Handle Type</Label>
                     <Select
@@ -855,10 +856,19 @@ export default function Home() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Price per Running Feet</Label>
+                    <Label>Running Feet</Label>
                     <Input
                       type="number"
-                      placeholder={`Enter price for ${estimate.components.handles.handleType || 'handle'} in running feet`}
+                      placeholder="Enter running feet"
+                      value={estimate.components.handles.runningFeet}
+                      onChange={(e) => updateComponent('handles', 'runningFeet', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price per Running Feet (₹)</Label>
+                    <Input
+                      type="number"
+                      placeholder={`Enter price for ${estimate.components.handles.handleType || 'handle'}`}
                       value={estimate.components.handles.handlePrice}
                       onChange={(e) => updateComponent('handles', 'handlePrice', e.target.value)}
                     />

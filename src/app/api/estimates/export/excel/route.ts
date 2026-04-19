@@ -71,7 +71,7 @@ const EstimateSchema = z.object({
     }),
     handles: z.object({
       handleType: z.string(),
-      quantity: z.string(),
+      runningFeet: z.string(),
       handlePrice: z.string()
     })
   })
@@ -221,11 +221,11 @@ const calculateComponentTotal = (component: string, data: any, kitchenType: stri
       }
 
     case 'handles':
-      const handleQty = parseFloat(data.quantity) || 0
+      const handleFeet = parseFloat(data.runningFeet) || 0
       const handlePrice = parseFloat(data.handlePrice) || 0
       return {
-        total: handleQty * handlePrice,
-        details: `${handleQty} running feet × ₹${handlePrice} (${data.handleType})`,
+        total: handleFeet * handlePrice,
+        details: `${handleFeet} running feet × ₹${handlePrice} (${data.handleType})`,
         size: '',
         rate: handlePrice,
         sqft: 0
