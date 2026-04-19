@@ -93,21 +93,28 @@ const calculateSqft = (height: string, width: string): number => {
   return (h * w) / 92903
 }
 
-const calculateComponentTotal = (component: string, data: any, kitchenType: string): { total: number; details: string } => {
+const calculateComponentTotal = (component: string, data: any, kitchenType: string): { total: number; details: string; size: string; rate: number; sqft: number } => {
   switch (component) {
     case 'component1':
       if (kitchenType === 'Semi-Modular') {
         const qty = parseFloat(data.quantity) || 0
         return {
           total: qty * PRICES.plyVerticals,
-          details: `${qty} units × ₹${PRICES.plyVerticals}`
+          details: `${qty} units`,
+          size: '',
+          rate: PRICES.plyVerticals,
+          sqft: 0
         }
       } else {
         const sqft = calculateSqft(data.height, data.width)
         const basePrice = data.material === 'Quartz' ? 2000 : 1500
+        const size = data.height && data.width ? `${data.height}mmx${data.width}mm` : ''
         return {
           total: sqft * basePrice,
-          details: `${sqft.toFixed(2)} sqft × ₹${basePrice}`
+          details: `${sqft.toFixed(2)} sq.ft × ₹${basePrice}`,
+          size,
+          rate: basePrice,
+          sqft
         }
       }
 
@@ -117,53 +124,72 @@ const calculateComponentTotal = (component: string, data: any, kitchenType: stri
         const price = PRICES.tandemDrawers[data.brand as keyof typeof PRICES.tandemDrawers]
         return {
           total: qty * price,
-          details: `${qty} units × ₹${price} (${data.brand})`
+          details: `${qty} units × ₹${price} (${data.brand})`,
+          size: '',
+          rate: price,
+          sqft: 0
         }
       }
-      return { total: 0, details: '-' }
+      return { total: 0, details: '-', size: '', rate: 0, sqft: 0 }
 
     case 'dustbinBTD':
       if (data.brand && PRICES.dustbinBTD[data.brand as keyof typeof PRICES.dustbinBTD]) {
         const sqft = calculateSqft(data.height, data.width)
         const price = PRICES.dustbinBTD[data.brand as keyof typeof PRICES.dustbinBTD]
+        const size = data.height && data.width ? `${data.height}mmx${data.width}mm` : ''
         return {
           total: sqft * price,
-          details: `${sqft.toFixed(2)} sqft × ₹${price} (${data.brand})`
+          details: `${sqft.toFixed(2)} sq.ft × ₹${price} (${data.brand})`,
+          size,
+          rate: price,
+          sqft
         }
       }
-      return { total: 0, details: '-' }
+      return { total: 0, details: '-', size: '', rate: 0, sqft: 0 }
 
     case 'bottlePullout':
       if (data.brand && PRICES.bottlePullout[data.brand as keyof typeof PRICES.bottlePullout]) {
         const sqft = calculateSqft(data.height, data.width)
         const qty = parseFloat(data.quantity) || 1
         const price = PRICES.bottlePullout[data.brand as keyof typeof PRICES.bottlePullout]
+        const size = data.height && data.width ? `${data.height}mmx${data.width}mm` : ''
         return {
           total: sqft * price * qty,
-          details: `${sqft.toFixed(2)} sqft × ₹${price} × ${qty} (${data.brand})`
+          details: `${sqft.toFixed(2)} sq.ft × ₹${price} × ${qty} (${data.brand})`,
+          size,
+          rate: price,
+          sqft
         }
       }
-      return { total: 0, details: '-' }
+      return { total: 0, details: '-', size: '', rate: 0, sqft: 0 }
 
     case 'wickerBasket':
       if (data.brand && PRICES.wickerBasket[data.brand as keyof typeof PRICES.wickerBasket]) {
         const sqft = calculateSqft(data.height, data.width)
         const qty = parseFloat(data.quantity) || 1
         const price = PRICES.wickerBasket[data.brand as keyof typeof PRICES.wickerBasket]
+        const size = data.height && data.width ? `${data.height}mmx${data.width}mm` : ''
         return {
           total: sqft * price * qty,
-          details: `${sqft.toFixed(2)} sqft × ₹${price} × ${qty} (${data.brand})`
+          details: `${sqft.toFixed(2)} sq.ft × ₹${price} × ${qty} (${data.brand})`,
+          size,
+          rate: price,
+          sqft
         }
       }
-      return { total: 0, details: '-' }
+      return { total: 0, details: '-', size: '', rate: 0, sqft: 0 }
 
     case 'tallUnit':
     case 'pantryUnit':
       const sqft = calculateSqft(data.height, data.width)
       const pricePerSqft = parseFloat(data.price) || 0
+      const size = data.height && data.width ? `${data.height}mmx${data.width}mm` : ''
       return {
         total: sqft * pricePerSqft,
-        details: `${sqft.toFixed(2)} sqft × ₹${pricePerSqft}/sqft`
+        details: `${sqft.toFixed(2)} sq.ft × ₹${pricePerSqft}/sqft`,
+        size,
+        rate: pricePerSqft,
+        sqft
       }
 
     case 'overheadLoft':
@@ -171,18 +197,26 @@ const calculateComponentTotal = (component: string, data: any, kitchenType: stri
       if (data.loftType && PRICES.overheadLoft[data.loftType as keyof typeof PRICES.overheadLoft]) {
         const basePrice = PRICES.overheadLoft[data.loftType as keyof typeof PRICES.overheadLoft]
         const finishPrice = data.finish ? PRICES.overheadFinish[data.finish as keyof typeof PRICES.overheadFinish] : 0
+        const size = data.height && data.width ? `${data.height}mmx${data.width}mm` : ''
+        const totalRate = basePrice + finishPrice
         return {
-          total: loftSqft * (basePrice + finishPrice),
-          details: `${loftSqft.toFixed(2)} sqft × (₹${basePrice} + ₹${finishPrice}) (${data.loftType}, ${data.finish})`
+          total: loftSqft * totalRate,
+          details: `${loftSqft.toFixed(2)} sq.ft × (₹${basePrice} + ₹${finishPrice}) (${data.loftType}, ${data.finish})`,
+          size,
+          rate: totalRate,
+          sqft: loftSqft
         }
       }
-      return { total: 0, details: '-' }
+      return { total: 0, details: '-', size: '', rate: 0, sqft: 0 }
 
     case 'profileShutter':
       const profileQty = parseFloat(data.quantity) || 0
       return {
         total: profileQty * PRICES.profileShutter,
-        details: `${profileQty} units × ₹${PRICES.profileShutter}/sqft`
+        details: `${profileQty} units × ₹${PRICES.profileShutter}/sqft`,
+        size: '',
+        rate: PRICES.profileShutter,
+        sqft: 0
       }
 
     case 'handles':
@@ -190,11 +224,14 @@ const calculateComponentTotal = (component: string, data: any, kitchenType: stri
       const handlePrice = parseFloat(data.handlePrice) || 0
       return {
         total: handleQty * handlePrice,
-        details: `${handleQty} running feet × ₹${handlePrice} (${data.handleType})`
+        details: `${handleQty} running feet × ₹${handlePrice} (${data.handleType})`,
+        size: '',
+        rate: handlePrice,
+        sqft: 0
       }
 
     default:
-      return { total: 0, details: '-' }
+      return { total: 0, details: '-', size: '', rate: 0, sqft: 0 }
   }
 }
 
@@ -216,54 +253,63 @@ export async function POST(request: NextRequest) {
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
 
-    let yPos = 20
+    let yPos = 15
 
-    // Title
-    doc.setFontSize(24)
+    // Company Name
+    doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
-    doc.text('KITCHEN ESTIMATE', pageWidth / 2, yPos, { align: 'center' })
-    yPos += 20
+    doc.text('PIONEER ENTERPRISES', pageWidth / 2, yPos, { align: 'center' })
+    yPos += 10
 
-    // Line separator
-    doc.setDrawColor(200)
-    doc.setLineWidth(0.5)
-    doc.line(20, yPos, pageWidth - 20, yPos)
+    // Company Address
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    const address = 'GAT. NO.63, PLOT NO. 6/B, A/P SHINDEWADI, TAL. BHOR, DIST. PUNE-412205'
+    const splitAddress = doc.splitTextToSize(address, pageWidth - 50)
+    splitAddress.forEach((line: string) => {
+      doc.text(line, pageWidth / 2, yPos, { align: 'center' })
+      yPos += 6
+    })
+    yPos += 10
+
+    // Date
+    doc.setFont('helvetica', 'bold')
+    doc.text('DATE:', 40, yPos)
+    doc.setFont('helvetica', 'normal')
+    doc.text(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }), 70, yPos)
+    yPos += 10
+
+    // To
+    doc.setFont('helvetica', 'bold')
+    doc.text('To,', 40, yPos)
+    doc.setFont('helvetica', 'normal')
+    doc.text(validatedData.clientInfo.name || '', 55, yPos)
     yPos += 15
 
-    // Client Information Section
-    doc.setFontSize(14)
+    // Subject
     doc.setFont('helvetica', 'bold')
-    doc.text('Client Information', 20, yPos)
-    yPos += 10
-
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-
-    const clientInfo = [
-      ['Client Name:', validatedData.clientInfo.name || '-'],
-      ['Client Address:', validatedData.clientInfo.address || '-'],
-      ['Contact Number:', validatedData.clientInfo.contact || '-'],
-      ['Service Type:', validatedData.clientInfo.serviceType || '-'],
-      ['Kitchen Type:', validatedData.kitchenType || '-'],
-      ['Date:', new Date().toLocaleDateString('en-IN')]
-    ]
-
-    clientInfo.forEach(([label, value]) => {
-      doc.setFont('helvetica', 'bold')
-      doc.text(label, 25, yPos)
-      doc.setFont('helvetica', 'normal')
-      doc.text(value, 60, yPos)
+    doc.setFontSize(11)
+    const subject = 'SUB:- Tentative Budgetary Offer For Household Modular Furniture and Accessories at your Residence.'
+    const splitSubject = doc.splitTextToSize(subject, pageWidth - 50)
+    splitSubject.forEach((line: string) => {
+      doc.text(line, pageWidth / 2, yPos, { align: 'center' })
       yPos += 7
     })
-
     yPos += 10
 
-    // Components Table
-    doc.setFontSize(14)
+    // Table Header
+    doc.setFontSize(10)
+    doc.setFillColor(211, 211, 211)
+    doc.rect(20, yPos, pageWidth - 40, 8, 'F')
+
     doc.setFont('helvetica', 'bold')
-    doc.text('Components Breakdown', 20, yPos)
-    yPos += 10
+    doc.text('Sr.No.', 22, yPos + 5)
+    doc.text('Particulars', 35, yPos + 5)
+    doc.text('Qty.', 130, yPos + 5)
+    doc.text('Amount', 160, yPos + 5)
+    yPos += 8
 
+    // Items
     const componentLabels: Record<string, string> = {
       component1: validatedData.kitchenType === 'Semi-Modular' ? 'Ply Verticals' : 'Structure / Countertop',
       tandemDrawers: 'Tandem Drawers',
@@ -277,90 +323,167 @@ export async function POST(request: NextRequest) {
       handles: 'Handles'
     }
 
-    const tableData: any[] = []
-    let serialNo = 1
+    let srNo = 1
+    let totalAmount = 0
 
     Object.keys(componentLabels).forEach((key) => {
       const componentKey = key as keyof typeof validatedData.components
       const componentData = validatedData.components[componentKey]
-      const { total, details } = calculateComponentTotal(componentKey, componentData, validatedData.kitchenType)
+      const { total, details, size, rate, sqft } = calculateComponentTotal(componentKey, componentData, validatedData.kitchenType)
 
       if (total > 0 || componentData.brand || componentData.quantity || componentData.height || componentData.width) {
-        let specs = []
-        if (componentData.height) specs.push(`H: ${componentData.height}mm`)
-        if (componentData.width) specs.push(`W: ${componentData.width}mm`)
-        if (componentData.quantity) specs.push(`Qty: ${componentData.quantity}`)
-        if (componentData.brand) specs.push(`Brand: ${componentData.brand}`)
-        if (componentData.material) specs.push(`Mat: ${componentData.material}`)
-        if (componentData.loftType) specs.push(`Type: ${componentData.loftType}`)
-        if (componentData.finish) specs.push(`Finish: ${componentData.finish}`)
-        if (componentData.handleType) specs.push(`Type: ${componentData.handleType}`)
-        if (componentData.price && !['tandemDrawers', 'dustbinBTD', 'bottlePullout', 'wickerBasket'].includes(key)) {
-          specs.push(`Price: ₹${componentData.price}`)
+        // Check if we need a new page
+        if (yPos > pageHeight - 80) {
+          doc.addPage()
+          yPos = 20
         }
 
-        tableData.push([
-          serialNo,
-          componentLabels[key],
-          specs.join(', '),
-          details,
-          formatCurrency(total)
-        ])
-        serialNo++
+        // Sr.No.
+        doc.setFont('helvetica', 'normal')
+        doc.text(`${srNo})`, 22, yPos + 5)
+        yPos += 8
+
+        // Component Name
+        doc.setFont('helvetica', 'bold')
+        doc.text(componentLabels[key], 25, yPos)
+        yPos += 7
+
+        // Size
+        if (size) {
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          const sizeText = `Size: ${size}`
+          const splitSize = doc.splitTextToSize(sizeText, pageWidth - 100)
+          splitSize.forEach((line: string) => {
+            doc.text(line, 25, yPos)
+            yPos += 5
+          })
+          doc.setFontSize(10)
+        }
+
+        // Qty
+        const qtyText = sqft > 0 ? sqft.toFixed(2) : '1'
+        doc.text(qtyText, 130, yPos)
+        yPos += 7
+
+        // Amount
+        doc.text(formatCurrency(total), 160, yPos)
+        totalAmount += total
+        yPos += 7
+
+        // Details
+        if (details && details !== '-') {
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          const splitDetails = doc.splitTextToSize(details, pageWidth - 100)
+          splitDetails.forEach((line: string) => {
+            if (yPos > pageHeight - 50) {
+              doc.addPage()
+              yPos = 20
+            }
+            doc.text(line, 25, yPos)
+            yPos += 5
+          })
+          doc.setFontSize(10)
+        }
+
+        // Empty line between items
+        yPos += 5
+        srNo++
       }
     })
 
-    // Add table
-    autoTable(doc, {
-      startY: yPos,
-      head: [['S.No', 'Component', 'Specifications', 'Calculation', 'Amount']],
-      body: tableData,
-      theme: 'striped',
-      headStyles: {
-        fillColor: [59, 130, 246],
-        textColor: 255,
-        fontStyle: 'bold',
-        fontSize: 10
-      },
-      columnStyles: {
-        0: { cellWidth: 15 },
-        1: { cellWidth: 50 },
-        2: { cellWidth: 50 },
-        3: { cellWidth: 55 },
-        4: { cellWidth: 30, halign: 'right' }
-      },
-      styles: {
-        fontSize: 9,
-        cellPadding: 3
-      }
-    })
-
-    // Get final Y position after table
-    yPos = (doc as any).lastAutoTable.finalY + 15
-
-    // Total Section
-    doc.setFillColor(16, 185, 129)
-    doc.rect(20, yPos - 7, pageWidth - 40, 12, 'F')
-    doc.setTextColor(255, 255, 255)
-    doc.setFontSize(14)
+    // Sub Total
+    if (yPos > pageHeight - 80) {
+      doc.addPage()
+      yPos = 20
+    }
     doc.setFont('helvetica', 'bold')
-    doc.text('TOTAL ESTIMATED COST', 25, yPos)
-    doc.text(formatCurrency(validatedData.totalCost), pageWidth - 25, yPos, { align: 'right' })
+    doc.setFontSize(11)
+    doc.text('SUB TOTAL ', 80, yPos)
+    doc.text(formatCurrency(totalAmount), 160, yPos)
+    yPos += 12
 
-    // Reset text color for footer
+    // Loading/Unloading
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.text('Loading/Unloading/Transportation/Packaging', 80, yPos)
+    doc.text('₹0', 160, yPos)
+    yPos += 12
+
+    // Total
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('TOTAL', 80, yPos)
+    doc.text(formatCurrency(totalAmount), 160, yPos)
+    yPos += 12
+
+    // GST 18%
+    const gstAmount = totalAmount * 0.18
+    doc.text('GST 18%', 80, yPos)
+    doc.text(formatCurrency(gstAmount), 160, yPos)
+    yPos += 12
+
+    // Grand Total
+    doc.setFillColor(212, 225, 87)
+    doc.rect(80, yPos - 7, 80, 10, 'F')
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(12)
+    doc.setTextColor(255, 255, 255)
+    doc.text('GRAND TOTAL', 85, yPos)
+    const grandTotal = totalAmount + gstAmount
+    doc.text(formatCurrency(grandTotal), 160, yPos)
     doc.setTextColor(0, 0, 0)
     yPos += 20
 
-    // Footer
-    doc.setFontSize(8)
+    // Terms & Conditions
+    if (yPos > pageHeight - 120) {
+      doc.addPage()
+      yPos = 20
+    }
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('TERMS & CONDITIONS:-', 20, yPos)
+    yPos += 10
+
+    const terms = [
+      'Quotation is valid for One Month.',
+      'Any changes in design will be charged extra.',
+      'Any changes in design or material finishes might increase cost',
+      'Payment Details',
+      '50% Advance',
+      '40% Pre-Dispatch Stage',
+      '10% Post Handover',
+      'Work will be commenced only after Advance Given.',
+      'Delivery of Goods:- Ex-Factory.',
+      'The charges for Labour Unions & Mathadi Kamgar for unloading upto Installation will be borne by client.',
+      'Plumbing and Electrical fitting charges will be extra.',
+      'Structural warranty - 10 years',
+      'Hardware warranty - 5 years',
+      'Time line- 45 to 50 working days after sign off',
+      'Furniture Dimensions may vary as per final designs.'
+    ]
+
+    terms.forEach((term, index) => {
+      if (yPos > pageHeight - 30) {
+        doc.addPage()
+        yPos = 20
+      }
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      const termIndex = index < 4 ? `${index + 1}] ` : ''
+      doc.text(termIndex + term, 25, yPos)
+      yPos += 7
+    })
+
+    // Regards
+    yPos += 15
     doc.setFont('helvetica', 'normal')
-    doc.setTextColor(128, 128, 128)
-    doc.text(
-      'This is a computer-generated estimate. Please verify all details before proceeding.',
-      pageWidth / 2,
-      pageHeight - 15,
-      { align: 'center' }
-    )
+    doc.setFontSize(10)
+    doc.text('Regards,', pageWidth / 2, yPos, { align: 'center' })
+    yPos += 10
+    doc.setFont('helvetica', 'bold')
+    doc.text('For Pioneer Enterprises', pageWidth / 2, yPos, { align: 'center' })
 
     // Generate PDF as buffer
     const pdfBuffer = Buffer.from(doc.output('arraybuffer'))
