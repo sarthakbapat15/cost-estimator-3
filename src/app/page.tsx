@@ -286,14 +286,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900 dark:to-emerald-800">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+          <h1 className="text-4xl font-bold text-green-900 dark:text-green-50 mb-2">
             Kitchen Estimator
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-green-700 dark:text-green-300">
             Calculate your modular kitchen costs with precision
           </p>
         </div>
@@ -305,7 +305,7 @@ export default function Home() {
             <CardDescription>Enter client details for the estimate</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="clientName">Client Name *</Label>
                 <Input
@@ -387,11 +387,11 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Component 1: Conditional based on Kitchen Type */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">
                   {kitchenType === 'Semi-Modular' ? 'Ply Verticals' : 'Structure / Countertop'}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-4">
                   {kitchenType === 'Semi-Modular' ? (
                     <>
                       <div className="space-y-2">
@@ -447,7 +447,7 @@ export default function Home() {
                   )}
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('component1').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -457,9 +457,9 @@ export default function Home() {
               <Separator />
 
               {/* Component 2: Tandem Drawers */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Tandem Drawers</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Tandem Drawers</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Brand</Label>
                     <Select
@@ -494,7 +494,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('tandemDrawers').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -502,9 +502,9 @@ export default function Home() {
               </div>
 
               {/* Component 3: Dustbin + BTD */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Dustbin + BTD</h3>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Dustbin + BTD</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Brand</Label>
                     <Select
@@ -545,7 +545,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('dustbinBTD').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -553,9 +553,9 @@ export default function Home() {
               </div>
 
               {/* Component 4: Bottle Pullout */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Bottle Pullout</h3>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Bottle Pullout</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Brand</Label>
                     <Select
@@ -601,7 +601,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('bottlePullout').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -609,9 +609,9 @@ export default function Home() {
               </div>
 
               {/* Component 5: Wicker Basket */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Wicker Basket</h3>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Wicker Basket</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Brand</Label>
                     <Select
@@ -656,7 +656,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('wickerBasket').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -664,9 +664,9 @@ export default function Home() {
               </div>
 
               {/* Component 6: Tall Unit */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Tall Unit</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Tall Unit</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Height (mm)</Label>
                     <Input
@@ -696,7 +696,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('tallUnit').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -704,9 +704,9 @@ export default function Home() {
               </div>
 
               {/* Component 7: Pantry Unit */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Pantry Unit</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Pantry Unit</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Height (mm)</Label>
                     <Input
@@ -736,7 +736,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('pantryUnit').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -746,9 +746,9 @@ export default function Home() {
               <Separator />
 
               {/* Component 8: Overhead Loft */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Overhead Loft</h3>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Overhead Loft</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Loft Type</Label>
                     <Select
@@ -801,7 +801,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('overheadLoft').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -809,9 +809,9 @@ export default function Home() {
               </div>
 
               {/* Component 9: Profile Shutter */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Profile Shutter with Glass</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Profile Shutter with Glass</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Quantity</Label>
                     <Input
@@ -827,7 +827,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('profileShutter').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -835,9 +835,9 @@ export default function Home() {
               </div>
 
               {/* Component 10: Handles */}
-              <div className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                <h3 className="text-lg font-semibold mb-4">Handles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Handles</h3>
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Handle Type</Label>
                     <Select
@@ -875,7 +875,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
                       ₹{calculateComponentTotal('handles').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -885,12 +885,12 @@ export default function Home() {
               {/* Summary Table */}
               <Separator />
               <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-4">Summary</h3>
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Summary</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Component</TableHead>
-                      <TableHead className="text-right">Amount (₹)</TableHead>
+                      <TableHead className="text-green-900 dark:text-green-100">Component</TableHead>
+                      <TableHead className="text-right text-green-900 dark:text-green-100">Amount (₹)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -900,8 +900,8 @@ export default function Home() {
                       if (total > 0) {
                         return (
                           <TableRow key={key}>
-                            <TableCell>{getComponentLabel(componentKey)}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-green-800 dark:text-green-200">{getComponentLabel(componentKey)}</TableCell>
+                            <TableCell className="text-right text-green-800 dark:text-green-200">
                               {total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                             </TableCell>
                           </TableRow>
@@ -966,7 +966,7 @@ export default function Home() {
         )}
 
         {/* Footer */}
-        <footer className="mt-8 text-center text-slate-600 dark:text-slate-400">
+        <footer className="mt-8 text-center text-green-700 dark:text-green-300">
           <p className="text-sm">
             Kitchen Estimator &copy; {new Date().getFullYear()}. All prices are in Indian Rupees (₹).
           </p>
