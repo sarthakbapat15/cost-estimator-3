@@ -13,10 +13,12 @@ import { Download, Calculator } from 'lucide-react'
 type KitchenType = 'Semi-Modular' | 'Full-Modular'
 type ServiceType = 'Kitchen Only' | 'Full Home'
 type Brand = 'Olive' | 'Blum' | 'Hettich'
-type HandleType = 'TopH' | 'G Profile' | 'J Profile' | 'Regular Handle'
+type HandleType = 'TopEdge' | 'G Profile' | 'J Profile' | 'Regular Handle'
 type CountertopMaterial = 'Granite' | 'Quartz'
 type LoftType = 'Frame Loft' | 'Box Loft'
 type FinishType = 'Acrylic' | 'Laminate' | 'UV' | 'PU'
+type TallPantryFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Glass Acrylic'
+type AccessoriesType = 'Pullout' | 'Openable (6+6 basket)'
 
 interface ComponentState {
   height: string
@@ -27,6 +29,8 @@ interface ComponentState {
   material?: string
   loftType?: LoftType
   finish?: FinishType
+  tallPantryFinish?: TallPantryFinishType
+  accessories?: AccessoriesType
   handleType?: HandleType
   handlePrice?: string
   runningFeet?: string
@@ -62,13 +66,13 @@ export default function Home() {
     components: {
       component1: { height: '', width: '', quantity: '', price: '' },
       tandemDrawers: { brand: '', quantity: '', price: '' },
-      dustbinBTD: { brand: '', height: '', width: '', quantity: '', price: '' },
-      bottlePullout: { brand: '', height: '', width: '', quantity: '', price: '' },
-      wickerBasket: { brand: '', height: '', width: '', quantity: '', price: '' },
-      tallUnit: { height: '', width: '', quantity: '', price: '' },
-      pantryUnit: { height: '', width: '', quantity: '', price: '' },
+      dustbinBTD: { brand: '', quantity: '', price: '' },
+      bottlePullout: { brand: '', quantity: '', price: '' },
+      wickerBasket: { brand: '', quantity: '', price: '' },
+      tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
+      pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
       overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
-      profileShutter: { quantity: '', price: '350' },
+      profileShutter: { quantity: '', price: '' },
       handles: { handleType: '', runningFeet: '', handlePrice: '' }
     }
   })
@@ -84,7 +88,8 @@ export default function Home() {
     plyVerticals: 1500,
     overheadLoft: { 'Frame Loft': 1150, 'Box Loft': 1250 },
     overheadFinish: { Acrylic: 1850, Laminate: 1200, UV: 1400, PU: 1600 },
-    profileShutter: 350
+    tallPantryFinish: { SF: 1450, HGL: 1550, Acrylic: 1850, 'Glass Acrylic': 2150 },
+    pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 }
   }
 
   // Calculate sqft from height and width in mm
@@ -120,34 +125,47 @@ export default function Home() {
       case 'dustbinBTD':
         const dustbinBrand = comp.brand as Brand
         if (dustbinBrand && PRICES.dustbinBTD[dustbinBrand]) {
-          const sqft = calculateSqft(comp.height, comp.width)
-          return sqft * PRICES.dustbinBTD[dustbinBrand]
+          const qty = parseFloat(comp.quantity) || 0
+          return qty * PRICES.dustbinBTD[dustbinBrand]
         }
         return 0
 
       case 'bottlePullout':
         const bottleBrand = comp.brand as Brand
         if (bottleBrand && PRICES.bottlePullout[bottleBrand]) {
-          const sqft = calculateSqft(comp.height, comp.width)
-          const qty = parseFloat(comp.quantity) || 1
-          return sqft * PRICES.bottlePullout[bottleBrand] * qty
+          const qty = parseFloat(comp.quantity) || 0
+          return qty * PRICES.bottlePullout[bottleBrand]
         }
         return 0
 
       case 'wickerBasket':
         const wickerBrand = comp.brand as Brand
         if (wickerBrand && PRICES.wickerBasket[wickerBrand]) {
-          const sqft = calculateSqft(comp.height, comp.width)
-          const qty = parseFloat(comp.quantity) || 1
-          return sqft * PRICES.wickerBasket[wickerBrand] * qty
+          const qty = parseFloat(comp.quantity) || 0
+          return qty * PRICES.wickerBasket[wickerBrand]
         }
         return 0
 
       case 'tallUnit':
+        const tallSqft = calculateSqft(comp.height, comp.width)
+        const tallFinish = comp.tallPantryFinish as TallPantryFinishType
+        if (tallFinish && PRICES.tallPantryFinish[tallFinish]) {
+          return tallSqft * PRICES.tallPantryFinish[tallFinish]
+        }
+        return 0
+
       case 'pantryUnit':
-        const sqft = calculateSqft(comp.height, comp.width)
-        const pricePerSqft = parseFloat(comp.price) || 0
-        return sqft * pricePerSqft
+        const pantrySqft = calculateSqft(comp.height, comp.width)
+        const pantryFinish = comp.tallPantryFinish as TallPantryFinishType
+        let pantryTotal = 0
+        if (pantryFinish && PRICES.tallPantryFinish[pantryFinish]) {
+          pantryTotal = pantrySqft * PRICES.tallPantryFinish[pantryFinish]
+        }
+        const accessories = comp.accessories as AccessoriesType
+        if (accessories && PRICES.pantryAccessories[accessories]) {
+          pantryTotal += PRICES.pantryAccessories[accessories]
+        }
+        return pantryTotal
 
       case 'overheadLoft':
         const loftSqft = calculateSqft(comp.height, comp.width)
@@ -162,7 +180,8 @@ export default function Home() {
 
       case 'profileShutter':
         const profileQty = parseFloat(comp.quantity) || 0
-        return profileQty * PRICES.profileShutter
+        const profilePrice = parseFloat(comp.price) || 0
+        return profileQty * profilePrice
 
       case 'handles':
         const handleFeet = parseFloat(comp.runningFeet) || 0
@@ -515,33 +534,27 @@ export default function Home() {
                         <SelectValue placeholder="Select brand" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Olive">Olive</SelectItem>
-                        <SelectItem value="Blum">Blum</SelectItem>
-                        <SelectItem value="Hettich">Hettich</SelectItem>
+                        <SelectItem value="Olive">Olive (₹7,500)</SelectItem>
+                        <SelectItem value="Blum">Blum (₹7,500)</SelectItem>
+                        <SelectItem value="Hettich">Hettich (₹7,500)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Height (mm)</Label>
+                    <Label>Quantity</Label>
                     <Input
                       type="number"
-                      placeholder="Enter height"
-                      value={estimate.components.dustbinBTD.height}
-                      onChange={(e) => updateComponent('dustbinBTD', 'height', e.target.value)}
+                      placeholder="Enter quantity"
+                      value={estimate.components.dustbinBTD.quantity}
+                      onChange={(e) => updateComponent('dustbinBTD', 'quantity', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Width (mm)</Label>
+                    <Label>Price per Unit</Label>
                     <Input
-                      type="number"
-                      placeholder="Enter width"
-                      value={estimate.components.dustbinBTD.width}
-                      onChange={(e) => updateComponent('dustbinBTD', 'width', e.target.value)}
+                      value={estimate.components.dustbinBTD.brand ? `₹${PRICES.dustbinBTD[estimate.components.dustbinBTD.brand as Brand]}` : ''}
+                      disabled
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Price per sqft</Label>
-                    <Input value="₹7,500" disabled />
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
@@ -566,29 +579,11 @@ export default function Home() {
                         <SelectValue placeholder="Select brand" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Olive">Olive</SelectItem>
-                        <SelectItem value="Blum">Blum</SelectItem>
-                        <SelectItem value="Hettich">Hettich</SelectItem>
+                        <SelectItem value="Olive">Olive (₹8,000)</SelectItem>
+                        <SelectItem value="Blum">Blum (₹8,000)</SelectItem>
+                        <SelectItem value="Hettich">Hettich (₹8,000)</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Height (mm)</Label>
-                    <Input
-                      type="number"
-                      placeholder="Enter height"
-                      value={estimate.components.bottlePullout.height}
-                      onChange={(e) => updateComponent('bottlePullout', 'height', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Width (mm)</Label>
-                    <Input
-                      type="number"
-                      placeholder="Enter width"
-                      value={estimate.components.bottlePullout.width}
-                      onChange={(e) => updateComponent('bottlePullout', 'width', e.target.value)}
-                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Quantity</Label>
@@ -597,6 +592,13 @@ export default function Home() {
                       placeholder="Enter quantity"
                       value={estimate.components.bottlePullout.quantity}
                       onChange={(e) => updateComponent('bottlePullout', 'quantity', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price per Unit</Label>
+                    <Input
+                      value={estimate.components.bottlePullout.brand ? `₹${PRICES.bottlePullout[estimate.components.bottlePullout.brand as Brand]}` : ''}
+                      disabled
                     />
                   </div>
                   <div className="space-y-2">
@@ -622,28 +624,10 @@ export default function Home() {
                         <SelectValue placeholder="Select brand" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Olive">Olive</SelectItem>
-                        <SelectItem value="Hettich">Hettich</SelectItem>
+                        <SelectItem value="Olive">Olive (₹7,500)</SelectItem>
+                        <SelectItem value="Hettich">Hettich (₹7,500)</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Height (mm)</Label>
-                    <Input
-                      type="number"
-                      placeholder="Enter height"
-                      value={estimate.components.wickerBasket.height}
-                      onChange={(e) => updateComponent('wickerBasket', 'height', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Width (mm)</Label>
-                    <Input
-                      type="number"
-                      placeholder="Enter width"
-                      value={estimate.components.wickerBasket.width}
-                      onChange={(e) => updateComponent('wickerBasket', 'width', e.target.value)}
-                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Quantity</Label>
@@ -652,6 +636,13 @@ export default function Home() {
                       placeholder="Enter quantity"
                       value={estimate.components.wickerBasket.quantity}
                       onChange={(e) => updateComponent('wickerBasket', 'quantity', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price per Unit</Label>
+                    <Input
+                      value={estimate.components.wickerBasket.brand ? `₹${PRICES.wickerBasket[estimate.components.wickerBasket.brand as Brand]}` : ''}
+                      disabled
                     />
                   </div>
                   <div className="space-y-2">
@@ -686,12 +677,29 @@ export default function Home() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Price per sqft</Label>
+                    <Label>Finish</Label>
+                    <Select
+                      value={estimate.components.tallUnit.tallPantryFinish}
+                      onValueChange={(value) => updateComponent('tallUnit', 'tallPantryFinish', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SF">SF (₹1,450/sqft)</SelectItem>
+                        <SelectItem value="HGL">HGL (₹1,550/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+                        <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,150/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
                     <Input
                       type="number"
-                      placeholder="Enter price per sqft"
-                      value={estimate.components.tallUnit.price}
-                      onChange={(e) => updateComponent('tallUnit', 'price', e.target.value)}
+                      placeholder="Enter quantity"
+                      value={estimate.components.tallUnit.quantity}
+                      onChange={(e) => updateComponent('tallUnit', 'quantity', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -726,13 +734,45 @@ export default function Home() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Price per sqft</Label>
+                    <Label>Finish</Label>
+                    <Select
+                      value={estimate.components.pantryUnit.tallPantryFinish}
+                      onValueChange={(value) => updateComponent('pantryUnit', 'tallPantryFinish', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SF">SF (₹1,450/sqft)</SelectItem>
+                        <SelectItem value="HGL">HGL (₹1,550/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+                        <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,150/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
                     <Input
                       type="number"
-                      placeholder="Enter price per sqft"
-                      value={estimate.components.pantryUnit.price}
-                      onChange={(e) => updateComponent('pantryUnit', 'price', e.target.value)}
+                      placeholder="Enter quantity"
+                      value={estimate.components.pantryUnit.quantity}
+                      onChange={(e) => updateComponent('pantryUnit', 'quantity', e.target.value)}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Accessories</Label>
+                    <Select
+                      value={estimate.components.pantryUnit.accessories}
+                      onValueChange={(value) => updateComponent('pantryUnit', 'accessories', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select accessories" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pullout">Pullout (₹21,000)</SelectItem>
+                        <SelectItem value="Openable (6+6 basket)">Openable (6+6 basket) (₹40,000)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
@@ -823,7 +863,12 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <Label>Price per sqft</Label>
-                    <Input value="₹350" disabled />
+                    <Input
+                      type="number"
+                      placeholder="Enter price per sqft"
+                      value={estimate.components.profileShutter.price}
+                      onChange={(e) => updateComponent('profileShutter', 'price', e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Subtotal</Label>
@@ -848,7 +893,7 @@ export default function Home() {
                         <SelectValue placeholder="Select handle type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="TopH">TopH</SelectItem>
+                        <SelectItem value="TopEdge">TopEdge</SelectItem>
                         <SelectItem value="G Profile">G Profile</SelectItem>
                         <SelectItem value="J Profile">J Profile</SelectItem>
                         <SelectItem value="Regular Handle">Regular Handle</SelectItem>
