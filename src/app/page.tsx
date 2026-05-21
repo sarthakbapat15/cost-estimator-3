@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Download, Calculator } from 'lucide-react'
 
 type KitchenType = 'Semi-Modular' | 'Full-Modular'
-type ServiceType = 'Kitchen Only' | 'Full Home'
+type ServiceType = 'Kitchen Only' | 'Full Interior'
 type Brand = 'Olive' | 'Blum' | 'Hettich'
 type HandleType = 'TopEdge' | 'G Profile' | 'J Profile' | 'Regular Handle'
 type CountertopMaterial = 'Granite' | 'Quartz'
@@ -19,6 +19,9 @@ type LoftType = 'Frame Loft' | 'Box Loft'
 type FinishType = 'Acrylic' | 'Laminate' | 'UV' | 'PU'
 type TallPantryFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Glass Acrylic'
 type AccessoriesType = 'Pullout' | 'Openable (6+6 basket)'
+type LivingRoomFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
+type TallUnitFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
+type BackPanelFinishType = 'HGL' | 'SF' | 'Acrylic' | 'Veneer'
 
 interface ComponentState {
   height: string
@@ -52,6 +55,19 @@ interface KitchenEstimate {
   }
 }
 
+interface LivingRoomEstimate {
+  components: {
+    chestOfDrawers: ComponentState
+    baseCabinet: ComponentState
+    livingRoomTallUnit: ComponentState
+    backPanel: ComponentState
+    ledgeShelf: ComponentState
+    flutedPanel: ComponentState
+    shoeRack: ComponentState
+    sittingWithCushion: ComponentState
+  }
+}
+
 export default function Home() {
   const [clientInfo, setClientInfo] = useState({
     name: '',
@@ -77,6 +93,19 @@ export default function Home() {
     }
   })
 
+  const [livingRoomEstimate, setLivingRoomEstimate] = useState<LivingRoomEstimate>({
+    components: {
+      chestOfDrawers: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+      baseCabinet: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+      livingRoomTallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as TallUnitFinishType },
+      backPanel: { height: '', width: '', quantity: '', price: '', loftType: '' as BackPanelFinishType },
+      ledgeShelf: { height: '', width: '', quantity: '', price: '350' },
+      flutedPanel: { quantity: '', price: '900' },
+      shoeRack: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+      sittingWithCushion: { height: '', width: '', quantity: '', price: '1350' }
+    }
+  })
+
   const [exporting, setExporting] = useState(false)
 
   // Price constants
@@ -89,7 +118,14 @@ export default function Home() {
     overheadLoft: { 'Frame Loft': 1150, 'Box Loft': 1250 },
     overheadFinish: { Acrylic: 1850, Laminate: 1200, UV: 1400, PU: 1600 },
     tallPantryFinish: { SF: 1450, HGL: 1550, Acrylic: 1850, 'Glass Acrylic': 2150 },
-    pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 }
+    pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 },
+    // Living Room Prices
+    livingRoomFinish: { SF: 1250, HGL: 1350, Acrylic: 1550, 'Veneer with polish': 1750 },
+    livingRoomTallUnitFinish: { SF: 1250, HGL: 1350, Acrylic: 1850, 'Veneer with polish': 1750 },
+    backPanelFinish: { HGL: 650, SF: 550, Acrylic: 1175, Veneer: 950 },
+    ledgeShelf: 350,
+    flutedPanel: 900,
+    sittingWithCushion: 1350
   }
 
   // Calculate sqft from height and width in mm
@@ -208,6 +244,79 @@ export default function Home() {
     }))
   }
 
+  const updateLivingRoomComponent = (component: keyof LivingRoomEstimate['components'], field: string, value: string) => {
+    setLivingRoomEstimate(prev => ({
+      ...prev,
+      components: {
+        ...prev.components,
+        [component]: { ...prev.components[component], [field]: value }
+      }
+    }))
+  }
+
+  // Calculate living room component totals
+  const calculateLivingRoomComponentTotal = (component: keyof LivingRoomEstimate['components']): number => {
+    const comp = livingRoomEstimate.components[component]
+
+    switch (component) {
+      case 'chestOfDrawers':
+      case 'baseCabinet':
+      case 'shoeRack': {
+        const sqft = calculateSqft(comp.height, comp.width)
+        const finish = comp.tallPantryFinish as LivingRoomFinishType
+        if (finish && PRICES.livingRoomFinish[finish]) {
+          return sqft * PRICES.livingRoomFinish[finish]
+        }
+        return 0
+      }
+
+      case 'livingRoomTallUnit': {
+        const sqft = calculateSqft(comp.height, comp.width)
+        const finish = comp.tallPantryFinish as TallUnitFinishType
+        if (finish && PRICES.livingRoomTallUnitFinish[finish]) {
+          return sqft * PRICES.livingRoomTallUnitFinish[finish]
+        }
+        return 0
+      }
+
+      case 'backPanel': {
+        const sqft = calculateSqft(comp.height, comp.width)
+        const finish = comp.loftType as BackPanelFinishType
+        if (finish && PRICES.backPanelFinish[finish]) {
+          return sqft * PRICES.backPanelFinish[finish]
+        }
+        return 0
+      }
+
+      case 'ledgeShelf': {
+        const sqft = calculateSqft(comp.height, comp.width)
+        const qty = parseFloat(comp.quantity) || 1
+        return sqft * PRICES.ledgeShelf * qty
+      }
+
+      case 'flutedPanel': {
+        const qty = parseFloat(comp.quantity) || 0
+        return qty * PRICES.flutedPanel
+      }
+
+      case 'sittingWithCushion': {
+        const sqft = calculateSqft(comp.height, comp.width)
+        return sqft * PRICES.sittingWithCushion
+      }
+
+      default:
+        return 0
+    }
+  }
+
+  // Calculate total living room cost
+  const totalLivingRoomCost = Object.keys(livingRoomEstimate.components).reduce((total, key) => {
+    return total + calculateLivingRoomComponentTotal(key as keyof LivingRoomEstimate['components'])
+  }, 0)
+
+  // Calculate grand total
+  const grandTotal = (clientInfo.serviceType === 'Full Interior' ? totalLivingRoomCost : 0) + totalEstimatedCost
+
   const handleKitchenTypeChange = (value: KitchenType) => {
     setKitchenType(value)
     setEstimate(prev => ({
@@ -230,7 +339,10 @@ export default function Home() {
           clientInfo,
           kitchenType,
           estimate,
-          totalCost: totalEstimatedCost,
+          livingRoomEstimate,
+          totalCost: grandTotal,
+          kitchenCost: totalEstimatedCost,
+          livingRoomCost: totalLivingRoomCost,
           components: estimate.components
         })
       })
@@ -264,7 +376,10 @@ export default function Home() {
           clientInfo,
           kitchenType,
           estimate,
-          totalCost: totalEstimatedCost,
+          livingRoomEstimate,
+          totalCost: grandTotal,
+          kitchenCost: totalEstimatedCost,
+          livingRoomCost: totalLivingRoomCost,
           components: estimate.components
         })
       })
@@ -304,16 +419,30 @@ export default function Home() {
     return labels[component] || component
   }
 
+  const getLivingRoomComponentLabel = (component: keyof LivingRoomEstimate['components']): string => {
+    const labels: Record<string, string> = {
+      chestOfDrawers: 'Chest of Drawers',
+      baseCabinet: 'Base Cabinet with shutters',
+      livingRoomTallUnit: 'Tall Unit',
+      backPanel: 'Back Panel',
+      ledgeShelf: 'Ledge/Shelf',
+      flutedPanel: 'Fluted Panel',
+      shoeRack: 'Shoe Rack',
+      sittingWithCushion: 'Sitting with Cushion'
+    }
+    return labels[component] || component
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900 dark:to-emerald-800">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-green-900 dark:text-green-50 mb-2">
-            Kitchen Estimator
+            Interior Estimator
           </h1>
           <p className="text-green-700 dark:text-green-300">
-            Calculate your modular kitchen costs with precision
+            Calculate your kitchen and living room costs with precision
           </p>
         </div>
 
@@ -364,7 +493,7 @@ export default function Home() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Kitchen Only">Kitchen Only</SelectItem>
-                    <SelectItem value="Full Home">Full Home</SelectItem>
+                    <SelectItem value="Full Interior">Full Interior</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -395,7 +524,7 @@ export default function Home() {
         </Card>
 
         {/* Kitchen Components */}
-        {kitchenType && (
+        {(clientInfo.serviceType === 'Kitchen Only' || clientInfo.serviceType === 'Full Interior') && kitchenType && (
           <Card className="mb-6 shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
@@ -961,14 +1090,408 @@ export default function Home() {
           </Card>
         )}
 
+        {/* Living Room Components */}
+        {clientInfo.serviceType === 'Full Interior' && (
+          <Card className="mb-6 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Calculator className="w-6 h-6" />
+                Living Room - TV Unit
+              </CardTitle>
+              <CardDescription>Enter dimensions and specifications for each component</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Component 1: Chest of Drawers */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Chest of Drawers</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.chestOfDrawers.height}
+                      onChange={(e) => updateLivingRoomComponent('chestOfDrawers', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.chestOfDrawers.width}
+                      onChange={(e) => updateLivingRoomComponent('chestOfDrawers', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Finish</Label>
+                    <Select
+                      value={livingRoomEstimate.components.chestOfDrawers.tallPantryFinish}
+                      onValueChange={(value) => updateLivingRoomComponent('chestOfDrawers', 'tallPantryFinish', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+                        <SelectItem value="Veneer with polish">Veneer with polish (₹1,750/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('chestOfDrawers').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Component 2: Base Cabinet with shutters */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Base Cabinet with shutters</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.baseCabinet.height}
+                      onChange={(e) => updateLivingRoomComponent('baseCabinet', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.baseCabinet.width}
+                      onChange={(e) => updateLivingRoomComponent('baseCabinet', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Finish</Label>
+                    <Select
+                      value={livingRoomEstimate.components.baseCabinet.tallPantryFinish}
+                      onValueChange={(value) => updateLivingRoomComponent('baseCabinet', 'tallPantryFinish', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+                        <SelectItem value="Veneer with polish">Veneer with polish (₹1,750/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('baseCabinet').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Component 3: Tall Unit */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Tall Unit</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.livingRoomTallUnit.height}
+                      onChange={(e) => updateLivingRoomComponent('livingRoomTallUnit', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.livingRoomTallUnit.width}
+                      onChange={(e) => updateLivingRoomComponent('livingRoomTallUnit', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Finish</Label>
+                    <Select
+                      value={livingRoomEstimate.components.livingRoomTallUnit.tallPantryFinish}
+                      onValueChange={(value) => updateLivingRoomComponent('livingRoomTallUnit', 'tallPantryFinish', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+                        <SelectItem value="Veneer with polish">Veneer with polish (₹1,750/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('livingRoomTallUnit').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Component 4: Back Panel */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Back Panel</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.backPanel.height}
+                      onChange={(e) => updateLivingRoomComponent('backPanel', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.backPanel.width}
+                      onChange={(e) => updateLivingRoomComponent('backPanel', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Finish</Label>
+                    <Select
+                      value={livingRoomEstimate.components.backPanel.loftType}
+                      onValueChange={(value) => updateLivingRoomComponent('backPanel', 'loftType', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HGL">HGL (₹650/sqft)</SelectItem>
+                        <SelectItem value="SF">SF (₹550/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,175/sqft)</SelectItem>
+                        <SelectItem value="Veneer">Veneer (₹950/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('backPanel').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Component 5: Ledge/Shelf */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Ledge/Shelf</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.ledgeShelf.height}
+                      onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.ledgeShelf.width}
+                      onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter quantity"
+                      value={livingRoomEstimate.components.ledgeShelf.quantity}
+                      onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'quantity', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price per sqft</Label>
+                    <Input value="₹350" disabled />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('ledgeShelf').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Component 6: Fluted Panel */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Fluted Panel</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Quantity (pieces)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter quantity"
+                      value={livingRoomEstimate.components.flutedPanel.quantity}
+                      onChange={(e) => updateLivingRoomComponent('flutedPanel', 'quantity', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price per piece</Label>
+                    <Input value="₹900" disabled />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('flutedPanel').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Component 7: Shoe Rack */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Shoe Rack</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.shoeRack.height}
+                      onChange={(e) => updateLivingRoomComponent('shoeRack', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.shoeRack.width}
+                      onChange={(e) => updateLivingRoomComponent('shoeRack', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Finish</Label>
+                    <Select
+                      value={livingRoomEstimate.components.shoeRack.tallPantryFinish}
+                      onValueChange={(value) => updateLivingRoomComponent('shoeRack', 'tallPantryFinish', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select finish" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+                        <SelectItem value="Veneer with polish">Veneer with polish (₹1,750/sqft)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('shoeRack').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Component 8: Sitting with Cushion */}
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-800">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Sitting with Cushion</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Height (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter height"
+                      value={livingRoomEstimate.components.sittingWithCushion.height}
+                      onChange={(e) => updateLivingRoomComponent('sittingWithCushion', 'height', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Width (mm)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter width"
+                      value={livingRoomEstimate.components.sittingWithCushion.width}
+                      onChange={(e) => updateLivingRoomComponent('sittingWithCushion', 'width', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price per sqft</Label>
+                    <Input value="₹1,350" disabled />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtotal</Label>
+                    <div className="font-semibold text-lg text-green-800 dark:text-green-200">
+                      ₹{calculateLivingRoomComponentTotal('sittingWithCushion').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary Table */}
+              <Separator />
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Summary</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-green-900 dark:text-green-100">Component</TableHead>
+                      <TableHead className="text-right text-green-900 dark:text-green-100">Amount (₹)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Object.keys(livingRoomEstimate.components).map((key) => {
+                      const componentKey = key as keyof LivingRoomEstimate['components']
+                      const total = calculateLivingRoomComponentTotal(componentKey)
+                      if (total > 0) {
+                        return (
+                          <TableRow key={key}>
+                            <TableCell className="text-green-800 dark:text-green-200">{getLivingRoomComponentLabel(componentKey)}</TableCell>
+                            <TableCell className="text-right text-green-800 dark:text-green-200">
+                              {total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      }
+                      return null
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Total Estimated Cost */}
-        {kitchenType && (
+        {((clientInfo.serviceType === 'Kitchen Only' && kitchenType) || (clientInfo.serviceType === 'Full Interior' && (kitchenType || totalLivingRoomCost > 0))) && (
           <Card className="mb-6 shadow-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
             <CardContent className="py-8">
               <div className="text-center">
                 <p className="text-lg mb-2 opacity-90">Total Estimated Cost</p>
                 <p className="text-5xl font-bold">
-                  ₹{totalEstimatedCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                  ₹{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                 </p>
               </div>
             </CardContent>
@@ -976,7 +1499,7 @@ export default function Home() {
         )}
 
         {/* Export Buttons */}
-        {kitchenType && totalEstimatedCost > 0 && (
+        {((clientInfo.serviceType === 'Kitchen Only' && kitchenType) || (clientInfo.serviceType === 'Full Interior' && (kitchenType || totalLivingRoomCost > 0))) && grandTotal > 0 && (
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
