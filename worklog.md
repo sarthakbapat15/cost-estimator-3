@@ -56,3 +56,28 @@ Stage Summary:
 - Workbook sheet: Detailed breakdown with l/b/sq.ft/Quantity/Total quantity Sq.Ft/Rate/Amount columns, 5% margin rows, section subtotals
 - PDF export matches same structure
 - Both exports now correctly include Living Room data when "Full Interior" service type is selected
+
+---
+Task ID: 2
+Agent: Z.ai Code
+Task: Add Base Carcase and Overhead Cabinet components to kitchen estimator
+
+Work Log:
+- Added `baseCarcase` and `overheadCabinet` to KitchenEstimate interface with ComponentState type
+- Added initial state for both components (baseCarcase: price 1650, overheadCabinet: price 1475)
+- Added price constants: baseCarcase = 1650, overheadCabinet = 1475
+- Added calculation logic in calculateComponentTotal: sqft * rate for both components
+- Added labels in getComponentLabel: 'Base Carcase' and 'Overhead Cabinet'
+- Added UI sections with Height/Width inputs and disabled price display for both components
+- Placed Base Carcase after Pantry Unit and Overhead Cabinet before Overhead Loft
+- Both components appear for both Semi-Modular and Full-Modular kitchen types
+- Updated PDF export route: added prices and component handling in getKitchenItems
+- Updated Excel export route: added prices and component handling in getKitchenItems
+- Verified: lint passes, dev server compiles successfully
+
+Stage Summary:
+- Base Carcase: Width x Height inputs, ₹1,650/sqft rate, calculation = sqft * 1650
+- Overhead Cabinet: Width x Height inputs, ₹1,475/sqft rate, calculation = sqft * 1475
+- Both components added to both Modular and Semi-Modular kitchen types
+- Export routes (PDF and Excel) updated to include new components with CARCASE sublabel
+- Summary table in UI automatically includes new components via Object.keys iteration

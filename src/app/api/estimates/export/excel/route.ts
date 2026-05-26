@@ -50,7 +50,9 @@ const PRICES = {
   ledgeShelf: 350,
   flutedPanel: 900,
   sittingWithCushion: 1350,
-  profileShutter: 350
+  profileShutter: 350,
+  baseCarcase: 1650,
+  overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 }
 }
 
 const calculateSqft = (height: string, width: string): number => {
@@ -225,6 +227,45 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
           amount: accPrice
         })
       }
+    }
+  }
+
+  // Base Carcase
+  const bcc = components.baseCarcase || {}
+  if (bcc.height && bcc.width) {
+    const sqft = calculateSqft(bcc.height, bcc.width)
+    if (sqft > 0) {
+      items.push({
+        label: 'Base Carcase',
+        subLabel: 'CARCASE',
+        l: parseFloat(bcc.height) || 0,
+        b: parseFloat(bcc.width) || 0,
+        sqft,
+        quantity: 1,
+        totalSqft: sqft,
+        rate: PRICES.baseCarcase,
+        amount: sqft * PRICES.baseCarcase
+      })
+    }
+  }
+
+  // Overhead Cabinet
+  const ohc = components.overheadCabinet || {}
+  if (ohc.height && ohc.width && ohc.overheadCabinetFinish) {
+    const sqft = calculateSqft(ohc.height, ohc.width)
+    const ohcRate = PRICES.overheadCabinetFinish[ohc.overheadCabinetFinish as keyof typeof PRICES.overheadCabinetFinish] || 0
+    if (sqft > 0 && ohcRate > 0) {
+      items.push({
+        label: 'Overhead Cabinet',
+        subLabel: ohc.overheadCabinetFinish,
+        l: parseFloat(ohc.height) || 0,
+        b: parseFloat(ohc.width) || 0,
+        sqft,
+        quantity: 1,
+        totalSqft: sqft,
+        rate: ohcRate,
+        amount: sqft * ohcRate
+      })
     }
   }
 
