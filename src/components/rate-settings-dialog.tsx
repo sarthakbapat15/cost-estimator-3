@@ -15,7 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Lock, RotateCcw, Save, Settings, ChefHat, Sofa, BedDouble } from 'lucide-react'
 
-const ADMIN_PASSWORD = 'admin123'
+const ADMIN_PASSWORD = 'pioneerkitchens2026'
 
 // ── Rate entry definition ──
 interface RateEntry {
