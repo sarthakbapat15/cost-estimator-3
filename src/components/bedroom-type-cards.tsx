@@ -9,14 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 // ── Tall Unit Finish types (shared by window seat, study table, dresser, bed types 2-4) ──
 export type TallUnitFinish = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
 
-const TALL_UNIT_FINISH_OPTIONS = [
-  { value: 'SF', label: 'SF', rate: 1250 },
-  { value: 'HGL', label: 'HGL', rate: 1350 },
-  { value: 'Acrylic', label: 'Acrylic', rate: 1850 },
-  { value: 'Veneer with polish', label: 'Veneer', rate: 1750 },
-] as const
-
-export const TALL_UNIT_FINISH_RATES: Record<string, number> = {
+export const DEFAULT_TALL_UNIT_FINISH_RATES: Record<string, number> = {
   SF: 1250,
   HGL: 1350,
   Acrylic: 1850,
@@ -87,6 +80,7 @@ export interface BedroomPrices {
   wardrobeFinish: Record<string, number>
   wardrobeSlidingMechanism: number
   bedroomLoftFinish: Record<string, Record<string, number>>
+  tallUnitFinish: Record<string, number>
   headBoardRates: Record<string, number>
   openBedPrice: number
   hydraulicMechanismPrice: number
@@ -97,10 +91,12 @@ function TallUnitFinishSelect({
   value,
   onChange,
   id,
+  rates,
 }: {
   value: string
   onChange: (v: string) => void
   id?: string
+  rates: Record<string, number>
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
@@ -108,9 +104,9 @@ function TallUnitFinishSelect({
         <SelectValue placeholder="Select finish" />
       </SelectTrigger>
       <SelectContent>
-        {TALL_UNIT_FINISH_OPTIONS.map((f) => (
-          <SelectItem key={f.value} value={f.value}>
-            {f.label} (₹{f.rate.toLocaleString('en-IN')}/sqft)
+        {Object.entries(rates).map(([key, rate]) => (
+          <SelectItem key={key} value={key}>
+            {key} (₹{rate.toLocaleString('en-IN')}/sqft)
           </SelectItem>
         ))}
       </SelectContent>
@@ -167,6 +163,7 @@ interface BedroomTypeCardsProps {
   headBoardTotal: number
   prices: BedroomPrices
   formatINR: (amount: number) => string
+  tallUnitFinishRates: Record<string, number>
   onUpdateWardrobe: (field: string, value: string | boolean) => void
   onWardrobeTypeChange: (value: string) => void
   onUpdateLoft: (field: string, value: string) => void
@@ -196,6 +193,7 @@ export default function BedroomTypeCards({
   headBoardTotal,
   prices,
   formatINR,
+  tallUnitFinishRates,
   onUpdateWardrobe,
   onWardrobeTypeChange,
   onUpdateLoft,
@@ -361,9 +359,10 @@ export default function BedroomTypeCards({
               value={bedroom.windowSeat.finish}
               onChange={(v) => onUpdateWindowSeat('finish', v)}
               id={`window-seat-finish-${category}`}
+              rates={tallUnitFinishRates}
             />
           </div>
-          <RateDisplay rate={TALL_UNIT_FINISH_RATES[bedroom.windowSeat.finish] || 0} formatINR={formatINR} />
+          <RateDisplay rate={tallUnitFinishRates[bedroom.windowSeat.finish] || 0} formatINR={formatINR} />
         </CardContent>
       </Card>
 
@@ -384,9 +383,10 @@ export default function BedroomTypeCards({
               value={bedroom.studyTable.finish}
               onChange={onStudyTableFinishChange}
               id={`study-table-finish-${category}`}
+              rates={tallUnitFinishRates}
             />
           </div>
-          <RateDisplay rate={TALL_UNIT_FINISH_RATES[bedroom.studyTable.finish] || 0} formatINR={formatINR} />
+          <RateDisplay rate={tallUnitFinishRates[bedroom.studyTable.finish] || 0} formatINR={formatINR} />
 
           <div className="space-y-2">
             <p className="text-xs font-semibold text-violet-700 uppercase tracking-wider">Base</p>
@@ -428,10 +428,11 @@ export default function BedroomTypeCards({
                 value={bedroom.dresserUnit.finish}
                 onChange={onDresserUnitFinishChange}
                 id={`dresser-finish-${category}`}
+                rates={tallUnitFinishRates}
               />
             </div>
             <div className="max-w-xs">
-              <RateDisplay rate={TALL_UNIT_FINISH_RATES[bedroom.dresserUnit.finish] || 0} formatINR={formatINR} />
+              <RateDisplay rate={tallUnitFinishRates[bedroom.dresserUnit.finish] || 0} formatINR={formatINR} />
             </div>
           </div>
 
@@ -533,9 +534,10 @@ export default function BedroomTypeCards({
                       value={bedroom.bed.finish}
                       onChange={(v) => onUpdateBed('finish', v)}
                       id={`bed-finish-${category}`}
+                      rates={tallUnitFinishRates}
                     />
                   </div>
-                  <RateDisplay rate={TALL_UNIT_FINISH_RATES[bedroom.bed.finish] || 0} formatINR={formatINR} />
+                  <RateDisplay rate={tallUnitFinishRates[bedroom.bed.finish] || 0} formatINR={formatINR} />
                   {isAutomaticBed && (
                     <div className="space-y-1.5">
                       <Label className="text-xs">Mechanism Cost</Label>

@@ -7,9 +7,40 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Download, RotateCcw, Calculator, FileDown, IndianRupee, BedDouble } from 'lucide-react'
+import { Download, RotateCcw, Calculator, FileDown, IndianRupee, BedDouble, Settings } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import BedroomTypeCards, { createEmptyBedroom, type BedroomData } from '@/components/bedroom-type-cards'
+import BedroomTypeCards, { createEmptyBedroom, DEFAULT_TALL_UNIT_FINISH_RATES, type BedroomData } from '@/components/bedroom-type-cards'
+import RateSettingsDialog, { mergePrices } from '@/components/rate-settings-dialog'
+
+const DEFAULT_PRICES = {
+  tandemDrawers: { Olive: 8000, Blum: 12000, Hettich: 12000 },
+  dustbinBTD: { Olive: 7500, Blum: 7500, Hettich: 7500 },
+  bottlePullout: { Olive: 8000, Blum: 8000, Hettich: 8000 },
+  wickerBasket: { Olive: 7500, Hettich: 7500 },
+  plyVerticals: 1500,
+  overheadLoft: { 'Frame Loft': 1150, 'Box Loft': 1250 },
+  overheadFinish: { Acrylic: 1850, Laminate: 1200, UV: 1400, PU: 1600 },
+  tallPantryFinish: { SF: 1450, HGL: 1550, Acrylic: 1850, 'Glass Acrylic': 2150 },
+  pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 },
+  livingRoomFinish: { SF: 1250, HGL: 1350, Acrylic: 1550, 'Veneer with polish': 1750 },
+  livingRoomTallUnitFinish: { SF: 1250, HGL: 1350, Acrylic: 1850, 'Veneer with polish': 1750 },
+  backPanelFinish: { HGL: 650, SF: 550, Acrylic: 1175, Veneer: 950 },
+  ledgeShelf: 350,
+  flutedPanel: 900,
+  sittingWithCushion: 1350,
+  baseCarcase: 1650,
+  overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 },
+  bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
+  bedroomWardrobeSlidingMechanism: 15000,
+  bedroomLoftFinish: {
+    Frame: { SF: 1150, HGL: 1250, Acrylic: 1850 },
+    Box: { SF: 1250, HGL: 1350, Acrylic: 1950 },
+  },
+  bedroomTallUnitFinish: { ...DEFAULT_TALL_UNIT_FINISH_RATES },
+  bedroomHeadBoardRates: { Laminated: 700, Cushioned: 850 },
+  bedroomOpenBedPrice: 35000,
+  bedroomHydraulicMechanismPrice: 25000,
+}
 
 type KitchenType = 'Semi-Modular' | 'Full-Modular'
 type ServiceType = 'Kitchen Only' | 'Full Interior'
@@ -128,33 +159,27 @@ export default function Home() {
 
   const [exporting, setExporting] = useState(false)
 
-  const PRICES = {
-    tandemDrawers: { Olive: 8000, Blum: 12000, Hettich: 12000 },
-    dustbinBTD: { Olive: 7500, Blum: 7500, Hettich: 7500 },
-    bottlePullout: { Olive: 8000, Blum: 8000, Hettich: 8000 },
-    wickerBasket: { Olive: 7500, Hettich: 7500 },
-    plyVerticals: 1500,
-    overheadLoft: { 'Frame Loft': 1150, 'Box Loft': 1250 },
-    overheadFinish: { Acrylic: 1850, Laminate: 1200, UV: 1400, PU: 1600 },
-    tallPantryFinish: { SF: 1450, HGL: 1550, Acrylic: 1850, 'Glass Acrylic': 2150 },
-    pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 },
-    livingRoomFinish: { SF: 1250, HGL: 1350, Acrylic: 1550, 'Veneer with polish': 1750 },
-    livingRoomTallUnitFinish: { SF: 1250, HGL: 1350, Acrylic: 1850, 'Veneer with polish': 1750 },
-    backPanelFinish: { HGL: 650, SF: 550, Acrylic: 1175, Veneer: 950 },
-    ledgeShelf: 350,
-    flutedPanel: 900,
-    sittingWithCushion: 1350,
-    baseCarcase: 1650,
-    overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 },
-    bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
-    bedroomWardrobeSlidingMechanism: 15000,
-    bedroomLoftFinish: {
-      Frame: { SF: 1150, HGL: 1250, Acrylic: 1850 },
-      Box: { SF: 1250, HGL: 1350, Acrylic: 1950 },
-    },
-    bedroomHeadBoardRates: { Laminated: 700, Cushioned: 850 },
-    bedroomOpenBedPrice: 35000,
-    bedroomHydraulicMechanismPrice: 25000,
+  const [prices, setPrices] = useState<typeof DEFAULT_PRICES>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('rateOverrides')
+        if (saved) return mergePrices(DEFAULT_PRICES, JSON.parse(saved))
+      } catch { /* ignore */ }
+    }
+    return { ...DEFAULT_PRICES }
+  })
+
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  const handleSaveRates = (updated: Record<string, any>) => {
+    const merged = mergePrices(DEFAULT_PRICES, updated)
+    setPrices(merged)
+    localStorage.setItem('rateOverrides', JSON.stringify(updated))
+  }
+
+  const handleResetRates = () => {
+    setPrices({ ...DEFAULT_PRICES })
+    localStorage.removeItem('rateOverrides')
   }
 
   const calculateSqft = (height: string, width: string): number => {
@@ -170,7 +195,7 @@ export default function Home() {
       case 'component1':
         if (kitchenType === 'Semi-Modular') {
           const qty = parseFloat(comp.quantity) || 0
-          return qty * PRICES.plyVerticals
+          return qty * prices.plyVerticals
         } else {
           const sqft = calculateSqft(comp.height, comp.width)
           const basePrice = comp.material === 'Quartz' ? 2000 : 1500
@@ -179,36 +204,36 @@ export default function Home() {
 
       case 'tandemDrawers': {
         const brand = comp.brand as Brand
-        if (brand && PRICES.tandemDrawers[brand]) {
+        if (brand && prices.tandemDrawers[brand]) {
           const qty = parseFloat(comp.quantity) || 0
-          return qty * PRICES.tandemDrawers[brand]
+          return qty * prices.tandemDrawers[brand]
         }
         return 0
       }
 
       case 'dustbinBTD': {
         const dustbinBrand = comp.brand as Brand
-        if (dustbinBrand && PRICES.dustbinBTD[dustbinBrand]) {
+        if (dustbinBrand && prices.dustbinBTD[dustbinBrand]) {
           const qty = parseFloat(comp.quantity) || 0
-          return qty * PRICES.dustbinBTD[dustbinBrand]
+          return qty * prices.dustbinBTD[dustbinBrand]
         }
         return 0
       }
 
       case 'bottlePullout': {
         const bottleBrand = comp.brand as Brand
-        if (bottleBrand && PRICES.bottlePullout[bottleBrand]) {
+        if (bottleBrand && prices.bottlePullout[bottleBrand]) {
           const qty = parseFloat(comp.quantity) || 0
-          return qty * PRICES.bottlePullout[bottleBrand]
+          return qty * prices.bottlePullout[bottleBrand]
         }
         return 0
       }
 
       case 'wickerBasket': {
         const wickerBrand = comp.brand as Brand
-        if (wickerBrand && PRICES.wickerBasket[wickerBrand]) {
+        if (wickerBrand && prices.wickerBasket[wickerBrand]) {
           const qty = parseFloat(comp.quantity) || 0
-          return qty * PRICES.wickerBasket[wickerBrand]
+          return qty * prices.wickerBasket[wickerBrand]
         }
         return 0
       }
@@ -216,8 +241,8 @@ export default function Home() {
       case 'tallUnit': {
         const tallSqft = calculateSqft(comp.height, comp.width)
         const tallFinish = comp.tallPantryFinish as TallPantryFinishType
-        if (tallFinish && PRICES.tallPantryFinish[tallFinish]) {
-          return tallSqft * PRICES.tallPantryFinish[tallFinish]
+        if (tallFinish && prices.tallPantryFinish[tallFinish]) {
+          return tallSqft * prices.tallPantryFinish[tallFinish]
         }
         return 0
       }
@@ -226,26 +251,26 @@ export default function Home() {
         const pantrySqft = calculateSqft(comp.height, comp.width)
         const pantryFinish = comp.tallPantryFinish as TallPantryFinishType
         let pantryTotal = 0
-        if (pantryFinish && PRICES.tallPantryFinish[pantryFinish]) {
-          pantryTotal = pantrySqft * PRICES.tallPantryFinish[pantryFinish]
+        if (pantryFinish && prices.tallPantryFinish[pantryFinish]) {
+          pantryTotal = pantrySqft * prices.tallPantryFinish[pantryFinish]
         }
         const accessories = comp.accessories as AccessoriesType
-        if (accessories && PRICES.pantryAccessories[accessories]) {
-          pantryTotal += PRICES.pantryAccessories[accessories]
+        if (accessories && prices.pantryAccessories[accessories]) {
+          pantryTotal += prices.pantryAccessories[accessories]
         }
         return pantryTotal
       }
 
       case 'baseCarcase': {
         const baseCarcaseSqft = calculateSqft(comp.height, comp.width)
-        return baseCarcaseSqft * PRICES.baseCarcase
+        return baseCarcaseSqft * prices.baseCarcase
       }
 
       case 'overheadCabinet': {
         const overheadCabinetSqft = calculateSqft(comp.height, comp.width)
         const ohcFinish = comp.overheadCabinetFinish as OverheadCabinetFinishType
-        if (ohcFinish && PRICES.overheadCabinetFinish[ohcFinish]) {
-          return overheadCabinetSqft * PRICES.overheadCabinetFinish[ohcFinish]
+        if (ohcFinish && prices.overheadCabinetFinish[ohcFinish]) {
+          return overheadCabinetSqft * prices.overheadCabinetFinish[ohcFinish]
         }
         return 0
       }
@@ -254,9 +279,9 @@ export default function Home() {
         const loftSqft = calculateSqft(comp.height, comp.width)
         const loftType = comp.loftType as LoftType
         const finish = comp.finish as FinishType
-        if (loftType && PRICES.overheadLoft[loftType]) {
-          const basePrice = PRICES.overheadLoft[loftType]
-          const finishPrice = finish ? PRICES.overheadFinish[finish] : 0
+        if (loftType && prices.overheadLoft[loftType]) {
+          const basePrice = prices.overheadLoft[loftType]
+          const finishPrice = finish ? prices.overheadFinish[finish] : 0
           return loftSqft * (basePrice + finishPrice)
         }
         return 0
@@ -312,8 +337,8 @@ export default function Home() {
       case 'shoeRack': {
         const sqft = calculateSqft(comp.height, comp.width)
         const finish = comp.tallPantryFinish as LivingRoomFinishType
-        if (finish && PRICES.livingRoomFinish[finish]) {
-          return sqft * PRICES.livingRoomFinish[finish]
+        if (finish && prices.livingRoomFinish[finish]) {
+          return sqft * prices.livingRoomFinish[finish]
         }
         return 0
       }
@@ -321,8 +346,8 @@ export default function Home() {
       case 'livingRoomTallUnit': {
         const sqft = calculateSqft(comp.height, comp.width)
         const finish = comp.tallPantryFinish as TallUnitFinishType
-        if (finish && PRICES.livingRoomTallUnitFinish[finish]) {
-          return sqft * PRICES.livingRoomTallUnitFinish[finish]
+        if (finish && prices.livingRoomTallUnitFinish[finish]) {
+          return sqft * prices.livingRoomTallUnitFinish[finish]
         }
         return 0
       }
@@ -330,8 +355,8 @@ export default function Home() {
       case 'backPanel': {
         const sqft = calculateSqft(comp.height, comp.width)
         const finish = comp.loftType as BackPanelFinishType
-        if (finish && PRICES.backPanelFinish[finish]) {
-          return sqft * PRICES.backPanelFinish[finish]
+        if (finish && prices.backPanelFinish[finish]) {
+          return sqft * prices.backPanelFinish[finish]
         }
         return 0
       }
@@ -339,17 +364,17 @@ export default function Home() {
       case 'ledgeShelf': {
         const sqft = calculateSqft(comp.height, comp.width)
         const qty = parseFloat(comp.quantity) || 1
-        return sqft * PRICES.ledgeShelf * qty
+        return sqft * prices.ledgeShelf * qty
       }
 
       case 'flutedPanel': {
         const qty = parseFloat(comp.quantity) || 0
-        return qty * PRICES.flutedPanel
+        return qty * prices.flutedPanel
       }
 
       case 'sittingWithCushion': {
         const sqft = calculateSqft(comp.height, comp.width)
-        return sqft * PRICES.sittingWithCushion
+        return sqft * prices.sittingWithCushion
       }
 
       default:
@@ -362,7 +387,6 @@ export default function Home() {
   }, 0)
 
   // ── Bedroom Calculation Functions ──
-  const TALL_UNIT_RATES = { SF: 1250, HGL: 1350, Acrylic: 1850, 'Veneer with polish': 1750 }
 
   const calcBRSqft = (h: string, w: string) => {
     const height = parseFloat(h) || 0
@@ -372,52 +396,52 @@ export default function Home() {
 
   const calculateWardrobeTotal = (br: BedroomData): number => {
     const sqft = calcBRSqft(br.wardrobe.height, br.wardrobe.width)
-    const rate = PRICES.bedroomWardrobeFinish[br.wardrobe.finish] || 0
+    const rate = prices.bedroomWardrobeFinish[br.wardrobe.finish] || 0
     let total = sqft * rate
-    if (br.wardrobe.slidingMechanism) total += PRICES.bedroomWardrobeSlidingMechanism
+    if (br.wardrobe.slidingMechanism) total += prices.bedroomWardrobeSlidingMechanism
     return total
   }
 
   const calculateBedroomLoftTotal = (br: BedroomData): number => {
     const sqft = calcBRSqft(br.loft.height, br.loft.width)
     const rate = br.loft.loftType && br.loft.finish
-      ? (PRICES.bedroomLoftFinish[br.loft.loftType]?.[br.loft.finish] || 0)
+      ? (prices.bedroomLoftFinish[br.loft.loftType]?.[br.loft.finish] || 0)
       : 0
     return sqft * rate
   }
 
   const calculateWindowSeatTotal = (br: BedroomData): number => {
     const sqft = calcBRSqft(br.windowSeat.height, br.windowSeat.width)
-    return sqft * (TALL_UNIT_RATES[br.windowSeat.finish as keyof typeof TALL_UNIT_RATES] || 0)
+    return sqft * (prices.bedroomTallUnitFinish[br.windowSeat.finish as keyof typeof prices.bedroomTallUnitFinish] || 0)
   }
 
   const calculateStudyTableTotal = (br: BedroomData): number => {
     const baseSqft = calcBRSqft(br.studyTable.base.height, br.studyTable.base.width)
     const ohSqft = calcBRSqft(br.studyTable.overhead.height, br.studyTable.overhead.width)
-    return (baseSqft + ohSqft) * (TALL_UNIT_RATES[br.studyTable.finish as keyof typeof TALL_UNIT_RATES] || 0)
+    return (baseSqft + ohSqft) * (prices.bedroomTallUnitFinish[br.studyTable.finish as keyof typeof prices.bedroomTallUnitFinish] || 0)
   }
 
   const calculateDresserUnitTotal = (br: BedroomData): number => {
     const baseSqft = calcBRSqft(br.dresserUnit.baseDrawers.height, br.dresserUnit.baseDrawers.width)
     const msSqft = calcBRSqft(br.dresserUnit.mirrorWithStorage.height, br.dresserUnit.mirrorWithStorage.width)
     const mbpSqft = calcBRSqft(br.dresserUnit.mirrorOnBackPanel.height, br.dresserUnit.mirrorOnBackPanel.width)
-    return (baseSqft + msSqft + mbpSqft) * (TALL_UNIT_RATES[br.dresserUnit.finish as keyof typeof TALL_UNIT_RATES] || 0)
+    return (baseSqft + msSqft + mbpSqft) * (prices.bedroomTallUnitFinish[br.dresserUnit.finish as keyof typeof prices.bedroomTallUnitFinish] || 0)
   }
 
   const calculateBedTotal = (br: BedroomData): number => {
-    if (br.bed.typeOfBed === 'Open Bed with Legs') return PRICES.bedroomOpenBedPrice
+    if (br.bed.typeOfBed === 'Open Bed with Legs') return prices.bedroomOpenBedPrice
     const sqft = calcBRSqft(br.bed.height, br.bed.width)
-    const rate = TALL_UNIT_RATES[br.bed.finish as keyof typeof TALL_UNIT_RATES] || 0
+    const rate = prices.bedroomTallUnitFinish[br.bed.finish as keyof typeof prices.bedroomTallUnitFinish] || 0
     let total = sqft * rate
     if (br.bed.typeOfBed === 'Hydraulic (Automatic)' || br.bed.typeOfBed === 'Pullout Trolly Bed') {
-      total += PRICES.bedroomHydraulicMechanismPrice
+      total += prices.bedroomHydraulicMechanismPrice
     }
     return total
   }
 
   const calculateHeadBoardTotal = (br: BedroomData): number => {
     const sqft = calcBRSqft(br.headBoard.length, br.headBoard.width)
-    return sqft * (PRICES.bedroomHeadBoardRates[br.headBoard.headBoardType] || 0)
+    return sqft * (prices.bedroomHeadBoardRates[br.headBoard.headBoardType] || 0)
   }
 
   const calculateSingleBedroomTotal = (br: BedroomData): number => {
@@ -484,12 +508,13 @@ export default function Home() {
   }
 
   const bedroomPrices = {
-    wardrobeFinish: PRICES.bedroomWardrobeFinish,
-    wardrobeSlidingMechanism: PRICES.bedroomWardrobeSlidingMechanism,
-    bedroomLoftFinish: PRICES.bedroomLoftFinish,
-    headBoardRates: PRICES.bedroomHeadBoardRates,
-    openBedPrice: PRICES.bedroomOpenBedPrice,
-    hydraulicMechanismPrice: PRICES.bedroomHydraulicMechanismPrice,
+    wardrobeFinish: prices.bedroomWardrobeFinish,
+    wardrobeSlidingMechanism: prices.bedroomWardrobeSlidingMechanism,
+    bedroomLoftFinish: prices.bedroomLoftFinish,
+    headBoardRates: prices.bedroomHeadBoardRates,
+    openBedPrice: prices.bedroomOpenBedPrice,
+    hydraulicMechanismPrice: prices.bedroomHydraulicMechanismPrice,
+    tallUnitFinish: prices.bedroomTallUnitFinish,
   }
 
   const bedroomCategoryLabels: Record<BedroomCategory, string> = { master: 'Master Bedroom', guest: 'Guest Bedroom', kids: 'Kids Bedroom' }
@@ -508,6 +533,7 @@ export default function Home() {
       headBoardTotal: calculateHeadBoardTotal(bedroom),
       prices: bedroomPrices,
       formatINR,
+      tallUnitFinishRates: prices.bedroomTallUnitFinish,
       onUpdateWardrobe: (field: string, value: string | boolean) => updateBedroom(category, 'wardrobe', field, value),
       onWardrobeTypeChange: (value: string) => handleBedroomWardrobeTypeChange(category, value),
       onUpdateLoft: (field: string, value: string) => updateBedroom(category, 'loft', field, value),
@@ -710,6 +736,9 @@ export default function Home() {
                 <p className="text-emerald-100 text-sm">Calculate your kitchen & living room costs</p>
               </div>
             </div>
+            <Button variant="ghost" size="icon" className="text-white/80 hover:text-white hover:bg-white/10" onClick={() => setSettingsOpen(true)}>
+                <Settings className="w-5 h-5" />
+              </Button>
             {grandTotal > 0 && (
               <div className="hidden sm:flex items-center gap-2 bg-white/15 rounded-lg px-4 py-2">
                 <IndianRupee className="w-4 h-4" />
@@ -902,7 +931,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / Unit</Label>
-                      <Input value={estimate.components.tandemDrawers.brand ? formatINR(PRICES.tandemDrawers[estimate.components.tandemDrawers.brand as Brand]) : ''} disabled className="bg-white" />
+                      <Input value={estimate.components.tandemDrawers.brand ? formatINR(prices.tandemDrawers[estimate.components.tandemDrawers.brand as Brand]) : ''} disabled className="bg-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -939,7 +968,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / Unit</Label>
-                      <Input value={estimate.components.dustbinBTD.brand ? formatINR(PRICES.dustbinBTD[estimate.components.dustbinBTD.brand as Brand]) : ''} disabled className="bg-white" />
+                      <Input value={estimate.components.dustbinBTD.brand ? formatINR(prices.dustbinBTD[estimate.components.dustbinBTD.brand as Brand]) : ''} disabled className="bg-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -976,7 +1005,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / Unit</Label>
-                      <Input value={estimate.components.bottlePullout.brand ? formatINR(PRICES.bottlePullout[estimate.components.bottlePullout.brand as Brand]) : ''} disabled className="bg-white" />
+                      <Input value={estimate.components.bottlePullout.brand ? formatINR(prices.bottlePullout[estimate.components.bottlePullout.brand as Brand]) : ''} disabled className="bg-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -1012,7 +1041,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / Unit</Label>
-                      <Input value={estimate.components.wickerBasket.brand ? formatINR(PRICES.wickerBasket[estimate.components.wickerBasket.brand as Brand]) : ''} disabled className="bg-white" />
+                      <Input value={estimate.components.wickerBasket.brand ? formatINR(prices.wickerBasket[estimate.components.wickerBasket.brand as Brand]) : ''} disabled className="bg-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -1181,7 +1210,7 @@ export default function Home() {
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / sqft</Label>
                       <Input
-                        value={estimate.components.overheadCabinet.overheadCabinetFinish ? formatINR(PRICES.overheadCabinetFinish[estimate.components.overheadCabinet.overheadCabinetFinish as OverheadCabinetFinishType]) : ''}
+                        value={estimate.components.overheadCabinet.overheadCabinetFinish ? formatINR(prices.overheadCabinetFinish[estimate.components.overheadCabinet.overheadCabinetFinish as OverheadCabinetFinishType]) : ''}
                         disabled
                         className="bg-white"
                       />
@@ -1854,6 +1883,15 @@ export default function Home() {
           <p>All prices in INR (₹)</p>
         </div>
       </footer>
+
+      <RateSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        defaultPrices={DEFAULT_PRICES}
+        currentPrices={prices}
+        onSave={handleSaveRates}
+        onReset={handleResetRates}
+      />
     </div>
   )
 }
