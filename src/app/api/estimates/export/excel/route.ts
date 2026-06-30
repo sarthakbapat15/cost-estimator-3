@@ -495,64 +495,57 @@ export async function POST(request: NextRequest) {
     // ========================================
     const qs = workbook.addWorksheet('Quotation')
 
-    // Company Header with Logo
-    // Add logo image
+    // Company Header — Logo centered at top (replaces text)
     const logoPath = path.join(process.cwd(), 'upload', 'pioneer 2.jpg')
-    let logoImageId: number | null = null
     if (fs.existsSync(logoPath)) {
       const logoBuffer = fs.readFileSync(logoPath)
-      logoImageId = workbook.addImage({
+      const logoImageId = workbook.addImage({
         buffer: logoBuffer,
         extension: 'jpeg',
       })
       qs.addImage(logoImageId, {
-        tl: { col: 0.1, row: 0.1 },
-        ext: { width: 140, height: 70 },
+        tl: { col: 1.5, row: 0 },
+        ext: { width: 350, height: 140 },
       })
     }
 
-    // Company name to the right of the logo
-    qs.mergeCells('C1:H1')
-    const c1 = qs.getCell('C1')
-    c1.value = 'PIONEER ENTERPRISES'
-    c1.font = { size: 16, bold: true, name: 'Calibri' }
-    c1.alignment = { horizontal: 'left', vertical: 'middle' }
-
-    qs.mergeCells('C2:H2')
-    const c2 = qs.getCell('C2')
+    // Address below logo, centered
+    qs.mergeCells('A3:H3')
+    const c2 = qs.getCell('A3')
     c2.value = 'GAT. NO.63, PLOT NO. 6/B, A/P SHINDEWADI, TAL. BHOR, DIST. PUNE-412205'
     c2.font = { size: 10, name: 'Calibri' }
+    c2.alignment = { horizontal: 'center' }
 
     // Date row - put DATE: label and value separately
-    qs.getCell('E3').value = 'DATE:'
-    qs.getCell('E3').font = { bold: true, name: 'Calibri' }
-    qs.getCell('E3').alignment = { horizontal: 'right' }
+    qs.getCell('E4').value = 'DATE:'
+    qs.getCell('E4').font = { bold: true, name: 'Calibri' }
+    qs.getCell('E4').alignment = { horizontal: 'right' }
 
-    qs.mergeCells('F3:H3')
-    const dateVal = qs.getCell('F3')
+    qs.mergeCells('F4:H4')
+    const dateVal = qs.getCell('F4')
     dateVal.value = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })
     dateVal.font = { name: 'Calibri' }
 
     // To
-    qs.getCell('B5').value = 'To,'
-    qs.getCell('B5').font = { bold: true, name: 'Calibri' }
+    qs.getCell('B6').value = 'To,'
+    qs.getCell('B6').font = { bold: true, name: 'Calibri' }
 
-    // Client name (row 6 area)
-    qs.mergeCells('B6:H6')
-    qs.getCell('B6').value = validatedData.clientInfo.name || ''
-    qs.getCell('B6').font = { bold: true, size: 12, name: 'Calibri' }
+    // Client name (row 7 area)
+    qs.mergeCells('B7:H7')
+    qs.getCell('B7').value = validatedData.clientInfo.name || ''
+    qs.getCell('B7').font = { bold: true, size: 12, name: 'Calibri' }
 
     // Empty rows
-    // Row 7-8 empty
+    // Row 8-9 empty
 
     // Subject
-    qs.mergeCells('A9:H9')
-    const subCell = qs.getCell('A9')
+    qs.mergeCells('A10:H10')
+    const subCell = qs.getCell('A10')
     subCell.value = 'SUB:- Tentative costing For Household Modular Furniture and Accessories at your Residence.'
     subCell.font = { bold: true, size: 11, name: 'Calibri' }
 
     // Table Header
-    const headerRow = 11
+    const headerRow = 12
     qs.getRow(headerRow).font = { bold: true, name: 'Calibri' }
     qs.getRow(headerRow).fill = {
       type: 'pattern',
