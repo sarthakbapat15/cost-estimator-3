@@ -28,6 +28,7 @@ const DEFAULT_PRICES = {
   ledgeShelf: 350,
   flutedPanel: 900,
   sittingWithCushion: 1350,
+  countertopMaterial: { Granite: 1500, Quartz: 2000 },
   baseCarcase: 1650,
   overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 },
   bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
@@ -198,7 +199,7 @@ export default function Home() {
           return qty * prices.plyVerticals
         } else {
           const sqft = calculateSqft(comp.height, comp.width)
-          const basePrice = comp.material === 'Quartz' ? 2000 : 1500
+          const basePrice = comp.material && prices.countertopMaterial[comp.material as keyof typeof prices.countertopMaterial] ? prices.countertopMaterial[comp.material as keyof typeof prices.countertopMaterial] : prices.countertopMaterial.Granite
           return sqft * basePrice
         }
 

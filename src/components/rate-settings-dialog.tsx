@@ -59,6 +59,8 @@ export const RATE_SECTIONS: RateSection[] = [
       { label: 'Tall Pantry Finish — Glass Acrylic', path: ['tallPantryFinish', 'Glass Acrylic'] },
       { label: 'Pantry Accessory — Pullout', path: ['pantryAccessories', 'Pullout'] },
       { label: 'Pantry Accessory — Openable (6+6)', path: ['pantryAccessories', 'Openable (6+6 basket)'] },
+      { label: 'Countertop — Granite / sqft', path: ['countertopMaterial', 'Granite'] },
+      { label: 'Countertop — Quartz / sqft', path: ['countertopMaterial', 'Quartz'] },
       { label: 'Base Carcase / sqft', path: ['baseCarcase'] },
       { label: 'Overhead Cabinet — SF', path: ['overheadCabinetFinish', 'SF'] },
       { label: 'Overhead Cabinet — HGL', path: ['overheadCabinetFinish', 'HGL'] },
