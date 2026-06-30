@@ -11,7 +11,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Lock, RotateCcw, Save, Settings, ChefHat, Sofa, BedDouble } from 'lucide-react'
 
@@ -226,7 +225,7 @@ export default function RateSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 gap-0">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
@@ -263,7 +262,7 @@ export default function RateSettingsDialog({
           </div>
         ) : (
           <>
-            <ScrollArea className="flex-1 px-6">
+            <div className="flex-1 min-h-0 overflow-y-auto px-6">
               <div className="space-y-6 pb-4">
                 {RATE_SECTIONS.map((section, si) => (
                   <div key={section.title}>
@@ -303,7 +302,7 @@ export default function RateSettingsDialog({
                   </div>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
 
             <div className="px-6 py-4 border-t bg-muted/30 flex items-center justify-between shrink-0">
               <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={handleReset}>
