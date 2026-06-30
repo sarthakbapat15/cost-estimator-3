@@ -1,0 +1,502 @@
+  1500→                    <div className="space-y-1.5">
+  1501→                      <Label className="text-xs">Height (mm)</Label>
+  1502→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.livingRoomTallUnit.height} onChange={(e) => updateLivingRoomComponent('livingRoomTallUnit', 'height', e.target.value)} />
+  1503→                    </div>
+  1504→                    <div className="space-y-1.5">
+  1505→                      <Label className="text-xs">Width (mm)</Label>
+  1506→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.livingRoomTallUnit.width} onChange={(e) => updateLivingRoomComponent('livingRoomTallUnit', 'width', e.target.value)} />
+  1507→                    </div>
+  1508→                  </div>
+  1509→                  <div className="mt-3 space-y-1.5">
+  1510→                    <Label className="text-xs">Finish</Label>
+  1511→                    <Select value={livingRoomEstimate.components.livingRoomTallUnit.tallPantryFinish} onValueChange={(value) => updateLivingRoomComponent('livingRoomTallUnit', 'tallPantryFinish', value)}>
+  1512→                      <SelectTrigger className="w-full">
+  1513→                        <SelectValue placeholder="Select" />
+  1514→                      </SelectTrigger>
+  1515→                      <SelectContent>
+  1516→                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+  1517→                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+  1518→                        <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+  1519→                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+  1520→                      </SelectContent>
+  1521→                    </Select>
+  1522→                  </div>
+  1523→                </CardContent>
+  1524→              </Card>
+  1525→
+  1526→              {/* Back Panel */}
+  1527→              <Card className="bg-amber-50 border-amber-200">
+  1528→                <CardHeader className="pb-3">
+  1529→                  <div className="flex items-center justify-between">
+  1530→                    <CardTitle className="text-amber-800 text-base">Back Panel</CardTitle>
+  1531→                    <span className="text-sm font-semibold text-amber-700">
+  1532→                      ₹{calculateLivingRoomComponentTotal('backPanel').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1533→                    </span>
+  1534→                  </div>
+  1535→                </CardHeader>
+  1536→                <CardContent>
+  1537→                  <div className="grid grid-cols-2 gap-3">
+  1538→                    <div className="space-y-1.5">
+  1539→                      <Label className="text-xs">Height (mm)</Label>
+  1540→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.backPanel.height} onChange={(e) => updateLivingRoomComponent('backPanel', 'height', e.target.value)} />
+  1541→                    </div>
+  1542→                    <div className="space-y-1.5">
+  1543→                      <Label className="text-xs">Width (mm)</Label>
+  1544→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.backPanel.width} onChange={(e) => updateLivingRoomComponent('backPanel', 'width', e.target.value)} />
+  1545→                    </div>
+  1546→                  </div>
+  1547→                  <div className="mt-3 space-y-1.5">
+  1548→                    <Label className="text-xs">Finish</Label>
+  1549→                    <Select value={livingRoomEstimate.components.backPanel.loftType} onValueChange={(value) => updateLivingRoomComponent('backPanel', 'loftType', value)}>
+  1550→                      <SelectTrigger className="w-full">
+  1551→                        <SelectValue placeholder="Select" />
+  1552→                      </SelectTrigger>
+  1553→                      <SelectContent>
+  1554→                        <SelectItem value="HGL">HGL (₹650/sqft)</SelectItem>
+  1555→                        <SelectItem value="SF">SF (₹550/sqft)</SelectItem>
+  1556→                        <SelectItem value="Acrylic">Acrylic (₹1,175/sqft)</SelectItem>
+  1557→                        <SelectItem value="Veneer">Veneer (₹950/sqft)</SelectItem>
+  1558→                      </SelectContent>
+  1559→                    </Select>
+  1560→                  </div>
+  1561→                </CardContent>
+  1562→              </Card>
+  1563→
+  1564→              {/* Ledge/Shelf */}
+  1565→              <Card className="bg-green-50 border-green-200">
+  1566→                <CardHeader className="pb-3">
+  1567→                  <div className="flex items-center justify-between">
+  1568→                    <CardTitle className="text-green-800 text-base">Ledge / Shelf</CardTitle>
+  1569→                    <span className="text-sm font-semibold text-green-700">
+  1570→                      ₹{calculateLivingRoomComponentTotal('ledgeShelf').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1571→                    </span>
+  1572→                  </div>
+  1573→                </CardHeader>
+  1574→                <CardContent>
+  1575→                  <div className="grid grid-cols-3 gap-3">
+  1576→                    <div className="space-y-1.5">
+  1577→                      <Label className="text-xs">Height (mm)</Label>
+  1578→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.ledgeShelf.height} onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'height', e.target.value)} />
+  1579→                    </div>
+  1580→                    <div className="space-y-1.5">
+  1581→                      <Label className="text-xs">Width (mm)</Label>
+  1582→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.ledgeShelf.width} onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'width', e.target.value)} />
+  1583→                    </div>
+  1584→                    <div className="space-y-1.5">
+  1585→                      <Label className="text-xs">Quantity</Label>
+  1586→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.ledgeShelf.quantity} onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'quantity', e.target.value)} />
+  1587→                    </div>
+  1588→                  </div>
+  1589→                </CardContent>
+  1590→              </Card>
+  1591→
+  1592→              {/* Fluted Panel */}
+  1593→              <Card className="bg-teal-50 border-teal-200">
+  1594→                <CardHeader className="pb-3">
+  1595→                  <div className="flex items-center justify-between">
+  1596→                    <CardTitle className="text-teal-800 text-base">Fluted Panel</CardTitle>
+  1597→                    <span className="text-sm font-semibold text-teal-700">
+  1598→                      ₹{calculateLivingRoomComponentTotal('flutedPanel').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1599→                    </span>
+  1600→                  </div>
+  1601→                </CardHeader>
+  1602→                <CardContent>
+  1603→                  <div className="grid grid-cols-2 gap-3">
+  1604→                    <div className="space-y-1.5">
+  1605→                      <Label className="text-xs">Quantity (pieces)</Label>
+  1606→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.flutedPanel.quantity} onChange={(e) => updateLivingRoomComponent('flutedPanel', 'quantity', e.target.value)} />
+  1607→                    </div>
+  1608→                    <div className="space-y-1.5">
+  1609→                      <Label className="text-xs">Rate / Piece</Label>
+  1610→                      <Input value="₹900" disabled className="bg-white" />
+  1611→                    </div>
+  1612→                  </div>
+  1613→                </CardContent>
+  1614→              </Card>
+  1615→
+  1616→              {/* Shoe Rack */}
+  1617→              <Card className="bg-rose-50 border-rose-200">
+  1618→                <CardHeader className="pb-3">
+  1619→                  <div className="flex items-center justify-between">
+  1620→                    <CardTitle className="text-rose-800 text-base">Shoe Rack</CardTitle>
+  1621→                    <span className="text-sm font-semibold text-rose-700">
+  1622→                      ₹{calculateLivingRoomComponentTotal('shoeRack').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1623→                    </span>
+  1624→                  </div>
+  1625→                </CardHeader>
+  1626→                <CardContent>
+  1627→                  <div className="grid grid-cols-2 gap-3">
+  1628→                    <div className="space-y-1.5">
+  1629→                      <Label className="text-xs">Height (mm)</Label>
+  1630→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.shoeRack.height} onChange={(e) => updateLivingRoomComponent('shoeRack', 'height', e.target.value)} />
+  1631→                    </div>
+  1632→                    <div className="space-y-1.5">
+  1633→                      <Label className="text-xs">Width (mm)</Label>
+  1634→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.shoeRack.width} onChange={(e) => updateLivingRoomComponent('shoeRack', 'width', e.target.value)} />
+  1635→                    </div>
+  1636→                  </div>
+  1637→                  <div className="mt-3 space-y-1.5">
+  1638→                    <Label className="text-xs">Finish</Label>
+  1639→                    <Select value={livingRoomEstimate.components.shoeRack.tallPantryFinish} onValueChange={(value) => updateLivingRoomComponent('shoeRack', 'tallPantryFinish', value)}>
+  1640→                      <SelectTrigger className="w-full">
+  1641→                        <SelectValue placeholder="Select" />
+  1642→                      </SelectTrigger>
+  1643→                      <SelectContent>
+  1644→                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+  1645→                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+  1646→                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+  1647→                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+  1648→                      </SelectContent>
+  1649→                    </Select>
+  1650→                  </div>
+  1651→                </CardContent>
+  1652→              </Card>
+  1653→
+  1654→              {/* Sitting with Cushion */}
+  1655→              <Card className="bg-orange-50 border-orange-200">
+  1656→                <CardHeader className="pb-3">
+  1657→                  <div className="flex items-center justify-between">
+  1658→                    <CardTitle className="text-orange-800 text-base">Sitting with Cushion</CardTitle>
+  1659→                    <span className="text-sm font-semibold text-orange-700">
+  1660→                      ₹{calculateLivingRoomComponentTotal('sittingWithCushion').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1661→                    </span>
+  1662→                  </div>
+  1663→                </CardHeader>
+  1664→                <CardContent>
+  1665→                  <div className="grid grid-cols-3 gap-3">
+  1666→                    <div className="space-y-1.5">
+  1667→                      <Label className="text-xs">Height (mm)</Label>
+  1668→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.sittingWithCushion.height} onChange={(e) => updateLivingRoomComponent('sittingWithCushion', 'height', e.target.value)} />
+  1669→                    </div>
+  1670→                    <div className="space-y-1.5">
+  1671→                      <Label className="text-xs">Width (mm)</Label>
+  1672→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.sittingWithCushion.width} onChange={(e) => updateLivingRoomComponent('sittingWithCushion', 'width', e.target.value)} />
+  1673→                    </div>
+  1674→                    <div className="space-y-1.5">
+  1675→                      <Label className="text-xs">Rate / sqft</Label>
+  1676→                      <Input value="₹1,350" disabled className="bg-white" />
+  1677→                    </div>
+  1678→                  </div>
+  1679→                </CardContent>
+  1680→              </Card>
+  1681→            </div>
+  1682→
+  1683→            {/* Living Room Summary */}
+  1684→            <Card>
+  1685→              <CardHeader className="bg-purple-50 border-b border-purple-100">
+  1686→                <CardTitle className="text-purple-800">Living Room Cost Breakdown</CardTitle>
+  1687→              </CardHeader>
+  1688→              <CardContent className="p-0">
+  1689→                <Table>
+  1690→                  <TableHeader>
+  1691→                    <TableRow className="hover:bg-transparent">
+  1692→                      <TableHead className="font-semibold">Component</TableHead>
+  1693→                      <TableHead className="text-right font-semibold">Amount (₹)</TableHead>
+  1694→                    </TableRow>
+  1695→                  </TableHeader>
+  1696→                  <TableBody>
+  1697→                    {Object.keys(livingRoomEstimate.components).map((key) => {
+  1698→                      const componentKey = key as keyof LivingRoomEstimate['components']
+  1699→                      const total = calculateLivingRoomComponentTotal(componentKey)
+  1700→                      if (total > 0) {
+  1701→                        return (
+  1702→                          <TableRow key={key}>
+  1703→                            <TableCell className="font-medium">{getLivingRoomComponentLabel(componentKey)}</TableCell>
+  1704→                            <TableCell className="text-right font-semibold">{total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1705→                          </TableRow>
+  1706→                        )
+  1707→                      }
+  1708→                      return null
+  1709→                    })}
+  1710→                    <TableRow className="bg-purple-50 hover:bg-purple-50 font-bold">
+  1711→                      <TableCell className="font-bold text-purple-900">Living Room Total</TableCell>
+  1712→                      <TableCell className="text-right font-bold text-purple-900">{totalLivingRoomCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1713→                    </TableRow>
+  1714→                  </TableBody>
+  1715→                </Table>
+  1716→              </CardContent>
+  1717→            </Card>
+  1718→          </div>
+  1719→        )}
+  1720→
+  1721→        {/* Bedroom Components */}
+  1722→        {clientInfo.serviceType === 'Full Interior' && (
+  1723→          <div className="space-y-6">
+  1724→            <div className="flex items-center justify-between">
+  1725→              <div className="flex items-center gap-2">
+  1726→                <BedDouble className="w-5 h-5 text-emerald-600" />
+  1727→                <h2 className="text-lg font-semibold text-foreground">Bedroom</h2>
+  1728→                <span className="text-sm text-muted-foreground">Configure wardrobe, loft, bed & head board per bedroom type</span>
+  1729→              </div>
+  1730→              <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={resetBedroomComponents}>
+  1731→                <RotateCcw className="w-3.5 h-3.5" />
+  1732→                Reset All
+  1733→              </Button>
+  1734→            </div>
+  1735→
+  1736→            <Tabs defaultValue="master">
+  1737→              <TabsList className="grid w-full grid-cols-3">
+  1738→                <TabsTrigger value="master" className="gap-2">
+  1739→                  Master Bedroom
+  1740→                  {calculateSingleBedroomTotal(bedroomsEstimate.master) > 0 && (
+  1741→                    <span className="ml-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+  1742→                      ₹{calculateSingleBedroomTotal(bedroomsEstimate.master).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1743→                    </span>
+  1744→                  )}
+  1745→                </TabsTrigger>
+  1746→                <TabsTrigger value="guest" className="gap-2">
+  1747→                  Guest Bedroom
+  1748→                  {calculateSingleBedroomTotal(bedroomsEstimate.guest) > 0 && (
+  1749→                    <span className="ml-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+  1750→                      ₹{calculateSingleBedroomTotal(bedroomsEstimate.guest).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1751→                    </span>
+  1752→                  )}
+  1753→                </TabsTrigger>
+  1754→                <TabsTrigger value="kids" className="gap-2">
+  1755→                  Kids Bedroom
+  1756→                  {calculateSingleBedroomTotal(bedroomsEstimate.kids) > 0 && (
+  1757→                    <span className="ml-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+  1758→                      ₹{calculateSingleBedroomTotal(bedroomsEstimate.kids).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1759→                    </span>
+  1760→                  )}
+  1761→                </TabsTrigger>
+  1762→              </TabsList>
+  1763→
+  1764→              {(['master', 'guest', 'kids'] as BedroomCategory[]).map((cat) => (
+  1765→                <TabsContent key={cat} value={cat} className="space-y-4">
+  1766→                  <BedroomTypeCards {...getBedroomCardsProps(cat)} />
+  1767→                  <div className="text-right text-sm text-muted-foreground">
+  1768→                    Subtotal — {bedroomCategoryLabels[cat]}: <span className="font-semibold text-foreground">{formatINR(calculateSingleBedroomTotal(bedroomsEstimate[cat]))}</span>
+  1769→                  </div>
+  1770→                </TabsContent>
+  1771→              ))}
+  1772→            </Tabs>
+  1773→
+  1774→            {/* Bedroom Cost Breakdown */}
+  1775→            {totalBedroomCost > 0 && (
+  1776→              <Card>
+  1777→                <CardHeader className="bg-fuchsia-50 border-b border-fuchsia-100">
+  1778→                  <CardTitle className="text-fuchsia-800">Bedroom Cost Breakdown</CardTitle>
+  1779→                </CardHeader>
+  1780→                <CardContent className="p-0">
+  1781→                  <Table>
+  1782→                    <TableHeader>
+  1783→                      <TableRow className="hover:bg-transparent">
+  1784→                        <TableHead className="font-semibold">Component</TableHead>
+  1785→                        <TableHead className="text-right font-semibold">Amount (₹)</TableHead>
+  1786→                      </TableRow>
+  1787→                    </TableHeader>
+  1788→                    <TableBody>
+  1789→                      {(['master', 'guest', 'kids'] as BedroomCategory[]).map((cat) => {
+  1790→                        const catTotal = calculateSingleBedroomTotal(bedroomsEstimate[cat])
+  1791→                        if (catTotal === 0) return null
+  1792→                        return (
+  1793→                          <Fragment key={cat}>
+  1794→                            <TableRow className="bg-gray-50 hover:bg-gray-50 font-semibold">
+  1795→                              <TableCell className="font-semibold">{bedroomCategoryLabels[cat]}</TableCell>
+  1796→                              <TableCell className="text-right font-semibold">{catTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1797→                            </TableRow>
+  1798→                            {calculateWardrobeTotal(bedroomsEstimate[cat]) > 0 && (
+  1799→                              <TableRow key={`${cat}-wardrobe`}>
+  1800→                                <TableCell className="pl-6 text-muted-foreground">Wardrobe</TableCell>
+  1801→                                <TableCell className="text-right">{calculateWardrobeTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1802→                              </TableRow>
+  1803→                            )}
+  1804→                            {calculateBedroomLoftTotal(bedroomsEstimate[cat]) > 0 && (
+  1805→                              <TableRow key={`${cat}-loft`}>
+  1806→                                <TableCell className="pl-6 text-muted-foreground">Loft</TableCell>
+  1807→                                <TableCell className="text-right">{calculateBedroomLoftTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1808→                              </TableRow>
+  1809→                            )}
+  1810→                            {calculateBedTotal(bedroomsEstimate[cat]) > 0 && (
+  1811→                              <TableRow key={`${cat}-bed`}>
+  1812→                                <TableCell className="pl-6 text-muted-foreground">Bed</TableCell>
+  1813→                                <TableCell className="text-right">{calculateBedTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1814→                              </TableRow>
+  1815→                            )}
+  1816→                            {calculateHeadBoardTotal(bedroomsEstimate[cat]) > 0 && (
+  1817→                              <TableRow key={`${cat}-headboard`}>
+  1818→                                <TableCell className="pl-6 text-muted-foreground">Head Board</TableCell>
+  1819→                                <TableCell className="text-right">{calculateHeadBoardTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1820→                              </TableRow>
+  1821→                            )}
+  1822→                          </Fragment>
+  1823→                        )
+  1824→                      })}
+  1825→                      <TableRow className="bg-fuchsia-50 hover:bg-fuchsia-50 font-bold">
+  1826→                        <TableCell className="font-bold text-fuchsia-900">Bedroom Total</TableCell>
+  1827→                        <TableCell className="text-right font-bold text-fuchsia-900">{totalBedroomCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1828→                      </TableRow>
+  1829→                    </TableBody>
+  1830→                  </Table>
+  1831→                </CardContent>
+  1832→              </Card>
+  1833→            )}
+  1834→          </div>
+  1835→        )}
+  1836→
+  1837→        {/* Miscellaneous Components */}
+  1838→        {clientInfo.serviceType === 'Full Interior' && (
+  1839→          <div className="space-y-6">
+  1840→            <div className="flex items-center justify-between">
+  1841→              <div className="flex items-center gap-2">
+  1842→                <Zap className="w-5 h-5 text-emerald-600" />
+  1843→                <h2 className="text-lg font-semibold text-foreground">Miscellaneous</h2>
+  1844→                <span className="text-sm text-muted-foreground">False ceiling, electrical work & painting</span>
+  1845→              </div>
+  1846→              <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={resetMiscComponents}>
+  1847→                <RotateCcw className="w-3.5 h-3.5" />
+  1848→                Reset All
+  1849→              </Button>
+  1850→            </div>
+  1851→
+  1852→            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  1853→              {/* False Ceiling */}
+  1854→              <Card className="bg-indigo-50 border-indigo-200">
+  1855→                <CardHeader className="pb-3">
+  1856→                  <div className="flex items-center justify-between">
+  1857→                    <CardTitle className="text-indigo-800 text-base">False Ceiling</CardTitle>
+  1858→                    <span className="text-sm font-semibold text-indigo-700">
+  1859→                      ₹{calculateFalseCeilingTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1860→                    </span>
+  1861→                  </div>
+  1862→                </CardHeader>
+  1863→                <CardContent className="space-y-3">
+  1864→                  <div className="space-y-1.5">
+  1865→                    <Label className="text-xs">Ceiling Type</Label>
+  1866→                    <Select value={miscEstimate.falseCeiling.ceilingType} onValueChange={(value) => updateMiscFalseCeiling('ceilingType', value)}>
+  1867→                      <SelectTrigger className="w-full">
+  1868→                        <SelectValue placeholder="Select type" />
+  1869→                      </SelectTrigger>
+  1870→                      <SelectContent>
+  1871→                        <SelectItem value="Plane Ceiling">Plane Ceiling (1x)</SelectItem>
+  1872→                        <SelectItem value="Peripheral Ceiling">Peripheral Ceiling (1.25x)</SelectItem>
+  1873→                        <SelectItem value="Two Layer Ceiling">Two Layer Ceiling (1.5x)</SelectItem>
+  1874→                      </SelectContent>
+  1875→                    </Select>
+  1876→                  </div>
+  1877→                  <div className="space-y-1.5">
+  1878→                    <Label className="text-xs">Material</Label>
+  1879→                    <Select value={miscEstimate.falseCeiling.material} onValueChange={(value) => updateMiscFalseCeiling('material', value)}>
+  1880→                      <SelectTrigger className="w-full">
+  1881→                        <SelectValue placeholder="Select material" />
+  1882→                      </SelectTrigger>
+  1883→                      <SelectContent>
+  1884→                        <SelectItem value="Gypsum">Gypsum (₹105/sqft)</SelectItem>
+  1885→                        <SelectItem value="Acrylic">Acrylic (₹160/sqft)</SelectItem>
+  1886→                        <SelectItem value="ACP">ACP (₹180/sqft)</SelectItem>
+  1887→                        <SelectItem value="Armstrong">Armstrong (₹115/sqft)</SelectItem>
+  1888→                        <SelectItem value="Glass">Glass (₹350/sqft)</SelectItem>
+  1889→                        <SelectItem value="PVC">PVC (₹125/sqft)</SelectItem>
+  1890→                      </SelectContent>
+  1891→                    </Select>
+  1892→                  </div>
+  1893→                  <div className="grid grid-cols-2 gap-3">
+  1894→                    <div className="space-y-1.5">
+  1895→                      <Label className="text-xs">Height (mm)</Label>
+  1896→                      <Input type="number" placeholder="0" value={miscEstimate.falseCeiling.height} onChange={(e) => updateMiscFalseCeiling('height', e.target.value)} />
+  1897→                    </div>
+  1898→                    <div className="space-y-1.5">
+  1899→                      <Label className="text-xs">Width (mm)</Label>
+  1900→                      <Input type="number" placeholder="0" value={miscEstimate.falseCeiling.width} onChange={(e) => updateMiscFalseCeiling('width', e.target.value)} />
+  1901→                    </div>
+  1902→                  </div>
+  1903→                  <div className="space-y-1.5">
+  1904→                    <Label className="text-xs">Rate / sqft</Label>
+  1905→                    <Input
+  1906→                      value={miscEstimate.falseCeiling.material ? formatINR(PRICES.falseCeilingMaterial[miscEstimate.falseCeiling.material]) : ''}
+  1907→                      disabled
+  1908→                      className="bg-white"
+  1909→                    />
+  1910→                  </div>
+  1911→                </CardContent>
+  1912→              </Card>
+  1913→
+  1914→              {/* Electrical Work */}
+  1915→              <Card className="bg-emerald-50 border-emerald-200">
+  1916→                <CardHeader className="pb-3">
+  1917→                  <div className="flex items-center justify-between">
+  1918→                    <CardTitle className="text-emerald-800 text-base">Electrical Work</CardTitle>
+  1919→                    <span className="text-sm font-semibold text-emerald-700">
+  1920→                      ₹{calculateElectricalTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1921→                    </span>
+  1922→                  </div>
+  1923→                </CardHeader>
+  1924→                <CardContent className="space-y-3">
+  1925→                  <div className="space-y-1.5">
+  1926→                    <Label className="text-xs">Light / Fitting Type</Label>
+  1927→                    <Select value={miscEstimate.electricalWork.lightType} onValueChange={(value) => updateMiscElectrical('lightType', value)}>
+  1928→                      <SelectTrigger className="w-full">
+  1929→                        <SelectValue placeholder="Select type" />
+  1930→                      </SelectTrigger>
+  1931→                      <SelectContent>
+  1932→                        <SelectItem value="Primary Light Point">Primary Light Point (₹750)</SelectItem>
+  1933→                        <SelectItem value="Secondary Light Point">Secondary Light Point (₹450)</SelectItem>
+  1934→                        <SelectItem value="Half Plug Point">Half Plug Point (₹400)</SelectItem>
+  1935→                        <SelectItem value="Full Plug Point">Full Plug Point (₹700)</SelectItem>
+  1936→                        <SelectItem value="Concealed Light Fitting">Concealed Light Fitting (₹150)</SelectItem>
+  1937→                        <SelectItem value="Fan Fitting">Fan Fitting (₹150)</SelectItem>
+  1938→                      </SelectContent>
+  1939→                    </Select>
+  1940→                  </div>
+  1941→                  <div className="grid grid-cols-2 gap-3">
+  1942→                    <div className="space-y-1.5">
+  1943→                      <Label className="text-xs">Quantity</Label>
+  1944→                      <Input type="number" placeholder="0" value={miscEstimate.electricalWork.quantity} onChange={(e) => updateMiscElectrical('quantity', e.target.value)} />
+  1945→                    </div>
+  1946→                    <div className="space-y-1.5">
+  1947→                      <Label className="text-xs">Rate / Unit</Label>
+  1948→                      <Input
+  1949→                        value={miscEstimate.electricalWork.lightType ? formatINR(PRICES.electricalRates[miscEstimate.electricalWork.lightType]) : ''}
+  1950→                        disabled
+  1951→                        className="bg-white"
+  1952→                      />
+  1953→                    </div>
+  1954→                  </div>
+  1955→                </CardContent>
+  1956→              </Card>
+  1957→
+  1958→              {/* Painting */}
+  1959→              <Card className="bg-rose-50 border-rose-200">
+  1960→                <CardHeader className="pb-3">
+  1961→                  <div className="flex items-center justify-between">
+  1962→                    <CardTitle className="text-rose-800 text-base">Painting</CardTitle>
+  1963→                    <span className="text-sm font-semibold text-rose-700">
+  1964→                      ₹{calculatePaintingTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1965→                    </span>
+  1966→                  </div>
+  1967→                </CardHeader>
+  1968→                <CardContent className="space-y-3">
+  1969→                  <div className="space-y-1.5">
+  1970→                    <Label className="text-xs">Paint Type</Label>
+  1971→                    <Select value={miscEstimate.painting.paintType} onValueChange={(value) => updateMiscPainting('paintType', value)}>
+  1972→                      <SelectTrigger className="w-full">
+  1973→                        <SelectValue placeholder="Select type" />
+  1974→                      </SelectTrigger>
+  1975→                      <SelectContent>
+  1976→                        <SelectItem value="Luster">Luster (₹38/sqft)</SelectItem>
+  1977→                        <SelectItem value="Texture">Texture (₹115/sqft)</SelectItem>
+  1978→                        <SelectItem value="Plastic">Plastic (₹33/sqft)</SelectItem>
+  1979→                        <SelectItem value="Distemper">Distemper (₹27/sqft)</SelectItem>
+  1980→                      </SelectContent>
+  1981→                    </Select>
+  1982→                  </div>
+  1983→                  <div className="grid grid-cols-2 gap-3">
+  1984→                    <div className="space-y-1.5">
+  1985→                      <Label className="text-xs">Total Area (sqft)</Label>
+  1986→                      <Input type="number" placeholder="0" value={miscEstimate.painting.totalArea} onChange={(e) => updateMiscPainting('totalArea', e.target.value)} />
+  1987→                    </div>
+  1988→                    <div className="space-y-1.5">
+  1989→                      <Label className="text-xs">Rate / sqft</Label>
+  1990→                      <Input
+  1991→                        value={miscEstimate.painting.paintType ? formatINR(PRICES.paintRates[miscEstimate.painting.paintType]) : ''}
+  1992→                        disabled
+  1993→                        className="bg-white"
+  1994→                      />
+  1995→                    </div>
+  1996→                  </div>
+  1997→                </CardContent>
+  1998→              </Card>
+  1999→            </div>
+
+[showing lines 1500-1999 of 2144; use offset=2000 with limit to continue reading]

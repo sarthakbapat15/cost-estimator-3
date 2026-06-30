@@ -16,6 +16,11 @@ interface EstimateData {
   livingRoomCost: number
   components: Record<string, any>
   livingRoomEstimate?: Record<string, any>
+  logoSettings?: {
+    width: number
+    height: number
+    position: 'left' | 'center' | 'right'
+  }
 }
 
 function validateData(body: any): EstimateData {
@@ -31,7 +36,8 @@ function validateData(body: any): EstimateData {
     kitchenCost: body?.kitchenCost || 0,
     livingRoomCost: body?.livingRoomCost || 0,
     components: body?.components || {},
-    livingRoomEstimate: body?.livingRoomEstimate || undefined
+    livingRoomEstimate: body?.livingRoomEstimate || undefined,
+    logoSettings: body?.logoSettings || { width: 350, height: 140, position: 'center' },
   }
 }
 
@@ -497,6 +503,11 @@ export async function POST(request: NextRequest) {
 
     // Company Header — Logo centered at top (replaces text)
     const logoPath = path.join(process.cwd(), 'upload', 'pioneer 2.jpg')
+    const lw = validatedData.logoSettings?.width || 350
+    const lh = validatedData.logoSettings?.height || 140
+    const lpos = validatedData.logoSettings?.position || 'center'
+    // Column positions: left=0.1, center=1.5, right=4 (approximate for 8-col sheet)
+    const colPositions: Record<string, number> = { left: 0.1, center: 1.5, right: 4.5 }
     if (fs.existsSync(logoPath)) {
       const logoBuffer = fs.readFileSync(logoPath)
       const logoImageId = workbook.addImage({
@@ -504,8 +515,8 @@ export async function POST(request: NextRequest) {
         extension: 'jpeg',
       })
       qs.addImage(logoImageId, {
-        tl: { col: 1.5, row: 0 },
-        ext: { width: 350, height: 140 },
+        tl: { col: colPositions[lpos] || 1.5, row: 0 },
+        ext: { width: lw, height: lh },
       })
     }
 

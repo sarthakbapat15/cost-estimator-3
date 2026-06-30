@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, Fragment } from 'react'
+import { Slider } from '@/components/ui/slider'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -159,6 +162,11 @@ export default function Home() {
   })
 
   const [exporting, setExporting] = useState(false)
+  const [logoSettings, setLogoSettings] = useState({
+    width: 350,
+    height: 140,
+    position: 'center' as 'left' | 'center' | 'right',
+  })
 
   const [prices, setPrices] = useState<typeof DEFAULT_PRICES>(() => {
     if (typeof window !== 'undefined') {
@@ -626,7 +634,8 @@ export default function Home() {
           kitchenCost: totalEstimatedCost,
           livingRoomCost: totalLivingRoomCost,
           bedroomCost: totalBedroomCost,
-          components: estimate.components
+          components: estimate.components,
+          logoSettings,
         })
       })
 
@@ -1801,6 +1810,73 @@ export default function Home() {
               <FileDown className="w-5 h-5 text-emerald-600" />
               <h2 className="text-lg font-semibold text-foreground">Estimate Summary & Export</h2>
             </div>
+
+            {/* Logo Settings for Export */}
+            <Collapsible>
+              <Card>
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        Export Logo Settings
+                      </CardTitle>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                    </div>
+                    <CardDescription>Adjust logo size and position in exported Excel</CardDescription>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 space-y-5">
+                    {/* Width */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">Logo Width</Label>
+                        <span className="text-sm font-medium text-muted-foreground">{logoSettings.width}px</span>
+                      </div>
+                      <Slider
+                        value={[logoSettings.width]}
+                        min={100}
+                        max={600}
+                        step={10}
+                        onValueChange={([v]) => setLogoSettings(s => ({ ...s, width: v }))}
+                      />
+                    </div>
+                    {/* Height */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">Logo Height</Label>
+                        <span className="text-sm font-medium text-muted-foreground">{logoSettings.height}px</span>
+                      </div>
+                      <Slider
+                        value={[logoSettings.height]}
+                        min={40}
+                        max={300}
+                        step={10}
+                        onValueChange={([v]) => setLogoSettings(s => ({ ...s, height: v }))}
+                      />
+                    </div>
+                    {/* Position */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Logo Position</Label>
+                      <Select
+                        value={logoSettings.position}
+                        onValueChange={(v) => setLogoSettings(s => ({ ...s, position: v as 'left' | 'center' | 'right' }))}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="left">Left</SelectItem>
+                          <SelectItem value="center">Center</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
 
             {/* Grand Total Banner */}
             <Card className="bg-emerald-600 border-emerald-600">

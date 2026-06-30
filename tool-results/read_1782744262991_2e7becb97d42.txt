@@ -1,0 +1,2002 @@
+    30→type BedroomLoftType = 'Frame' | 'Box'
+    31→type BedroomLoftFinishType = 'SF' | 'HGL' | 'Acrylic'
+    32→type BedSizeType = 'King' | 'Queen'
+    33→type BedStorageType = 'Hydraulic' | 'Box' | 'Trolley'
+    34→type BedFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer'
+    35→type HeadBoardType = 'Laminated' | 'Cushioned'
+    36→type FalseCeilingType = 'Plane Ceiling' | 'Peripheral Ceiling' | 'Two Layer Ceiling'
+    37→type FalseCeilingMaterial = 'Gypsum' | 'Acrylic' | 'ACP' | 'Armstrong' | 'Glass' | 'PVC'
+    38→type ElectricalType = 'Primary Light Point' | 'Secondary Light Point' | 'Half Plug Point' | 'Full Plug Point' | 'Concealed Light Fitting' | 'Fan Fitting'
+    39→type PaintType = 'Luster' | 'Texture' | 'Plastic' | 'Distemper'
+    40→
+    41→interface ComponentState {
+    42→  height: string
+    43→  width: string
+    44→  quantity: string
+    45→  price: string
+    46→  brand?: string
+    47→  material?: string
+    48→  loftType?: LoftType
+    49→  finish?: FinishType
+    50→  tallPantryFinish?: TallPantryFinishType
+    51→  accessories?: AccessoriesType
+    52→  handleType?: HandleType
+    53→  handlePrice?: string
+    54→  runningFeet?: string
+    55→  overheadCabinetFinish?: OverheadCabinetFinishType
+    56→}
+    57→
+    58→interface KitchenEstimate {
+    59→  kitchenType: KitchenType
+    60→  components: {
+    61→    component1: ComponentState
+    62→    tandemDrawers: ComponentState
+    63→    dustbinBTD: ComponentState
+    64→    bottlePullout: ComponentState
+    65→    wickerBasket: ComponentState
+    66→    tallUnit: ComponentState
+    67→    pantryUnit: ComponentState
+    68→    baseCarcase: ComponentState
+    69→    overheadCabinet: ComponentState
+    70→    overheadLoft: ComponentState
+    71→    profileShutter: ComponentState
+    72→    handles: ComponentState
+    73→  }
+    74→}
+    75→
+    76→interface LivingRoomEstimate {
+    77→  components: {
+    78→    chestOfDrawers: ComponentState
+    79→    baseCabinet: ComponentState
+    80→    livingRoomTallUnit: ComponentState
+    81→    backPanel: ComponentState
+    82→    ledgeShelf: ComponentState
+    83→    flutedPanel: ComponentState
+    84→    shoeRack: ComponentState
+    85→    sittingWithCushion: ComponentState
+    86→  }
+    87→}
+    88→
+    89→type BedroomCategory = 'master' | 'guest' | 'kids'
+    90→
+    91→interface BedroomsEstimate {
+    92→  master: BedroomData
+    93→  guest: BedroomData
+    94→  kids: BedroomData
+    95→}
+    96→
+    97→interface MiscEstimate {
+    98→  falseCeiling: {
+    99→    height: string
+   100→    width: string
+   101→    ceilingType: '' | FalseCeilingType
+   102→    material: '' | FalseCeilingMaterial
+   103→  }
+   104→  electricalWork: {
+   105→    lightType: '' | ElectricalType
+   106→    quantity: string
+   107→  }
+   108→  painting: {
+   109→    paintType: '' | PaintType
+   110→    totalArea: string
+   111→  }
+   112→}
+   113→
+   114→export default function Home() {
+   115→  const [clientInfo, setClientInfo] = useState({
+   116→    name: '',
+   117→    address: '',
+   118→    contact: '',
+   119→    serviceType: '' as ServiceType
+   120→  })
+   121→
+   122→  const [kitchenType, setKitchenType] = useState<KitchenType | ''>('')
+   123→  const [estimate, setEstimate] = useState<KitchenEstimate>({
+   124→    kitchenType: '' as KitchenType,
+   125→    components: {
+   126→      component1: { height: '', width: '', quantity: '', price: '' },
+   127→      tandemDrawers: { brand: '', quantity: '', price: '' },
+   128→      dustbinBTD: { brand: '', quantity: '', price: '' },
+   129→      bottlePullout: { brand: '', quantity: '', price: '' },
+   130→      wickerBasket: { brand: '', quantity: '', price: '' },
+   131→      tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
+   132→      pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
+   133→      baseCarcase: { height: '', width: '', quantity: '', price: '1650' },
+   134→      overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
+   135→      overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
+   136→      profileShutter: { quantity: '', price: '' },
+   137→      handles: { handleType: '', runningFeet: '', handlePrice: '' }
+   138→    }
+   139→  })
+   140→
+   141→  const [livingRoomEstimate, setLivingRoomEstimate] = useState<LivingRoomEstimate>({
+   142→    components: {
+   143→      chestOfDrawers: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+   144→      baseCabinet: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+   145→      livingRoomTallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as TallUnitFinishType },
+   146→      backPanel: { height: '', width: '', quantity: '', price: '', loftType: '' as BackPanelFinishType },
+   147→      ledgeShelf: { height: '', width: '', quantity: '', price: '350' },
+   148→      flutedPanel: { quantity: '', price: '900' },
+   149→      shoeRack: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+   150→      sittingWithCushion: { height: '', width: '', quantity: '', price: '1350' }
+   151→    }
+   152→  })
+   153→
+   154→  const [bedroomsEstimate, setBedroomsEstimate] = useState<BedroomsEstimate>({
+   155→    master: createEmptyBedroom(),
+   156→    guest: createEmptyBedroom(),
+   157→    kids: createEmptyBedroom()
+   158→  })
+   159→
+   160→  const [miscEstimate, setMiscEstimate] = useState<MiscEstimate>({
+   161→    falseCeiling: { height: '', width: '', ceilingType: '', material: '' },
+   162→    electricalWork: { lightType: '', quantity: '' },
+   163→    painting: { paintType: '', totalArea: '' }
+   164→  })
+   165→
+   166→  const [exporting, setExporting] = useState(false)
+   167→
+   168→  const PRICES = {
+   169→    tandemDrawers: { Olive: 8000, Blum: 12000, Hettich: 12000 },
+   170→    dustbinBTD: { Olive: 7500, Blum: 7500, Hettich: 7500 },
+   171→    bottlePullout: { Olive: 8000, Blum: 8000, Hettich: 8000 },
+   172→    wickerBasket: { Olive: 7500, Hettich: 7500 },
+   173→    plyVerticals: 1500,
+   174→    overheadLoft: { 'Frame Loft': 1150, 'Box Loft': 1250 },
+   175→    overheadFinish: { Acrylic: 1850, Laminate: 1200, UV: 1400, PU: 1600 },
+   176→    tallPantryFinish: { SF: 1450, HGL: 1550, Acrylic: 1850, 'Glass Acrylic': 2150 },
+   177→    pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 },
+   178→    livingRoomFinish: { SF: 1250, HGL: 1350, Acrylic: 1550, 'Veneer with polish': 1750 },
+   179→    livingRoomTallUnitFinish: { SF: 1250, HGL: 1350, Acrylic: 1850, 'Veneer with polish': 1750 },
+   180→    backPanelFinish: { HGL: 650, SF: 550, Acrylic: 1175, Veneer: 950 },
+   181→    ledgeShelf: 350,
+   182→    flutedPanel: 900,
+   183→    sittingWithCushion: 1350,
+   184→    baseCarcase: 1650,
+   185→    overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 },
+   186→    wardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
+   187→    wardrobeSlidingMechanism: 15000,
+   188→    bedroomLoftFinish: {
+   189→      Frame: { SF: 1150, HGL: 1250, Acrylic: 1850 },
+   190→      Box: { SF: 1250, HGL: 1350, Acrylic: 1950 }
+   191→    },
+   192→    bedFinish: { SF: 1250, HGL: 1350, Acrylic: 1650, Veneer: 1950 },
+   193→    headBoardRates: { Laminated: 700, Cushioned: 850 },
+   194→    falseCeilingMaterial: { Gypsum: 105, Acrylic: 160, ACP: 180, Armstrong: 115, Glass: 350, PVC: 125 },
+   195→    electricalRates: { 'Primary Light Point': 750, 'Secondary Light Point': 450, 'Half Plug Point': 400, 'Full Plug Point': 700, 'Concealed Light Fitting': 150, 'Fan Fitting': 150 },
+   196→    paintRates: { Luster: 38, Texture: 115, Plastic: 33, Distemper: 27 }
+   197→  }
+   198→
+   199→  const calculateSqft = (height: string, width: string): number => {
+   200→    const h = parseFloat(height) || 0
+   201→    const w = parseFloat(width) || 0
+   202→    return (h * w) / 92903
+   203→  }
+   204→
+   205→  const calculateComponentTotal = (component: keyof KitchenEstimate['components']): number => {
+   206→    const comp = estimate.components[component]
+   207→
+   208→    switch (component) {
+   209→      case 'component1':
+   210→        if (kitchenType === 'Semi-Modular') {
+   211→          const qty = parseFloat(comp.quantity) || 0
+   212→          return qty * PRICES.plyVerticals
+   213→        } else {
+   214→          const sqft = calculateSqft(comp.height, comp.width)
+   215→          const basePrice = comp.material === 'Quartz' ? 2000 : 1500
+   216→          return sqft * basePrice
+   217→        }
+   218→
+   219→      case 'tandemDrawers': {
+   220→        const brand = comp.brand as Brand
+   221→        if (brand && PRICES.tandemDrawers[brand]) {
+   222→          const qty = parseFloat(comp.quantity) || 0
+   223→          return qty * PRICES.tandemDrawers[brand]
+   224→        }
+   225→        return 0
+   226→      }
+   227→
+   228→      case 'dustbinBTD': {
+   229→        const dustbinBrand = comp.brand as Brand
+   230→        if (dustbinBrand && PRICES.dustbinBTD[dustbinBrand]) {
+   231→          const qty = parseFloat(comp.quantity) || 0
+   232→          return qty * PRICES.dustbinBTD[dustbinBrand]
+   233→        }
+   234→        return 0
+   235→      }
+   236→
+   237→      case 'bottlePullout': {
+   238→        const bottleBrand = comp.brand as Brand
+   239→        if (bottleBrand && PRICES.bottlePullout[bottleBrand]) {
+   240→          const qty = parseFloat(comp.quantity) || 0
+   241→          return qty * PRICES.bottlePullout[bottleBrand]
+   242→        }
+   243→        return 0
+   244→      }
+   245→
+   246→      case 'wickerBasket': {
+   247→        const wickerBrand = comp.brand as Brand
+   248→        if (wickerBrand && PRICES.wickerBasket[wickerBrand]) {
+   249→          const qty = parseFloat(comp.quantity) || 0
+   250→          return qty * PRICES.wickerBasket[wickerBrand]
+   251→        }
+   252→        return 0
+   253→      }
+   254→
+   255→      case 'tallUnit': {
+   256→        const tallSqft = calculateSqft(comp.height, comp.width)
+   257→        const tallFinish = comp.tallPantryFinish as TallPantryFinishType
+   258→        if (tallFinish && PRICES.tallPantryFinish[tallFinish]) {
+   259→          return tallSqft * PRICES.tallPantryFinish[tallFinish]
+   260→        }
+   261→        return 0
+   262→      }
+   263→
+   264→      case 'pantryUnit': {
+   265→        const pantrySqft = calculateSqft(comp.height, comp.width)
+   266→        const pantryFinish = comp.tallPantryFinish as TallPantryFinishType
+   267→        let pantryTotal = 0
+   268→        if (pantryFinish && PRICES.tallPantryFinish[pantryFinish]) {
+   269→          pantryTotal = pantrySqft * PRICES.tallPantryFinish[pantryFinish]
+   270→        }
+   271→        const accessories = comp.accessories as AccessoriesType
+   272→        if (accessories && PRICES.pantryAccessories[accessories]) {
+   273→          pantryTotal += PRICES.pantryAccessories[accessories]
+   274→        }
+   275→        return pantryTotal
+   276→      }
+   277→
+   278→      case 'baseCarcase': {
+   279→        const baseCarcaseSqft = calculateSqft(comp.height, comp.width)
+   280→        return baseCarcaseSqft * PRICES.baseCarcase
+   281→      }
+   282→
+   283→      case 'overheadCabinet': {
+   284→        const overheadCabinetSqft = calculateSqft(comp.height, comp.width)
+   285→        const ohcFinish = comp.overheadCabinetFinish as OverheadCabinetFinishType
+   286→        if (ohcFinish && PRICES.overheadCabinetFinish[ohcFinish]) {
+   287→          return overheadCabinetSqft * PRICES.overheadCabinetFinish[ohcFinish]
+   288→        }
+   289→        return 0
+   290→      }
+   291→
+   292→      case 'overheadLoft': {
+   293→        const loftSqft = calculateSqft(comp.height, comp.width)
+   294→        const loftType = comp.loftType as LoftType
+   295→        const finish = comp.finish as FinishType
+   296→        if (loftType && PRICES.overheadLoft[loftType]) {
+   297→          const basePrice = PRICES.overheadLoft[loftType]
+   298→          const finishPrice = finish ? PRICES.overheadFinish[finish] : 0
+   299→          return loftSqft * (basePrice + finishPrice)
+   300→        }
+   301→        return 0
+   302→      }
+   303→
+   304→      case 'profileShutter': {
+   305→        const profileQty = parseFloat(comp.quantity) || 0
+   306→        const profilePrice = parseFloat(comp.price) || 0
+   307→        return profileQty * profilePrice
+   308→      }
+   309→
+   310→      case 'handles': {
+   311→        const handleFeet = parseFloat(comp.runningFeet) || 0
+   312→        const handlePrice = parseFloat(comp.handlePrice) || 0
+   313→        return handleFeet * handlePrice
+   314→      }
+   315→
+   316→      default:
+   317→        return 0
+   318→    }
+   319→  }
+   320→
+   321→  const totalEstimatedCost = Object.keys(estimate.components).reduce((total, key) => {
+   322→    return total + calculateComponentTotal(key as keyof KitchenEstimate['components'])
+   323→  }, 0)
+   324→
+   325→  const updateComponent = (component: keyof KitchenEstimate['components'], field: string, value: string) => {
+   326→    setEstimate(prev => ({
+   327→      ...prev,
+   328→      components: {
+   329→        ...prev.components,
+   330→        [component]: { ...prev.components[component], [field]: value }
+   331→      }
+   332→    }))
+   333→  }
+   334→
+   335→  const updateLivingRoomComponent = (component: keyof LivingRoomEstimate['components'], field: string, value: string) => {
+   336→    setLivingRoomEstimate(prev => ({
+   337→      ...prev,
+   338→      components: {
+   339→        ...prev.components,
+   340→        [component]: { ...prev.components[component], [field]: value }
+   341→      }
+   342→    }))
+   343→  }
+   344→
+   345→  const calculateLivingRoomComponentTotal = (component: keyof LivingRoomEstimate['components']): number => {
+   346→    const comp = livingRoomEstimate.components[component]
+   347→
+   348→    switch (component) {
+   349→      case 'chestOfDrawers':
+   350→      case 'baseCabinet':
+   351→      case 'shoeRack': {
+   352→        const sqft = calculateSqft(comp.height, comp.width)
+   353→        const finish = comp.tallPantryFinish as LivingRoomFinishType
+   354→        if (finish && PRICES.livingRoomFinish[finish]) {
+   355→          return sqft * PRICES.livingRoomFinish[finish]
+   356→        }
+   357→        return 0
+   358→      }
+   359→
+   360→      case 'livingRoomTallUnit': {
+   361→        const sqft = calculateSqft(comp.height, comp.width)
+   362→        const finish = comp.tallPantryFinish as TallUnitFinishType
+   363→        if (finish && PRICES.livingRoomTallUnitFinish[finish]) {
+   364→          return sqft * PRICES.livingRoomTallUnitFinish[finish]
+   365→        }
+   366→        return 0
+   367→      }
+   368→
+   369→      case 'backPanel': {
+   370→        const sqft = calculateSqft(comp.height, comp.width)
+   371→        const finish = comp.loftType as BackPanelFinishType
+   372→        if (finish && PRICES.backPanelFinish[finish]) {
+   373→          return sqft * PRICES.backPanelFinish[finish]
+   374→        }
+   375→        return 0
+   376→      }
+   377→
+   378→      case 'ledgeShelf': {
+   379→        const sqft = calculateSqft(comp.height, comp.width)
+   380→        const qty = parseFloat(comp.quantity) || 1
+   381→        return sqft * PRICES.ledgeShelf * qty
+   382→      }
+   383→
+   384→      case 'flutedPanel': {
+   385→        const qty = parseFloat(comp.quantity) || 0
+   386→        return qty * PRICES.flutedPanel
+   387→      }
+   388→
+   389→      case 'sittingWithCushion': {
+   390→        const sqft = calculateSqft(comp.height, comp.width)
+   391→        return sqft * PRICES.sittingWithCushion
+   392→      }
+   393→
+   394→      default:
+   395→        return 0
+   396→    }
+   397→  }
+   398→
+   399→  const totalLivingRoomCost = Object.keys(livingRoomEstimate.components).reduce((total, key) => {
+   400→    return total + calculateLivingRoomComponentTotal(key as keyof LivingRoomEstimate['components'])
+   401→  }, 0)
+   402→
+   403→  // Bedroom calculations (parametric)
+   404→  const calculateWardrobeTotal = (bedroom: BedroomData): number => {
+   405→    const w = bedroom.wardrobe
+   406→    const sqft = calculateSqft(w.height, w.width)
+   407→    const rate = w.finish ? PRICES.wardrobeFinish[w.finish as WardrobeFinishType] : 0
+   408→    let total = sqft * rate
+   409→    if (w.wardrobeType === 'Sliding' && w.slidingMechanism) {
+   410→      total += PRICES.wardrobeSlidingMechanism
+   411→    }
+   412→    return total
+   413→  }
+   414→
+   415→  const calculateBedroomLoftTotal = (bedroom: BedroomData): number => {
+   416→    const l = bedroom.loft
+   417→    const sqft = calculateSqft(l.height, l.width)
+   418→    const loftType = l.loftType as BedroomLoftType
+   419→    if (loftType && l.finish) {
+   420→      const rate = PRICES.bedroomLoftFinish[loftType][l.finish as BedroomLoftFinishType]
+   421→      return sqft * rate
+   422→    }
+   423→    return 0
+   424→  }
+   425→
+   426→  const calculateBedTotal = (bedroom: BedroomData): number => {
+   427→    const b = bedroom.bed
+   428→    const sqft = calculateSqft(b.length, b.width)
+   429→    const rate = b.finish ? PRICES.bedFinish[b.finish as BedFinishType] : 0
+   430→    return sqft * rate
+   431→  }
+   432→
+   433→  const calculateHeadBoardTotal = (bedroom: BedroomData): number => {
+   434→    const hb = bedroom.headBoard
+   435→    const sqft = calculateSqft(hb.length, hb.width)
+   436→    const rate = hb.headBoardType ? PRICES.headBoardRates[hb.headBoardType as HeadBoardType] : 0
+   437→    return sqft * rate
+   438→  }
+   439→
+   440→  const calculateSingleBedroomTotal = (bedroom: BedroomData): number => {
+   441→    return calculateWardrobeTotal(bedroom) + calculateBedroomLoftTotal(bedroom) + calculateBedTotal(bedroom) + calculateHeadBoardTotal(bedroom)
+   442→  }
+   443→
+   444→  const totalBedroomCost = calculateSingleBedroomTotal(bedroomsEstimate.master) + calculateSingleBedroomTotal(bedroomsEstimate.guest) + calculateSingleBedroomTotal(bedroomsEstimate.kids)
+   445→
+   446→  // Misc calculations
+   447→  const calculateFalseCeilingTotal = (): number => {
+   448→    const fc = miscEstimate.falseCeiling
+   449→    const sqft = calculateSqft(fc.height, fc.width)
+   450→    const rate = fc.material ? PRICES.falseCeilingMaterial[fc.material] : 0
+   451→    let multiplier = 1
+   452→    if (fc.ceilingType === 'Peripheral Ceiling') multiplier = 1.25
+   453→    else if (fc.ceilingType === 'Two Layer Ceiling') multiplier = 1.5
+   454→    return sqft * rate * multiplier
+   455→  }
+   456→
+   457→  const calculateElectricalTotal = (): number => {
+   458→    const e = miscEstimate.electricalWork
+   459→    const qty = parseFloat(e.quantity) || 0
+   460→    const rate = e.lightType ? PRICES.electricalRates[e.lightType] : 0
+   461→    return qty * rate
+   462→  }
+   463→
+   464→  const calculatePaintingTotal = (): number => {
+   465→    const p = miscEstimate.painting
+   466→    const area = parseFloat(p.totalArea) || 0
+   467→    const rate = p.paintType ? PRICES.paintRates[p.paintType] : 0
+   468→    return area * rate
+   469→  }
+   470→
+   471→  const totalMiscCost = calculateFalseCeilingTotal() + calculateElectricalTotal() + calculatePaintingTotal()
+   472→
+   473→  const grandTotal = (clientInfo.serviceType === 'Full Interior' ? totalLivingRoomCost + totalMiscCost + totalBedroomCost : 0) + totalEstimatedCost
+   474→
+   475→  const handleKitchenTypeChange = (value: KitchenType) => {
+   476→    setKitchenType(value)
+   477→    setEstimate(prev => ({
+   478→      ...prev,
+   479→      kitchenType: value,
+   480→      components: {
+   481→        ...prev.components,
+   482→        component1: { height: '', width: '', quantity: '', price: '', material: '' }
+   483→      }
+   484→    }))
+   485→  }
+   486→
+   487→  const resetKitchenComponents = () => {
+   488→    setEstimate(prev => ({
+   489→      ...prev,
+   490→      components: {
+   491→        component1: { height: '', width: '', quantity: '', price: '', material: '' },
+   492→        tandemDrawers: { brand: '', quantity: '', price: '' },
+   493→        dustbinBTD: { brand: '', quantity: '', price: '' },
+   494→        bottlePullout: { brand: '', quantity: '', price: '' },
+   495→        wickerBasket: { brand: '', quantity: '', price: '' },
+   496→        tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
+   497→        pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
+   498→        baseCarcase: { height: '', width: '', quantity: '', price: '1650' },
+   499→        overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
+   500→        overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
+   501→        profileShutter: { quantity: '', price: '' },
+   502→        handles: { handleType: '', runningFeet: '', handlePrice: '' }
+   503→      }
+   504→    }))
+   505→  }
+   506→
+   507→  const resetLivingRoomComponents = () => {
+   508→    setLivingRoomEstimate({
+   509→      components: {
+   510→        chestOfDrawers: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+   511→        baseCabinet: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+   512→        livingRoomTallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as TallUnitFinishType },
+   513→        backPanel: { height: '', width: '', quantity: '', price: '', loftType: '' as BackPanelFinishType },
+   514→        ledgeShelf: { height: '', width: '', quantity: '', price: '350' },
+   515→        flutedPanel: { quantity: '', price: '900' },
+   516→        shoeRack: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as LivingRoomFinishType },
+   517→        sittingWithCushion: { height: '', width: '', quantity: '', price: '1350' }
+   518→      }
+   519→    })
+   520→  }
+   521→
+   522→  // Bedroom update functions (parametric by category)
+   523→  const updateBedroom = (category: BedroomCategory, component: keyof BedroomData, field: string, value: string | boolean) => {
+   524→    setBedroomsEstimate(prev => ({
+   525→      ...prev,
+   526→      [category]: {
+   527→        ...prev[category],
+   528→        [component]: { ...prev[category][component], [field]: value }
+   529→      }
+   530→    }))
+   531→  }
+   532→
+   533→  const handleBedroomWardrobeTypeChange = (category: BedroomCategory, value: string) => {
+   534→    setBedroomsEstimate(prev => ({
+   535→      ...prev,
+   536→      [category]: {
+   537→        ...prev[category],
+   538→        wardrobe: { ...prev[category].wardrobe, wardrobeType: value as WardrobeType, slidingMechanism: false }
+   539→      }
+   540→    }))
+   541→  }
+   542→
+   543→  const handleBedroomLoftTypeChange = (category: BedroomCategory, value: string) => {
+   544→    setBedroomsEstimate(prev => ({
+   545→      ...prev,
+   546→      [category]: {
+   547→        ...prev[category],
+   548→        loft: { ...prev[category].loft, loftType: value as BedroomLoftType, finish: '' }
+   549→      }
+   550→    }))
+   551→  }
+   552→
+   553→  const handleBedSizeChange = (category: BedroomCategory, value: string) => {
+   554→    setBedroomsEstimate(prev => ({
+   555→      ...prev,
+   556→      [category]: {
+   557→        ...prev[category],
+   558→        bed: { ...prev[category].bed, bedSize: value as BedSizeType, storageType: '', finish: '' }
+   559→      }
+   560→    }))
+   561→  }
+   562→
+   563→  const handleBedStorageTypeChange = (category: BedroomCategory, value: string) => {
+   564→    setBedroomsEstimate(prev => ({
+   565→      ...prev,
+   566→      [category]: {
+   567→        ...prev[category],
+   568→        bed: { ...prev[category].bed, storageType: value as BedStorageType }
+   569→      }
+   570→    }))
+   571→  }
+   572→
+   573→  const resetBedroomComponents = () => {
+   574→    setBedroomsEstimate({
+   575→      master: createEmptyBedroom(),
+   576→      guest: createEmptyBedroom(),
+   577→      kids: createEmptyBedroom()
+   578→    })
+   579→  }
+   580→
+   581→  const updateMiscFalseCeiling = (field: string, value: string) => {
+   582→    setMiscEstimate(prev => ({ ...prev, falseCeiling: { ...prev.falseCeiling, [field]: value } }))
+   583→  }
+   584→
+   585→  const updateMiscElectrical = (field: string, value: string) => {
+   586→    setMiscEstimate(prev => ({ ...prev, electricalWork: { ...prev.electricalWork, [field]: value } }))
+   587→  }
+   588→
+   589→  const updateMiscPainting = (field: string, value: string) => {
+   590→    setMiscEstimate(prev => ({ ...prev, painting: { ...prev.painting, [field]: value } }))
+   591→  }
+   592→
+   593→  const resetMiscComponents = () => {
+   594→    setMiscEstimate({
+   595→      falseCeiling: { height: '', width: '', ceilingType: '', material: '' },
+   596→      electricalWork: { lightType: '', quantity: '' },
+   597→      painting: { paintType: '', totalArea: '' }
+   598→    })
+   599→  }
+   600→
+   601→  const handleExportExcel = async () => {
+   602→    setExporting(true)
+   603→    try {
+   604→      const response = await fetch('/api/estimates/export/excel', {
+   605→        method: 'POST',
+   606→        headers: { 'Content-Type': 'application/json' },
+   607→        body: JSON.stringify({
+   608→          clientInfo,
+   609→          kitchenType,
+   610→          estimate,
+   611→          livingRoomEstimate,
+   612→          miscEstimate,
+   613→          bedroomsEstimate,
+   614→          totalCost: grandTotal,
+   615→          kitchenCost: totalEstimatedCost,
+   616→          livingRoomCost: totalLivingRoomCost,
+   617→          miscCost: totalMiscCost,
+   618→          bedroomCost: totalBedroomCost,
+   619→          components: estimate.components
+   620→        })
+   621→      })
+   622→
+   623→      if (!response.ok) throw new Error('Export failed')
+   624→
+   625→      const blob = await response.blob()
+   626→      const url = window.URL.createObjectURL(blob)
+   627→      const a = document.createElement('a')
+   628→      a.href = url
+   629→      a.download = `interior_estimate_${clientInfo.name || 'client'}.xlsx`
+   630→      document.body.appendChild(a)
+   631→      a.click()
+   632→      document.body.removeChild(a)
+   633→      window.URL.revokeObjectURL(url)
+   634→    } catch (error) {
+   635→      console.error('Export error:', error)
+   636→      alert('Failed to export Excel')
+   637→    } finally {
+   638→      setExporting(false)
+   639→    }
+   640→  }
+   641→
+   642→  const handleExportPDF = async () => {
+   643→    setExporting(true)
+   644→    try {
+   645→      const response = await fetch('/api/estimates/export/pdf', {
+   646→        method: 'POST',
+   647→        headers: { 'Content-Type': 'application/json' },
+   648→        body: JSON.stringify({
+   649→          clientInfo,
+   650→          kitchenType,
+   651→          estimate,
+   652→          livingRoomEstimate,
+   653→          miscEstimate,
+   654→          bedroomsEstimate,
+   655→          totalCost: grandTotal,
+   656→          kitchenCost: totalEstimatedCost,
+   657→          livingRoomCost: totalLivingRoomCost,
+   658→          miscCost: totalMiscCost,
+   659→          bedroomCost: totalBedroomCost,
+   660→          components: estimate.components
+   661→        })
+   662→      })
+   663→
+   664→      if (!response.ok) throw new Error('Export failed')
+   665→
+   666→      const blob = await response.blob()
+   667→      const url = window.URL.createObjectURL(blob)
+   668→      const a = document.createElement('a')
+   669→      a.href = url
+   670→      a.download = `interior_estimate_${clientInfo.name || 'client'}.pdf`
+   671→      document.body.appendChild(a)
+   672→      a.click()
+   673→      document.body.removeChild(a)
+   674→      window.URL.revokeObjectURL(url)
+   675→    } catch (error) {
+   676→      console.error('Export error:', error)
+   677→      alert('Failed to export PDF')
+   678→    } finally {
+   679→      setExporting(false)
+   680→    }
+   681→  }
+   682→
+   683→  const getComponentLabel = (component: keyof KitchenEstimate['components']): string => {
+   684→    const labels: Record<string, string> = {
+   685→      component1: kitchenType === 'Semi-Modular' ? 'Ply Verticals' : 'Structure / Countertop',
+   686→      tandemDrawers: 'Tandem Drawers',
+   687→      dustbinBTD: 'Dustbin + BTD',
+   688→      bottlePullout: 'Bottle Pullout',
+   689→      wickerBasket: 'Wicker Basket',
+   690→      tallUnit: 'Tall Unit',
+   691→      pantryUnit: 'Pantry Unit',
+   692→      baseCarcase: 'Base Carcase',
+   693→      overheadCabinet: 'Overhead Cabinet',
+   694→      overheadLoft: 'Overhead Loft',
+   695→      profileShutter: 'Profile Shutter with Glass',
+   696→      handles: 'Handles'
+   697→    }
+   698→    return labels[component] || component
+   699→  }
+   700→
+   701→  const getLivingRoomComponentLabel = (component: keyof LivingRoomEstimate['components']): string => {
+   702→    const labels: Record<string, string> = {
+   703→      chestOfDrawers: 'Chest of Drawers',
+   704→      baseCabinet: 'Base Cabinet with shutters',
+   705→      livingRoomTallUnit: 'Tall Unit',
+   706→      backPanel: 'Back Panel',
+   707→      ledgeShelf: 'Ledge/Shelf',
+   708→      flutedPanel: 'Fluted Panel',
+   709→      shoeRack: 'Shoe Rack',
+   710→      sittingWithCushion: 'Sitting with Cushion'
+   711→    }
+   712→    return labels[component] || component
+   713→  }
+   714→
+   715→  const getBedroomCardsProps = (category: BedroomCategory) => ({
+   716→    bedroom: bedroomsEstimate[category],
+   717→    category,
+   718→    wardrobeTotal: calculateWardrobeTotal(bedroomsEstimate[category]),
+   719→    loftTotal: calculateBedroomLoftTotal(bedroomsEstimate[category]),
+   720→    bedTotal: calculateBedTotal(bedroomsEstimate[category]),
+   721→    headBoardTotal: calculateHeadBoardTotal(bedroomsEstimate[category]),
+   722→    prices: {
+   723→      wardrobeFinish: PRICES.wardrobeFinish,
+   724→      wardrobeSlidingMechanism: PRICES.wardrobeSlidingMechanism,
+   725→      bedroomLoftFinish: PRICES.bedroomLoftFinish,
+   726→      bedFinish: PRICES.bedFinish,
+   727→      headBoardRates: PRICES.headBoardRates
+   728→    },
+   729→    formatINR,
+   730→    onUpdateWardrobe: (field: string, value: string | boolean) => updateBedroom(category, 'wardrobe', field, value),
+   731→    onWardrobeTypeChange: (value: string) => handleBedroomWardrobeTypeChange(category, value),
+   732→    onUpdateLoft: (field: string, value: string) => updateBedroom(category, 'loft', field, value),
+   733→    onLoftTypeChange: (value: string) => handleBedroomLoftTypeChange(category, value),
+   734→    onUpdateBed: (field: string, value: string) => updateBedroom(category, 'bed', field, value),
+   735→    onBedSizeChange: (value: string) => handleBedSizeChange(category, value),
+   736→    onBedStorageTypeChange: (value: string) => handleBedStorageTypeChange(category, value),
+   737→    onUpdateHeadBoard: (field: string, value: string) => updateBedroom(category, 'headBoard', field, value),
+   738→  })
+   739→
+   740→  const bedroomCategoryLabels: Record<BedroomCategory, string> = {
+   741→    master: 'Master Bedroom',
+   742→    guest: 'Guest Bedroom',
+   743→    kids: 'Kids Bedroom'
+   744→  }
+   745→
+   746→  const formatINR = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+   747→
+   748→  return (
+   749→    <div className="min-h-screen bg-gray-50 flex flex-col">
+   750→      {/* Header */}
+   751→      <header className="bg-emerald-600 text-white shrink-0">
+   752→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+   753→          <div className="flex items-center justify-between">
+   754→            <div className="flex items-center gap-3">
+   755→              <div className="p-2 bg-white/20 rounded-lg">
+   756→                <Calculator className="w-6 h-6" />
+   757→              </div>
+   758→              <div>
+   759→                <h1 className="text-2xl font-bold tracking-tight">Interior Cost Estimator</h1>
+   760→                <p className="text-emerald-100 text-sm">Calculate kitchen, living room, bedroom & misc costs</p>
+   761→              </div>
+   762→            </div>
+   763→            {grandTotal > 0 && (
+   764→              <div className="hidden sm:flex items-center gap-2 bg-white/15 rounded-lg px-4 py-2">
+   765→                <IndianRupee className="w-4 h-4" />
+   766→                <span className="text-lg font-bold">{formatINR(grandTotal)}</span>
+   767→              </div>
+   768→            )}
+   769→          </div>
+   770→        </div>
+   771→      </header>
+   772→
+   773→      {/* Main Content */}
+   774→      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+   775→
+   776→        {/* Client Information */}
+   777→        <Card>
+   778→          <CardHeader className="bg-emerald-50 border-b border-emerald-100">
+   779→            <CardTitle className="text-emerald-800">Client Information</CardTitle>
+   780→            <CardDescription>Enter client details for the estimate</CardDescription>
+   781→          </CardHeader>
+   782→          <CardContent className="pt-6">
+   783→            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+   784→              <div className="space-y-2">
+   785→                <Label>Client Name *</Label>
+   786→                <Input
+   787→                  placeholder="Full name"
+   788→                  value={clientInfo.name}
+   789→                  onChange={(e) => setClientInfo({ ...clientInfo, name: e.target.value })}
+   790→                />
+   791→              </div>
+   792→              <div className="space-y-2">
+   793→                <Label>Address</Label>
+   794→                <Input
+   795→                  placeholder="Street / Area"
+   796→                  value={clientInfo.address}
+   797→                  onChange={(e) => setClientInfo({ ...clientInfo, address: e.target.value })}
+   798→                />
+   799→              </div>
+   800→              <div className="space-y-2">
+   801→                <Label>Contact Number</Label>
+   802→                <Input
+   803→                  type="tel"
+   804→                  placeholder="Mobile number"
+   805→                  value={clientInfo.contact}
+   806→                  onChange={(e) => setClientInfo({ ...clientInfo, contact: e.target.value })}
+   807→                />
+   808→              </div>
+   809→              <div className="space-y-2">
+   810→                <Label>Service Type *</Label>
+   811→                <Select
+   812→                  value={clientInfo.serviceType}
+   813→                  onValueChange={(value: ServiceType) => setClientInfo({ ...clientInfo, serviceType: value })}
+   814→                >
+   815→                  <SelectTrigger className="w-full">
+   816→                    <SelectValue placeholder="Select type" />
+   817→                  </SelectTrigger>
+   818→                  <SelectContent>
+   819→                    <SelectItem value="Kitchen Only">Kitchen Only</SelectItem>
+   820→                    <SelectItem value="Full Interior">Full Interior</SelectItem>
+   821→                  </SelectContent>
+   822→                </Select>
+   823→              </div>
+   824→            </div>
+   825→          </CardContent>
+   826→        </Card>
+   827→
+   828→        {/* Kitchen Type Selection */}
+   829→        {clientInfo.serviceType && (
+   830→          <Card>
+   831→            <CardHeader className="bg-blue-50 border-b border-blue-100">
+   832→              <CardTitle className="text-blue-800">Kitchen Configuration</CardTitle>
+   833→              <CardDescription>Select the kitchen modular type</CardDescription>
+   834→            </CardHeader>
+   835→            <CardContent className="pt-6">
+   836→              <div className="max-w-sm space-y-2">
+   837→                <Label>Kitchen Type *</Label>
+   838→                <Select value={kitchenType} onValueChange={handleKitchenTypeChange}>
+   839→                  <SelectTrigger className="w-full">
+   840→                    <SelectValue placeholder="Select type" />
+   841→                  </SelectTrigger>
+   842→                  <SelectContent>
+   843→                    <SelectItem value="Semi-Modular">Semi-Modular</SelectItem>
+   844→                    <SelectItem value="Full-Modular">Full-Modular</SelectItem>
+   845→                  </SelectContent>
+   846→                </Select>
+   847→                {kitchenType && (
+   848→                  <p className="text-sm text-muted-foreground">
+   849→                    Configured for <span className="font-semibold text-foreground">{kitchenType}</span> kitchen
+   850→                  </p>
+   851→                )}
+   852→              </div>
+   853→            </CardContent>
+   854→          </Card>
+   855→        )}
+   856→
+   857→        {/* Kitchen Components */}
+   858→        {(clientInfo.serviceType === 'Kitchen Only' || clientInfo.serviceType === 'Full Interior') && kitchenType && (
+   859→          <div className="space-y-6">
+   860→            <div className="flex items-center justify-between">
+   861→              <div className="flex items-center gap-2">
+   862→                <h2 className="text-lg font-semibold text-foreground">Kitchen Components</h2>
+   863→                <span className="text-sm text-muted-foreground">Define dimensions, finishes, and quantities</span>
+   864→              </div>
+   865→              <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={resetKitchenComponents}>
+   866→                <RotateCcw className="w-3.5 h-3.5" />
+   867→                Reset All
+   868→              </Button>
+   869→            </div>
+   870→
+   871→            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   872→
+   873→              {/* Component 1: Structure / Countertop or Ply Verticals */}
+   874→              <Card className="bg-amber-50 border-amber-200">
+   875→                <CardHeader className="pb-3">
+   876→                  <div className="flex items-center justify-between">
+   877→                    <CardTitle className="text-amber-800 text-base">
+   878→                      {kitchenType === 'Semi-Modular' ? 'Ply Verticals' : 'Structure / Countertop'}
+   879→                    </CardTitle>
+   880→                    <span className="text-sm font-semibold text-amber-700">
+   881→                      ₹{calculateComponentTotal('component1').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+   882→                    </span>
+   883→                  </div>
+   884→                </CardHeader>
+   885→                <CardContent>
+   886→                  {kitchenType === 'Semi-Modular' ? (
+   887→                    <div className="grid grid-cols-2 gap-3">
+   888→                      <div className="space-y-1.5">
+   889→                        <Label className="text-xs">Quantity</Label>
+   890→                        <Input type="number" placeholder="0" value={estimate.components.component1.quantity} onChange={(e) => updateComponent('component1', 'quantity', e.target.value)} />
+   891→                      </div>
+   892→                      <div className="space-y-1.5">
+   893→                        <Label className="text-xs">Rate / Unit</Label>
+   894→                        <Input value="₹1,500" disabled className="bg-white" />
+   895→                      </div>
+   896→                    </div>
+   897→                  ) : (
+   898→                    <div className="grid grid-cols-3 gap-3">
+   899→                      <div className="space-y-1.5">
+   900→                        <Label className="text-xs">Material</Label>
+   901→                        <Select value={estimate.components.component1.material} onValueChange={(value) => updateComponent('component1', 'material', value)}>
+   902→                          <SelectTrigger className="w-full">
+   903→                            <SelectValue placeholder="Select" />
+   904→                          </SelectTrigger>
+   905→                          <SelectContent>
+   906→                            <SelectItem value="Granite">Granite</SelectItem>
+   907→                            <SelectItem value="Quartz">Quartz</SelectItem>
+   908→                          </SelectContent>
+   909→                        </Select>
+   910→                      </div>
+   911→                      <div className="space-y-1.5">
+   912→                        <Label className="text-xs">Height (mm)</Label>
+   913→                        <Input type="number" placeholder="0" value={estimate.components.component1.height} onChange={(e) => updateComponent('component1', 'height', e.target.value)} />
+   914→                      </div>
+   915→                      <div className="space-y-1.5">
+   916→                        <Label className="text-xs">Width (mm)</Label>
+   917→                        <Input type="number" placeholder="0" value={estimate.components.component1.width} onChange={(e) => updateComponent('component1', 'width', e.target.value)} />
+   918→                      </div>
+   919→                    </div>
+   920→                  )}
+   921→                </CardContent>
+   922→              </Card>
+   923→
+   924→              {/* Tandem Drawers */}
+   925→              <Card className="bg-sky-50 border-sky-200">
+   926→                <CardHeader className="pb-3">
+   927→                  <div className="flex items-center justify-between">
+   928→                    <CardTitle className="text-sky-800 text-base">Tandem Drawers</CardTitle>
+   929→                    <span className="text-sm font-semibold text-sky-700">
+   930→                      ₹{calculateComponentTotal('tandemDrawers').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+   931→                    </span>
+   932→                  </div>
+   933→                </CardHeader>
+   934→                <CardContent>
+   935→                  <div className="grid grid-cols-3 gap-3">
+   936→                    <div className="space-y-1.5">
+   937→                      <Label className="text-xs">Brand</Label>
+   938→                      <Select value={estimate.components.tandemDrawers.brand} onValueChange={(value) => updateComponent('tandemDrawers', 'brand', value)}>
+   939→                        <SelectTrigger className="w-full">
+   940→                          <SelectValue placeholder="Select" />
+   941→                        </SelectTrigger>
+   942→                        <SelectContent>
+   943→                          <SelectItem value="Olive">Olive (₹8,000)</SelectItem>
+   944→                          <SelectItem value="Blum">Blum (₹12,000)</SelectItem>
+   945→                          <SelectItem value="Hettich">Hettich (₹12,000)</SelectItem>
+   946→                        </SelectContent>
+   947→                      </Select>
+   948→                    </div>
+   949→                    <div className="space-y-1.5">
+   950→                      <Label className="text-xs">Quantity</Label>
+   951→                      <Input type="number" placeholder="0" value={estimate.components.tandemDrawers.quantity} onChange={(e) => updateComponent('tandemDrawers', 'quantity', e.target.value)} />
+   952→                    </div>
+   953→                    <div className="space-y-1.5">
+   954→                      <Label className="text-xs">Rate / Unit</Label>
+   955→                      <Input value={estimate.components.tandemDrawers.brand ? formatINR(PRICES.tandemDrawers[estimate.components.tandemDrawers.brand as Brand]) : ''} disabled className="bg-white" />
+   956→                    </div>
+   957→                  </div>
+   958→                </CardContent>
+   959→              </Card>
+   960→
+   961→              {/* Dustbin + BTD */}
+   962→              <Card className="bg-rose-50 border-rose-200">
+   963→                <CardHeader className="pb-3">
+   964→                  <div className="flex items-center justify-between">
+   965→                    <CardTitle className="text-rose-800 text-base">Dustbin + BTD</CardTitle>
+   966→                    <span className="text-sm font-semibold text-rose-700">
+   967→                      ₹{calculateComponentTotal('dustbinBTD').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+   968→                    </span>
+   969→                  </div>
+   970→                </CardHeader>
+   971→                <CardContent>
+   972→                  <div className="grid grid-cols-3 gap-3">
+   973→                    <div className="space-y-1.5">
+   974→                      <Label className="text-xs">Brand</Label>
+   975→                      <Select value={estimate.components.dustbinBTD.brand} onValueChange={(value) => updateComponent('dustbinBTD', 'brand', value)}>
+   976→                        <SelectTrigger className="w-full">
+   977→                          <SelectValue placeholder="Select" />
+   978→                        </SelectTrigger>
+   979→                        <SelectContent>
+   980→                          <SelectItem value="Olive">Olive (₹7,500)</SelectItem>
+   981→                          <SelectItem value="Blum">Blum (₹7,500)</SelectItem>
+   982→                          <SelectItem value="Hettich">Hettich (₹7,500)</SelectItem>
+   983→                        </SelectContent>
+   984→                      </Select>
+   985→                    </div>
+   986→                    <div className="space-y-1.5">
+   987→                      <Label className="text-xs">Quantity</Label>
+   988→                      <Input type="number" placeholder="0" value={estimate.components.dustbinBTD.quantity} onChange={(e) => updateComponent('dustbinBTD', 'quantity', e.target.value)} />
+   989→                    </div>
+   990→                    <div className="space-y-1.5">
+   991→                      <Label className="text-xs">Rate / Unit</Label>
+   992→                      <Input value={estimate.components.dustbinBTD.brand ? formatINR(PRICES.dustbinBTD[estimate.components.dustbinBTD.brand as Brand]) : ''} disabled className="bg-white" />
+   993→                    </div>
+   994→                  </div>
+   995→                </CardContent>
+   996→              </Card>
+   997→
+   998→              {/* Bottle Pullout */}
+   999→              <Card className="bg-violet-50 border-violet-200">
+  1000→                <CardHeader className="pb-3">
+  1001→                  <div className="flex items-center justify-between">
+  1002→                    <CardTitle className="text-violet-800 text-base">Bottle Pullout</CardTitle>
+  1003→                    <span className="text-sm font-semibold text-violet-700">
+  1004→                      ₹{calculateComponentTotal('bottlePullout').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1005→                    </span>
+  1006→                  </div>
+  1007→                </CardHeader>
+  1008→                <CardContent>
+  1009→                  <div className="grid grid-cols-3 gap-3">
+  1010→                    <div className="space-y-1.5">
+  1011→                      <Label className="text-xs">Brand</Label>
+  1012→                      <Select value={estimate.components.bottlePullout.brand} onValueChange={(value) => updateComponent('bottlePullout', 'brand', value)}>
+  1013→                        <SelectTrigger className="w-full">
+  1014→                          <SelectValue placeholder="Select" />
+  1015→                        </SelectTrigger>
+  1016→                        <SelectContent>
+  1017→                          <SelectItem value="Olive">Olive (₹8,000)</SelectItem>
+  1018→                          <SelectItem value="Blum">Blum (₹8,000)</SelectItem>
+  1019→                          <SelectItem value="Hettich">Hettich (₹8,000)</SelectItem>
+  1020→                        </SelectContent>
+  1021→                      </Select>
+  1022→                    </div>
+  1023→                    <div className="space-y-1.5">
+  1024→                      <Label className="text-xs">Quantity</Label>
+  1025→                      <Input type="number" placeholder="0" value={estimate.components.bottlePullout.quantity} onChange={(e) => updateComponent('bottlePullout', 'quantity', e.target.value)} />
+  1026→                    </div>
+  1027→                    <div className="space-y-1.5">
+  1028→                      <Label className="text-xs">Rate / Unit</Label>
+  1029→                      <Input value={estimate.components.bottlePullout.brand ? formatINR(PRICES.bottlePullout[estimate.components.bottlePullout.brand as Brand]) : ''} disabled className="bg-white" />
+  1030→                    </div>
+  1031→                  </div>
+  1032→                </CardContent>
+  1033→              </Card>
+  1034→
+  1035→              {/* Wicker Basket */}
+  1036→              <Card className="bg-orange-50 border-orange-200">
+  1037→                <CardHeader className="pb-3">
+  1038→                  <div className="flex items-center justify-between">
+  1039→                    <CardTitle className="text-orange-800 text-base">Wicker Basket</CardTitle>
+  1040→                    <span className="text-sm font-semibold text-orange-700">
+  1041→                      ₹{calculateComponentTotal('wickerBasket').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1042→                    </span>
+  1043→                  </div>
+  1044→                </CardHeader>
+  1045→                <CardContent>
+  1046→                  <div className="grid grid-cols-3 gap-3">
+  1047→                    <div className="space-y-1.5">
+  1048→                      <Label className="text-xs">Brand</Label>
+  1049→                      <Select value={estimate.components.wickerBasket.brand} onValueChange={(value) => updateComponent('wickerBasket', 'brand', value)}>
+  1050→                        <SelectTrigger className="w-full">
+  1051→                          <SelectValue placeholder="Select" />
+  1052→                        </SelectTrigger>
+  1053→                        <SelectContent>
+  1054→                          <SelectItem value="Olive">Olive (₹7,500)</SelectItem>
+  1055→                          <SelectItem value="Hettich">Hettich (₹7,500)</SelectItem>
+  1056→                        </SelectContent>
+  1057→                      </Select>
+  1058→                    </div>
+  1059→                    <div className="space-y-1.5">
+  1060→                      <Label className="text-xs">Quantity</Label>
+  1061→                      <Input type="number" placeholder="0" value={estimate.components.wickerBasket.quantity} onChange={(e) => updateComponent('wickerBasket', 'quantity', e.target.value)} />
+  1062→                    </div>
+  1063→                    <div className="space-y-1.5">
+  1064→                      <Label className="text-xs">Rate / Unit</Label>
+  1065→                      <Input value={estimate.components.wickerBasket.brand ? formatINR(PRICES.wickerBasket[estimate.components.wickerBasket.brand as Brand]) : ''} disabled className="bg-white" />
+  1066→                    </div>
+  1067→                  </div>
+  1068→                </CardContent>
+  1069→              </Card>
+  1070→
+  1071→              {/* Tall Unit */}
+  1072→              <Card className="bg-teal-50 border-teal-200">
+  1073→                <CardHeader className="pb-3">
+  1074→                  <div className="flex items-center justify-between">
+  1075→                    <CardTitle className="text-teal-800 text-base">Tall Unit</CardTitle>
+  1076→                    <span className="text-sm font-semibold text-teal-700">
+  1077→                      ₹{calculateComponentTotal('tallUnit').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1078→                    </span>
+  1079→                  </div>
+  1080→                </CardHeader>
+  1081→                <CardContent>
+  1082→                  <div className="grid grid-cols-2 gap-3">
+  1083→                    <div className="space-y-1.5">
+  1084→                      <Label className="text-xs">Height (mm)</Label>
+  1085→                      <Input type="number" placeholder="0" value={estimate.components.tallUnit.height} onChange={(e) => updateComponent('tallUnit', 'height', e.target.value)} />
+  1086→                    </div>
+  1087→                    <div className="space-y-1.5">
+  1088→                      <Label className="text-xs">Width (mm)</Label>
+  1089→                      <Input type="number" placeholder="0" value={estimate.components.tallUnit.width} onChange={(e) => updateComponent('tallUnit', 'width', e.target.value)} />
+  1090→                    </div>
+  1091→                  </div>
+  1092→                  <div className="grid grid-cols-2 gap-3 mt-3">
+  1093→                    <div className="space-y-1.5">
+  1094→                      <Label className="text-xs">Finish</Label>
+  1095→                      <Select value={estimate.components.tallUnit.tallPantryFinish} onValueChange={(value) => updateComponent('tallUnit', 'tallPantryFinish', value)}>
+  1096→                        <SelectTrigger className="w-full">
+  1097→                          <SelectValue placeholder="Select" />
+  1098→                        </SelectTrigger>
+  1099→                        <SelectContent>
+  1100→                          <SelectItem value="SF">SF (₹1,450/sqft)</SelectItem>
+  1101→                          <SelectItem value="HGL">HGL (₹1,550/sqft)</SelectItem>
+  1102→                          <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+  1103→                          <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,150/sqft)</SelectItem>
+  1104→                        </SelectContent>
+  1105→                      </Select>
+  1106→                    </div>
+  1107→                    <div className="space-y-1.5">
+  1108→                      <Label className="text-xs">Quantity</Label>
+  1109→                      <Input type="number" placeholder="0" value={estimate.components.tallUnit.quantity} onChange={(e) => updateComponent('tallUnit', 'quantity', e.target.value)} />
+  1110→                    </div>
+  1111→                  </div>
+  1112→                </CardContent>
+  1113→              </Card>
+  1114→
+  1115→              {/* Pantry Unit */}
+  1116→              <Card className="bg-cyan-50 border-cyan-200">
+  1117→                <CardHeader className="pb-3">
+  1118→                  <div className="flex items-center justify-between">
+  1119→                    <CardTitle className="text-cyan-800 text-base">Pantry Unit</CardTitle>
+  1120→                    <span className="text-sm font-semibold text-cyan-700">
+  1121→                      ₹{calculateComponentTotal('pantryUnit').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1122→                    </span>
+  1123→                  </div>
+  1124→                </CardHeader>
+  1125→                <CardContent>
+  1126→                  <div className="grid grid-cols-2 gap-3">
+  1127→                    <div className="space-y-1.5">
+  1128→                      <Label className="text-xs">Height (mm)</Label>
+  1129→                      <Input type="number" placeholder="0" value={estimate.components.pantryUnit.height} onChange={(e) => updateComponent('pantryUnit', 'height', e.target.value)} />
+  1130→                    </div>
+  1131→                    <div className="space-y-1.5">
+  1132→                      <Label className="text-xs">Width (mm)</Label>
+  1133→                      <Input type="number" placeholder="0" value={estimate.components.pantryUnit.width} onChange={(e) => updateComponent('pantryUnit', 'width', e.target.value)} />
+  1134→                    </div>
+  1135→                  </div>
+  1136→                  <div className="grid grid-cols-2 gap-3 mt-3">
+  1137→                    <div className="space-y-1.5">
+  1138→                      <Label className="text-xs">Finish</Label>
+  1139→                      <Select value={estimate.components.pantryUnit.tallPantryFinish} onValueChange={(value) => updateComponent('pantryUnit', 'tallPantryFinish', value)}>
+  1140→                        <SelectTrigger className="w-full">
+  1141→                          <SelectValue placeholder="Select" />
+  1142→                        </SelectTrigger>
+  1143→                        <SelectContent>
+  1144→                          <SelectItem value="SF">SF (₹1,450/sqft)</SelectItem>
+  1145→                          <SelectItem value="HGL">HGL (₹1,550/sqft)</SelectItem>
+  1146→                          <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+  1147→                          <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,150/sqft)</SelectItem>
+  1148→                        </SelectContent>
+  1149→                      </Select>
+  1150→                    </div>
+  1151→                    <div className="space-y-1.5">
+  1152→                      <Label className="text-xs">Accessories</Label>
+  1153→                      <Select value={estimate.components.pantryUnit.accessories} onValueChange={(value) => updateComponent('pantryUnit', 'accessories', value)}>
+  1154→                        <SelectTrigger className="w-full">
+  1155→                          <SelectValue placeholder="Select" />
+  1156→                        </SelectTrigger>
+  1157→                        <SelectContent>
+  1158→                          <SelectItem value="Pullout">Pullout (₹21,000)</SelectItem>
+  1159→                          <SelectItem value="Openable (6+6 basket)">Openable 6+6 (₹40,000)</SelectItem>
+  1160→                        </SelectContent>
+  1161→                      </Select>
+  1162→                    </div>
+  1163→                  </div>
+  1164→                </CardContent>
+  1165→              </Card>
+  1166→
+  1167→              {/* Base Carcase */}
+  1168→              <Card className="bg-stone-50 border-stone-200">
+  1169→                <CardHeader className="pb-3">
+  1170→                  <div className="flex items-center justify-between">
+  1171→                    <CardTitle className="text-stone-800 text-base">Base Carcase</CardTitle>
+  1172→                    <span className="text-sm font-semibold text-stone-700">
+  1173→                      ₹{calculateComponentTotal('baseCarcase').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1174→                    </span>
+  1175→                  </div>
+  1176→                </CardHeader>
+  1177→                <CardContent>
+  1178→                  <div className="grid grid-cols-3 gap-3">
+  1179→                    <div className="space-y-1.5">
+  1180→                      <Label className="text-xs">Height (mm)</Label>
+  1181→                      <Input type="number" placeholder="0" value={estimate.components.baseCarcase.height} onChange={(e) => updateComponent('baseCarcase', 'height', e.target.value)} />
+  1182→                    </div>
+  1183→                    <div className="space-y-1.5">
+  1184→                      <Label className="text-xs">Width (mm)</Label>
+  1185→                      <Input type="number" placeholder="0" value={estimate.components.baseCarcase.width} onChange={(e) => updateComponent('baseCarcase', 'width', e.target.value)} />
+  1186→                    </div>
+  1187→                    <div className="space-y-1.5">
+  1188→                      <Label className="text-xs">Rate / sqft</Label>
+  1189→                      <Input value="₹1,650" disabled className="bg-white" />
+  1190→                    </div>
+  1191→                  </div>
+  1192→                </CardContent>
+  1193→              </Card>
+  1194→
+  1195→              {/* Overhead Cabinet */}
+  1196→              <Card className="bg-green-50 border-green-200">
+  1197→                <CardHeader className="pb-3">
+  1198→                  <div className="flex items-center justify-between">
+  1199→                    <CardTitle className="text-green-800 text-base">Overhead Cabinet</CardTitle>
+  1200→                    <span className="text-sm font-semibold text-green-700">
+  1201→                      ₹{calculateComponentTotal('overheadCabinet').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1202→                    </span>
+  1203→                  </div>
+  1204→                </CardHeader>
+  1205→                <CardContent>
+  1206→                  <div className="grid grid-cols-2 gap-3">
+  1207→                    <div className="space-y-1.5">
+  1208→                      <Label className="text-xs">Height (mm)</Label>
+  1209→                      <Input type="number" placeholder="0" value={estimate.components.overheadCabinet.height} onChange={(e) => updateComponent('overheadCabinet', 'height', e.target.value)} />
+  1210→                    </div>
+  1211→                    <div className="space-y-1.5">
+  1212→                      <Label className="text-xs">Width (mm)</Label>
+  1213→                      <Input type="number" placeholder="0" value={estimate.components.overheadCabinet.width} onChange={(e) => updateComponent('overheadCabinet', 'width', e.target.value)} />
+  1214→                    </div>
+  1215→                  </div>
+  1216→                  <div className="grid grid-cols-2 gap-3 mt-3">
+  1217→                    <div className="space-y-1.5">
+  1218→                      <Label className="text-xs">Finish</Label>
+  1219→                      <Select value={estimate.components.overheadCabinet.overheadCabinetFinish} onValueChange={(value) => updateComponent('overheadCabinet', 'overheadCabinetFinish', value)}>
+  1220→                        <SelectTrigger className="w-full">
+  1221→                          <SelectValue placeholder="Select" />
+  1222→                        </SelectTrigger>
+  1223→                        <SelectContent>
+  1224→                          <SelectItem value="SF">SF (₹1,350/sqft)</SelectItem>
+  1225→                          <SelectItem value="HGL">HGL (₹1,475/sqft)</SelectItem>
+  1226→                          <SelectItem value="Acrylic">Acrylic (₹2,050/sqft)</SelectItem>
+  1227→                          <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,250/sqft)</SelectItem>
+  1228→                        </SelectContent>
+  1229→                      </Select>
+  1230→                    </div>
+  1231→                    <div className="space-y-1.5">
+  1232→                      <Label className="text-xs">Rate / sqft</Label>
+  1233→                      <Input
+  1234→                        value={estimate.components.overheadCabinet.overheadCabinetFinish ? formatINR(PRICES.overheadCabinetFinish[estimate.components.overheadCabinet.overheadCabinetFinish as OverheadCabinetFinishType]) : ''}
+  1235→                        disabled
+  1236→                        className="bg-white"
+  1237→                      />
+  1238→                    </div>
+  1239→                  </div>
+  1240→                </CardContent>
+  1241→              </Card>
+  1242→
+  1243→              {/* Overhead Loft */}
+  1244→              <Card className="bg-indigo-50 border-indigo-200">
+  1245→                <CardHeader className="pb-3">
+  1246→                  <div className="flex items-center justify-between">
+  1247→                    <CardTitle className="text-indigo-800 text-base">Overhead Loft</CardTitle>
+  1248→                    <span className="text-sm font-semibold text-indigo-700">
+  1249→                      ₹{calculateComponentTotal('overheadLoft').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1250→                    </span>
+  1251→                  </div>
+  1252→                </CardHeader>
+  1253→                <CardContent>
+  1254→                  <div className="grid grid-cols-2 gap-3">
+  1255→                    <div className="space-y-1.5">
+  1256→                      <Label className="text-xs">Loft Type</Label>
+  1257→                      <Select value={estimate.components.overheadLoft.loftType} onValueChange={(value) => updateComponent('overheadLoft', 'loftType', value)}>
+  1258→                        <SelectTrigger className="w-full">
+  1259→                          <SelectValue placeholder="Select" />
+  1260→                        </SelectTrigger>
+  1261→                        <SelectContent>
+  1262→                          <SelectItem value="Frame Loft">Frame Loft (₹1,150)</SelectItem>
+  1263→                          <SelectItem value="Box Loft">Box Loft (₹1,250)</SelectItem>
+  1264→                        </SelectContent>
+  1265→                      </Select>
+  1266→                    </div>
+  1267→                    <div className="space-y-1.5">
+  1268→                      <Label className="text-xs">Finish</Label>
+  1269→                      <Select value={estimate.components.overheadLoft.finish} onValueChange={(value) => updateComponent('overheadLoft', 'finish', value)}>
+  1270→                        <SelectTrigger className="w-full">
+  1271→                          <SelectValue placeholder="Select" />
+  1272→                        </SelectTrigger>
+  1273→                        <SelectContent>
+  1274→                          <SelectItem value="Acrylic">Acrylic (₹1,850)</SelectItem>
+  1275→                          <SelectItem value="Laminate">Laminate (₹1,200)</SelectItem>
+  1276→                          <SelectItem value="UV">UV (₹1,400)</SelectItem>
+  1277→                          <SelectItem value="PU">PU (₹1,600)</SelectItem>
+  1278→                        </SelectContent>
+  1279→                      </Select>
+  1280→                    </div>
+  1281→                  </div>
+  1282→                  <div className="grid grid-cols-2 gap-3 mt-3">
+  1283→                    <div className="space-y-1.5">
+  1284→                      <Label className="text-xs">Height (mm)</Label>
+  1285→                      <Input type="number" placeholder="0" value={estimate.components.overheadLoft.height} onChange={(e) => updateComponent('overheadLoft', 'height', e.target.value)} />
+  1286→                    </div>
+  1287→                    <div className="space-y-1.5">
+  1288→                      <Label className="text-xs">Width (mm)</Label>
+  1289→                      <Input type="number" placeholder="0" value={estimate.components.overheadLoft.width} onChange={(e) => updateComponent('overheadLoft', 'width', e.target.value)} />
+  1290→                    </div>
+  1291→                  </div>
+  1292→                </CardContent>
+  1293→              </Card>
+  1294→
+  1295→              {/* Profile Shutter with Glass */}
+  1296→              <Card className="bg-fuchsia-50 border-fuchsia-200">
+  1297→                <CardHeader className="pb-3">
+  1298→                  <div className="flex items-center justify-between">
+  1299→                    <CardTitle className="text-fuchsia-800 text-base">Profile Shutter with Glass</CardTitle>
+  1300→                    <span className="text-sm font-semibold text-fuchsia-700">
+  1301→                      ₹{calculateComponentTotal('profileShutter').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1302→                    </span>
+  1303→                  </div>
+  1304→                </CardHeader>
+  1305→                <CardContent>
+  1306→                  <div className="grid grid-cols-2 gap-3">
+  1307→                    <div className="space-y-1.5">
+  1308→                      <Label className="text-xs">Quantity (nos)</Label>
+  1309→                      <Input type="number" placeholder="0" value={estimate.components.profileShutter.quantity} onChange={(e) => updateComponent('profileShutter', 'quantity', e.target.value)} />
+  1310→                    </div>
+  1311→                    <div className="space-y-1.5">
+  1312→                      <Label className="text-xs">Price / sqft (₹)</Label>
+  1313→                      <Input type="number" placeholder="0" value={estimate.components.profileShutter.price} onChange={(e) => updateComponent('profileShutter', 'price', e.target.value)} />
+  1314→                    </div>
+  1315→                  </div>
+  1316→                </CardContent>
+  1317→              </Card>
+  1318→
+  1319→              {/* Handles */}
+  1320→              <Card className="bg-lime-50 border-lime-200">
+  1321→                <CardHeader className="pb-3">
+  1322→                  <div className="flex items-center justify-between">
+  1323→                    <CardTitle className="text-lime-800 text-base">Handles</CardTitle>
+  1324→                    <span className="text-sm font-semibold text-lime-700">
+  1325→                      ₹{calculateComponentTotal('handles').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1326→                    </span>
+  1327→                  </div>
+  1328→                </CardHeader>
+  1329→                <CardContent>
+  1330→                  <div className="grid grid-cols-3 gap-3">
+  1331→                    <div className="space-y-1.5">
+  1332→                      <Label className="text-xs">Handle Type</Label>
+  1333→                      <Select value={estimate.components.handles.handleType} onValueChange={(value) => updateComponent('handles', 'handleType', value)}>
+  1334→                        <SelectTrigger className="w-full">
+  1335→                          <SelectValue placeholder="Select" />
+  1336→                        </SelectTrigger>
+  1337→                        <SelectContent>
+  1338→                          <SelectItem value="TopEdge">TopEdge</SelectItem>
+  1339→                          <SelectItem value="G Profile">G Profile</SelectItem>
+  1340→                          <SelectItem value="J Profile">J Profile</SelectItem>
+  1341→                          <SelectItem value="Regular Handle">Regular Handle</SelectItem>
+  1342→                        </SelectContent>
+  1343→                      </Select>
+  1344→                    </div>
+  1345→                    <div className="space-y-1.5">
+  1346→                      <Label className="text-xs">Running Ft</Label>
+  1347→                      <Input type="number" placeholder="0" value={estimate.components.handles.runningFeet} onChange={(e) => updateComponent('handles', 'runningFeet', e.target.value)} />
+  1348→                    </div>
+  1349→                    <div className="space-y-1.5">
+  1350→                      <Label className="text-xs">Price / Rft (₹)</Label>
+  1351→                      <Input type="number" placeholder="0" value={estimate.components.handles.handlePrice} onChange={(e) => updateComponent('handles', 'handlePrice', e.target.value)} />
+  1352→                    </div>
+  1353→                  </div>
+  1354→                </CardContent>
+  1355→              </Card>
+  1356→            </div>
+  1357→
+  1358→            {/* Kitchen Summary */}
+  1359→            <Card>
+  1360→              <CardHeader className="bg-emerald-50 border-b border-emerald-100">
+  1361→                <CardTitle className="text-emerald-800">Kitchen Cost Breakdown</CardTitle>
+  1362→              </CardHeader>
+  1363→              <CardContent className="p-0">
+  1364→                <Table>
+  1365→                  <TableHeader>
+  1366→                    <TableRow className="hover:bg-transparent">
+  1367→                      <TableHead className="font-semibold">Component</TableHead>
+  1368→                      <TableHead className="text-right font-semibold">Amount (₹)</TableHead>
+  1369→                    </TableRow>
+  1370→                  </TableHeader>
+  1371→                  <TableBody>
+  1372→                    {Object.keys(estimate.components).map((key) => {
+  1373→                      const componentKey = key as keyof KitchenEstimate['components']
+  1374→                      const total = calculateComponentTotal(componentKey)
+  1375→                      if (total > 0) {
+  1376→                        return (
+  1377→                          <TableRow key={key}>
+  1378→                            <TableCell className="font-medium">{getComponentLabel(componentKey)}</TableCell>
+  1379→                            <TableCell className="text-right font-semibold">{total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1380→                          </TableRow>
+  1381→                        )
+  1382→                      }
+  1383→                      return null
+  1384→                    })}
+  1385→                    <TableRow className="bg-emerald-50 hover:bg-emerald-50 font-bold">
+  1386→                      <TableCell className="font-bold text-emerald-900">Kitchen Total</TableCell>
+  1387→                      <TableCell className="text-right font-bold text-emerald-900">{totalEstimatedCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1388→                    </TableRow>
+  1389→                  </TableBody>
+  1390→                </Table>
+  1391→              </CardContent>
+  1392→            </Card>
+  1393→          </div>
+  1394→        )}
+  1395→
+  1396→        {/* Living Room Components */}
+  1397→        {clientInfo.serviceType === 'Full Interior' && (
+  1398→          <div className="space-y-6">
+  1399→            <div className="flex items-center justify-between">
+  1400→              <div className="flex items-center gap-2">
+  1401→                <h2 className="text-lg font-semibold text-foreground">Living Room — TV Unit</h2>
+  1402→                <span className="text-sm text-muted-foreground">Define living room module specifications</span>
+  1403→              </div>
+  1404→              <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={resetLivingRoomComponents}>
+  1405→                <RotateCcw className="w-3.5 h-3.5" />
+  1406→                Reset All
+  1407→              </Button>
+  1408→            </div>
+  1409→
+  1410→            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  1411→
+  1412→              {/* Chest of Drawers */}
+  1413→              <Card className="bg-pink-50 border-pink-200">
+  1414→                <CardHeader className="pb-3">
+  1415→                  <div className="flex items-center justify-between">
+  1416→                    <CardTitle className="text-pink-800 text-base">Chest of Drawers</CardTitle>
+  1417→                    <span className="text-sm font-semibold text-pink-700">
+  1418→                      ₹{calculateLivingRoomComponentTotal('chestOfDrawers').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1419→                    </span>
+  1420→                  </div>
+  1421→                </CardHeader>
+  1422→                <CardContent>
+  1423→                  <div className="grid grid-cols-2 gap-3">
+  1424→                    <div className="space-y-1.5">
+  1425→                      <Label className="text-xs">Height (mm)</Label>
+  1426→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.chestOfDrawers.height} onChange={(e) => updateLivingRoomComponent('chestOfDrawers', 'height', e.target.value)} />
+  1427→                    </div>
+  1428→                    <div className="space-y-1.5">
+  1429→                      <Label className="text-xs">Width (mm)</Label>
+  1430→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.chestOfDrawers.width} onChange={(e) => updateLivingRoomComponent('chestOfDrawers', 'width', e.target.value)} />
+  1431→                    </div>
+  1432→                  </div>
+  1433→                  <div className="mt-3 space-y-1.5">
+  1434→                    <Label className="text-xs">Finish</Label>
+  1435→                    <Select value={livingRoomEstimate.components.chestOfDrawers.tallPantryFinish} onValueChange={(value) => updateLivingRoomComponent('chestOfDrawers', 'tallPantryFinish', value)}>
+  1436→                      <SelectTrigger className="w-full">
+  1437→                        <SelectValue placeholder="Select" />
+  1438→                      </SelectTrigger>
+  1439→                      <SelectContent>
+  1440→                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+  1441→                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+  1442→                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+  1443→                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+  1444→                      </SelectContent>
+  1445→                    </Select>
+  1446→                  </div>
+  1447→                </CardContent>
+  1448→              </Card>
+  1449→
+  1450→              {/* Base Cabinet with shutters */}
+  1451→              <Card className="bg-purple-50 border-purple-200">
+  1452→                <CardHeader className="pb-3">
+  1453→                  <div className="flex items-center justify-between">
+  1454→                    <CardTitle className="text-purple-800 text-base">Base Cabinet with Shutters</CardTitle>
+  1455→                    <span className="text-sm font-semibold text-purple-700">
+  1456→                      ₹{calculateLivingRoomComponentTotal('baseCabinet').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1457→                    </span>
+  1458→                  </div>
+  1459→                </CardHeader>
+  1460→                <CardContent>
+  1461→                  <div className="grid grid-cols-2 gap-3">
+  1462→                    <div className="space-y-1.5">
+  1463→                      <Label className="text-xs">Height (mm)</Label>
+  1464→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.baseCabinet.height} onChange={(e) => updateLivingRoomComponent('baseCabinet', 'height', e.target.value)} />
+  1465→                    </div>
+  1466→                    <div className="space-y-1.5">
+  1467→                      <Label className="text-xs">Width (mm)</Label>
+  1468→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.baseCabinet.width} onChange={(e) => updateLivingRoomComponent('baseCabinet', 'width', e.target.value)} />
+  1469→                    </div>
+  1470→                  </div>
+  1471→                  <div className="mt-3 space-y-1.5">
+  1472→                    <Label className="text-xs">Finish</Label>
+  1473→                    <Select value={livingRoomEstimate.components.baseCabinet.tallPantryFinish} onValueChange={(value) => updateLivingRoomComponent('baseCabinet', 'tallPantryFinish', value)}>
+  1474→                      <SelectTrigger className="w-full">
+  1475→                        <SelectValue placeholder="Select" />
+  1476→                      </SelectTrigger>
+  1477→                      <SelectContent>
+  1478→                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+  1479→                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+  1480→                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+  1481→                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+  1482→                      </SelectContent>
+  1483→                    </Select>
+  1484→                  </div>
+  1485→                </CardContent>
+  1486→              </Card>
+  1487→
+  1488→              {/* Living Room Tall Unit */}
+  1489→              <Card className="bg-sky-50 border-sky-200">
+  1490→                <CardHeader className="pb-3">
+  1491→                  <div className="flex items-center justify-between">
+  1492→                    <CardTitle className="text-sky-800 text-base">Tall Unit</CardTitle>
+  1493→                    <span className="text-sm font-semibold text-sky-700">
+  1494→                      ₹{calculateLivingRoomComponentTotal('livingRoomTallUnit').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1495→                    </span>
+  1496→                  </div>
+  1497→                </CardHeader>
+  1498→                <CardContent>
+  1499→                  <div className="grid grid-cols-2 gap-3">
+  1500→                    <div className="space-y-1.5">
+  1501→                      <Label className="text-xs">Height (mm)</Label>
+  1502→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.livingRoomTallUnit.height} onChange={(e) => updateLivingRoomComponent('livingRoomTallUnit', 'height', e.target.value)} />
+  1503→                    </div>
+  1504→                    <div className="space-y-1.5">
+  1505→                      <Label className="text-xs">Width (mm)</Label>
+  1506→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.livingRoomTallUnit.width} onChange={(e) => updateLivingRoomComponent('livingRoomTallUnit', 'width', e.target.value)} />
+  1507→                    </div>
+  1508→                  </div>
+  1509→                  <div className="mt-3 space-y-1.5">
+  1510→                    <Label className="text-xs">Finish</Label>
+  1511→                    <Select value={livingRoomEstimate.components.livingRoomTallUnit.tallPantryFinish} onValueChange={(value) => updateLivingRoomComponent('livingRoomTallUnit', 'tallPantryFinish', value)}>
+  1512→                      <SelectTrigger className="w-full">
+  1513→                        <SelectValue placeholder="Select" />
+  1514→                      </SelectTrigger>
+  1515→                      <SelectContent>
+  1516→                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+  1517→                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+  1518→                        <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+  1519→                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+  1520→                      </SelectContent>
+  1521→                    </Select>
+  1522→                  </div>
+  1523→                </CardContent>
+  1524→              </Card>
+  1525→
+  1526→              {/* Back Panel */}
+  1527→              <Card className="bg-amber-50 border-amber-200">
+  1528→                <CardHeader className="pb-3">
+  1529→                  <div className="flex items-center justify-between">
+  1530→                    <CardTitle className="text-amber-800 text-base">Back Panel</CardTitle>
+  1531→                    <span className="text-sm font-semibold text-amber-700">
+  1532→                      ₹{calculateLivingRoomComponentTotal('backPanel').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1533→                    </span>
+  1534→                  </div>
+  1535→                </CardHeader>
+  1536→                <CardContent>
+  1537→                  <div className="grid grid-cols-2 gap-3">
+  1538→                    <div className="space-y-1.5">
+  1539→                      <Label className="text-xs">Height (mm)</Label>
+  1540→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.backPanel.height} onChange={(e) => updateLivingRoomComponent('backPanel', 'height', e.target.value)} />
+  1541→                    </div>
+  1542→                    <div className="space-y-1.5">
+  1543→                      <Label className="text-xs">Width (mm)</Label>
+  1544→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.backPanel.width} onChange={(e) => updateLivingRoomComponent('backPanel', 'width', e.target.value)} />
+  1545→                    </div>
+  1546→                  </div>
+  1547→                  <div className="mt-3 space-y-1.5">
+  1548→                    <Label className="text-xs">Finish</Label>
+  1549→                    <Select value={livingRoomEstimate.components.backPanel.loftType} onValueChange={(value) => updateLivingRoomComponent('backPanel', 'loftType', value)}>
+  1550→                      <SelectTrigger className="w-full">
+  1551→                        <SelectValue placeholder="Select" />
+  1552→                      </SelectTrigger>
+  1553→                      <SelectContent>
+  1554→                        <SelectItem value="HGL">HGL (₹650/sqft)</SelectItem>
+  1555→                        <SelectItem value="SF">SF (₹550/sqft)</SelectItem>
+  1556→                        <SelectItem value="Acrylic">Acrylic (₹1,175/sqft)</SelectItem>
+  1557→                        <SelectItem value="Veneer">Veneer (₹950/sqft)</SelectItem>
+  1558→                      </SelectContent>
+  1559→                    </Select>
+  1560→                  </div>
+  1561→                </CardContent>
+  1562→              </Card>
+  1563→
+  1564→              {/* Ledge/Shelf */}
+  1565→              <Card className="bg-green-50 border-green-200">
+  1566→                <CardHeader className="pb-3">
+  1567→                  <div className="flex items-center justify-between">
+  1568→                    <CardTitle className="text-green-800 text-base">Ledge / Shelf</CardTitle>
+  1569→                    <span className="text-sm font-semibold text-green-700">
+  1570→                      ₹{calculateLivingRoomComponentTotal('ledgeShelf').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1571→                    </span>
+  1572→                  </div>
+  1573→                </CardHeader>
+  1574→                <CardContent>
+  1575→                  <div className="grid grid-cols-3 gap-3">
+  1576→                    <div className="space-y-1.5">
+  1577→                      <Label className="text-xs">Height (mm)</Label>
+  1578→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.ledgeShelf.height} onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'height', e.target.value)} />
+  1579→                    </div>
+  1580→                    <div className="space-y-1.5">
+  1581→                      <Label className="text-xs">Width (mm)</Label>
+  1582→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.ledgeShelf.width} onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'width', e.target.value)} />
+  1583→                    </div>
+  1584→                    <div className="space-y-1.5">
+  1585→                      <Label className="text-xs">Quantity</Label>
+  1586→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.ledgeShelf.quantity} onChange={(e) => updateLivingRoomComponent('ledgeShelf', 'quantity', e.target.value)} />
+  1587→                    </div>
+  1588→                  </div>
+  1589→                </CardContent>
+  1590→              </Card>
+  1591→
+  1592→              {/* Fluted Panel */}
+  1593→              <Card className="bg-teal-50 border-teal-200">
+  1594→                <CardHeader className="pb-3">
+  1595→                  <div className="flex items-center justify-between">
+  1596→                    <CardTitle className="text-teal-800 text-base">Fluted Panel</CardTitle>
+  1597→                    <span className="text-sm font-semibold text-teal-700">
+  1598→                      ₹{calculateLivingRoomComponentTotal('flutedPanel').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1599→                    </span>
+  1600→                  </div>
+  1601→                </CardHeader>
+  1602→                <CardContent>
+  1603→                  <div className="grid grid-cols-2 gap-3">
+  1604→                    <div className="space-y-1.5">
+  1605→                      <Label className="text-xs">Quantity (pieces)</Label>
+  1606→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.flutedPanel.quantity} onChange={(e) => updateLivingRoomComponent('flutedPanel', 'quantity', e.target.value)} />
+  1607→                    </div>
+  1608→                    <div className="space-y-1.5">
+  1609→                      <Label className="text-xs">Rate / Piece</Label>
+  1610→                      <Input value="₹900" disabled className="bg-white" />
+  1611→                    </div>
+  1612→                  </div>
+  1613→                </CardContent>
+  1614→              </Card>
+  1615→
+  1616→              {/* Shoe Rack */}
+  1617→              <Card className="bg-rose-50 border-rose-200">
+  1618→                <CardHeader className="pb-3">
+  1619→                  <div className="flex items-center justify-between">
+  1620→                    <CardTitle className="text-rose-800 text-base">Shoe Rack</CardTitle>
+  1621→                    <span className="text-sm font-semibold text-rose-700">
+  1622→                      ₹{calculateLivingRoomComponentTotal('shoeRack').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1623→                    </span>
+  1624→                  </div>
+  1625→                </CardHeader>
+  1626→                <CardContent>
+  1627→                  <div className="grid grid-cols-2 gap-3">
+  1628→                    <div className="space-y-1.5">
+  1629→                      <Label className="text-xs">Height (mm)</Label>
+  1630→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.shoeRack.height} onChange={(e) => updateLivingRoomComponent('shoeRack', 'height', e.target.value)} />
+  1631→                    </div>
+  1632→                    <div className="space-y-1.5">
+  1633→                      <Label className="text-xs">Width (mm)</Label>
+  1634→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.shoeRack.width} onChange={(e) => updateLivingRoomComponent('shoeRack', 'width', e.target.value)} />
+  1635→                    </div>
+  1636→                  </div>
+  1637→                  <div className="mt-3 space-y-1.5">
+  1638→                    <Label className="text-xs">Finish</Label>
+  1639→                    <Select value={livingRoomEstimate.components.shoeRack.tallPantryFinish} onValueChange={(value) => updateLivingRoomComponent('shoeRack', 'tallPantryFinish', value)}>
+  1640→                      <SelectTrigger className="w-full">
+  1641→                        <SelectValue placeholder="Select" />
+  1642→                      </SelectTrigger>
+  1643→                      <SelectContent>
+  1644→                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
+  1645→                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
+  1646→                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
+  1647→                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+  1648→                      </SelectContent>
+  1649→                    </Select>
+  1650→                  </div>
+  1651→                </CardContent>
+  1652→              </Card>
+  1653→
+  1654→              {/* Sitting with Cushion */}
+  1655→              <Card className="bg-orange-50 border-orange-200">
+  1656→                <CardHeader className="pb-3">
+  1657→                  <div className="flex items-center justify-between">
+  1658→                    <CardTitle className="text-orange-800 text-base">Sitting with Cushion</CardTitle>
+  1659→                    <span className="text-sm font-semibold text-orange-700">
+  1660→                      ₹{calculateLivingRoomComponentTotal('sittingWithCushion').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1661→                    </span>
+  1662→                  </div>
+  1663→                </CardHeader>
+  1664→                <CardContent>
+  1665→                  <div className="grid grid-cols-3 gap-3">
+  1666→                    <div className="space-y-1.5">
+  1667→                      <Label className="text-xs">Height (mm)</Label>
+  1668→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.sittingWithCushion.height} onChange={(e) => updateLivingRoomComponent('sittingWithCushion', 'height', e.target.value)} />
+  1669→                    </div>
+  1670→                    <div className="space-y-1.5">
+  1671→                      <Label className="text-xs">Width (mm)</Label>
+  1672→                      <Input type="number" placeholder="0" value={livingRoomEstimate.components.sittingWithCushion.width} onChange={(e) => updateLivingRoomComponent('sittingWithCushion', 'width', e.target.value)} />
+  1673→                    </div>
+  1674→                    <div className="space-y-1.5">
+  1675→                      <Label className="text-xs">Rate / sqft</Label>
+  1676→                      <Input value="₹1,350" disabled className="bg-white" />
+  1677→                    </div>
+  1678→                  </div>
+  1679→                </CardContent>
+  1680→              </Card>
+  1681→            </div>
+  1682→
+  1683→            {/* Living Room Summary */}
+  1684→            <Card>
+  1685→              <CardHeader className="bg-purple-50 border-b border-purple-100">
+  1686→                <CardTitle className="text-purple-800">Living Room Cost Breakdown</CardTitle>
+  1687→              </CardHeader>
+  1688→              <CardContent className="p-0">
+  1689→                <Table>
+  1690→                  <TableHeader>
+  1691→                    <TableRow className="hover:bg-transparent">
+  1692→                      <TableHead className="font-semibold">Component</TableHead>
+  1693→                      <TableHead className="text-right font-semibold">Amount (₹)</TableHead>
+  1694→                    </TableRow>
+  1695→                  </TableHeader>
+  1696→                  <TableBody>
+  1697→                    {Object.keys(livingRoomEstimate.components).map((key) => {
+  1698→                      const componentKey = key as keyof LivingRoomEstimate['components']
+  1699→                      const total = calculateLivingRoomComponentTotal(componentKey)
+  1700→                      if (total > 0) {
+  1701→                        return (
+  1702→                          <TableRow key={key}>
+  1703→                            <TableCell className="font-medium">{getLivingRoomComponentLabel(componentKey)}</TableCell>
+  1704→                            <TableCell className="text-right font-semibold">{total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1705→                          </TableRow>
+  1706→                        )
+  1707→                      }
+  1708→                      return null
+  1709→                    })}
+  1710→                    <TableRow className="bg-purple-50 hover:bg-purple-50 font-bold">
+  1711→                      <TableCell className="font-bold text-purple-900">Living Room Total</TableCell>
+  1712→                      <TableCell className="text-right font-bold text-purple-900">{totalLivingRoomCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1713→                    </TableRow>
+  1714→                  </TableBody>
+  1715→                </Table>
+  1716→              </CardContent>
+  1717→            </Card>
+  1718→          </div>
+  1719→        )}
+  1720→
+  1721→        {/* Bedroom Components */}
+  1722→        {clientInfo.serviceType === 'Full Interior' && (
+  1723→          <div className="space-y-6">
+  1724→            <div className="flex items-center justify-between">
+  1725→              <div className="flex items-center gap-2">
+  1726→                <BedDouble className="w-5 h-5 text-emerald-600" />
+  1727→                <h2 className="text-lg font-semibold text-foreground">Bedroom</h2>
+  1728→                <span className="text-sm text-muted-foreground">Configure wardrobe, loft, bed & head board per bedroom type</span>
+  1729→              </div>
+  1730→              <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={resetBedroomComponents}>
+  1731→                <RotateCcw className="w-3.5 h-3.5" />
+  1732→                Reset All
+  1733→              </Button>
+  1734→            </div>
+  1735→
+  1736→            <Tabs defaultValue="master">
+  1737→              <TabsList className="grid w-full grid-cols-3">
+  1738→                <TabsTrigger value="master" className="gap-2">
+  1739→                  Master Bedroom
+  1740→                  {calculateSingleBedroomTotal(bedroomsEstimate.master) > 0 && (
+  1741→                    <span className="ml-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+  1742→                      ₹{calculateSingleBedroomTotal(bedroomsEstimate.master).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1743→                    </span>
+  1744→                  )}
+  1745→                </TabsTrigger>
+  1746→                <TabsTrigger value="guest" className="gap-2">
+  1747→                  Guest Bedroom
+  1748→                  {calculateSingleBedroomTotal(bedroomsEstimate.guest) > 0 && (
+  1749→                    <span className="ml-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+  1750→                      ₹{calculateSingleBedroomTotal(bedroomsEstimate.guest).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1751→                    </span>
+  1752→                  )}
+  1753→                </TabsTrigger>
+  1754→                <TabsTrigger value="kids" className="gap-2">
+  1755→                  Kids Bedroom
+  1756→                  {calculateSingleBedroomTotal(bedroomsEstimate.kids) > 0 && (
+  1757→                    <span className="ml-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+  1758→                      ₹{calculateSingleBedroomTotal(bedroomsEstimate.kids).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1759→                    </span>
+  1760→                  )}
+  1761→                </TabsTrigger>
+  1762→              </TabsList>
+  1763→
+  1764→              {(['master', 'guest', 'kids'] as BedroomCategory[]).map((cat) => (
+  1765→                <TabsContent key={cat} value={cat} className="space-y-4">
+  1766→                  <BedroomTypeCards {...getBedroomCardsProps(cat)} />
+  1767→                  <div className="text-right text-sm text-muted-foreground">
+  1768→                    Subtotal — {bedroomCategoryLabels[cat]}: <span className="font-semibold text-foreground">{formatINR(calculateSingleBedroomTotal(bedroomsEstimate[cat]))}</span>
+  1769→                  </div>
+  1770→                </TabsContent>
+  1771→              ))}
+  1772→            </Tabs>
+  1773→
+  1774→            {/* Bedroom Cost Breakdown */}
+  1775→            {totalBedroomCost > 0 && (
+  1776→              <Card>
+  1777→                <CardHeader className="bg-fuchsia-50 border-b border-fuchsia-100">
+  1778→                  <CardTitle className="text-fuchsia-800">Bedroom Cost Breakdown</CardTitle>
+  1779→                </CardHeader>
+  1780→                <CardContent className="p-0">
+  1781→                  <Table>
+  1782→                    <TableHeader>
+  1783→                      <TableRow className="hover:bg-transparent">
+  1784→                        <TableHead className="font-semibold">Component</TableHead>
+  1785→                        <TableHead className="text-right font-semibold">Amount (₹)</TableHead>
+  1786→                      </TableRow>
+  1787→                    </TableHeader>
+  1788→                    <TableBody>
+  1789→                      {(['master', 'guest', 'kids'] as BedroomCategory[]).map((cat) => {
+  1790→                        const catTotal = calculateSingleBedroomTotal(bedroomsEstimate[cat])
+  1791→                        if (catTotal === 0) return null
+  1792→                        return (
+  1793→                          <Fragment key={cat}>
+  1794→                            <TableRow className="bg-gray-50 hover:bg-gray-50 font-semibold">
+  1795→                              <TableCell className="font-semibold">{bedroomCategoryLabels[cat]}</TableCell>
+  1796→                              <TableCell className="text-right font-semibold">{catTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1797→                            </TableRow>
+  1798→                            {calculateWardrobeTotal(bedroomsEstimate[cat]) > 0 && (
+  1799→                              <TableRow key={`${cat}-wardrobe`}>
+  1800→                                <TableCell className="pl-6 text-muted-foreground">Wardrobe</TableCell>
+  1801→                                <TableCell className="text-right">{calculateWardrobeTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1802→                              </TableRow>
+  1803→                            )}
+  1804→                            {calculateBedroomLoftTotal(bedroomsEstimate[cat]) > 0 && (
+  1805→                              <TableRow key={`${cat}-loft`}>
+  1806→                                <TableCell className="pl-6 text-muted-foreground">Loft</TableCell>
+  1807→                                <TableCell className="text-right">{calculateBedroomLoftTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1808→                              </TableRow>
+  1809→                            )}
+  1810→                            {calculateBedTotal(bedroomsEstimate[cat]) > 0 && (
+  1811→                              <TableRow key={`${cat}-bed`}>
+  1812→                                <TableCell className="pl-6 text-muted-foreground">Bed</TableCell>
+  1813→                                <TableCell className="text-right">{calculateBedTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1814→                              </TableRow>
+  1815→                            )}
+  1816→                            {calculateHeadBoardTotal(bedroomsEstimate[cat]) > 0 && (
+  1817→                              <TableRow key={`${cat}-headboard`}>
+  1818→                                <TableCell className="pl-6 text-muted-foreground">Head Board</TableCell>
+  1819→                                <TableCell className="text-right">{calculateHeadBoardTotal(bedroomsEstimate[cat]).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1820→                              </TableRow>
+  1821→                            )}
+  1822→                          </Fragment>
+  1823→                        )
+  1824→                      })}
+  1825→                      <TableRow className="bg-fuchsia-50 hover:bg-fuchsia-50 font-bold">
+  1826→                        <TableCell className="font-bold text-fuchsia-900">Bedroom Total</TableCell>
+  1827→                        <TableCell className="text-right font-bold text-fuchsia-900">{totalBedroomCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  1828→                      </TableRow>
+  1829→                    </TableBody>
+  1830→                  </Table>
+  1831→                </CardContent>
+  1832→              </Card>
+  1833→            )}
+  1834→          </div>
+  1835→        )}
+  1836→
+  1837→        {/* Miscellaneous Components */}
+  1838→        {clientInfo.serviceType === 'Full Interior' && (
+  1839→          <div className="space-y-6">
+  1840→            <div className="flex items-center justify-between">
+  1841→              <div className="flex items-center gap-2">
+  1842→                <Zap className="w-5 h-5 text-emerald-600" />
+  1843→                <h2 className="text-lg font-semibold text-foreground">Miscellaneous</h2>
+  1844→                <span className="text-sm text-muted-foreground">False ceiling, electrical work & painting</span>
+  1845→              </div>
+  1846→              <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={resetMiscComponents}>
+  1847→                <RotateCcw className="w-3.5 h-3.5" />
+  1848→                Reset All
+  1849→              </Button>
+  1850→            </div>
+  1851→
+  1852→            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  1853→              {/* False Ceiling */}
+  1854→              <Card className="bg-indigo-50 border-indigo-200">
+  1855→                <CardHeader className="pb-3">
+  1856→                  <div className="flex items-center justify-between">
+  1857→                    <CardTitle className="text-indigo-800 text-base">False Ceiling</CardTitle>
+  1858→                    <span className="text-sm font-semibold text-indigo-700">
+  1859→                      ₹{calculateFalseCeilingTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1860→                    </span>
+  1861→                  </div>
+  1862→                </CardHeader>
+  1863→                <CardContent className="space-y-3">
+  1864→                  <div className="space-y-1.5">
+  1865→                    <Label className="text-xs">Ceiling Type</Label>
+  1866→                    <Select value={miscEstimate.falseCeiling.ceilingType} onValueChange={(value) => updateMiscFalseCeiling('ceilingType', value)}>
+  1867→                      <SelectTrigger className="w-full">
+  1868→                        <SelectValue placeholder="Select type" />
+  1869→                      </SelectTrigger>
+  1870→                      <SelectContent>
+  1871→                        <SelectItem value="Plane Ceiling">Plane Ceiling (1x)</SelectItem>
+  1872→                        <SelectItem value="Peripheral Ceiling">Peripheral Ceiling (1.25x)</SelectItem>
+  1873→                        <SelectItem value="Two Layer Ceiling">Two Layer Ceiling (1.5x)</SelectItem>
+  1874→                      </SelectContent>
+  1875→                    </Select>
+  1876→                  </div>
+  1877→                  <div className="space-y-1.5">
+  1878→                    <Label className="text-xs">Material</Label>
+  1879→                    <Select value={miscEstimate.falseCeiling.material} onValueChange={(value) => updateMiscFalseCeiling('material', value)}>
+  1880→                      <SelectTrigger className="w-full">
+  1881→                        <SelectValue placeholder="Select material" />
+  1882→                      </SelectTrigger>
+  1883→                      <SelectContent>
+  1884→                        <SelectItem value="Gypsum">Gypsum (₹105/sqft)</SelectItem>
+  1885→                        <SelectItem value="Acrylic">Acrylic (₹160/sqft)</SelectItem>
+  1886→                        <SelectItem value="ACP">ACP (₹180/sqft)</SelectItem>
+  1887→                        <SelectItem value="Armstrong">Armstrong (₹115/sqft)</SelectItem>
+  1888→                        <SelectItem value="Glass">Glass (₹350/sqft)</SelectItem>
+  1889→                        <SelectItem value="PVC">PVC (₹125/sqft)</SelectItem>
+  1890→                      </SelectContent>
+  1891→                    </Select>
+  1892→                  </div>
+  1893→                  <div className="grid grid-cols-2 gap-3">
+  1894→                    <div className="space-y-1.5">
+  1895→                      <Label className="text-xs">Height (mm)</Label>
+  1896→                      <Input type="number" placeholder="0" value={miscEstimate.falseCeiling.height} onChange={(e) => updateMiscFalseCeiling('height', e.target.value)} />
+  1897→                    </div>
+  1898→                    <div className="space-y-1.5">
+  1899→                      <Label className="text-xs">Width (mm)</Label>
+  1900→                      <Input type="number" placeholder="0" value={miscEstimate.falseCeiling.width} onChange={(e) => updateMiscFalseCeiling('width', e.target.value)} />
+  1901→                    </div>
+  1902→                  </div>
+  1903→                  <div className="space-y-1.5">
+  1904→                    <Label className="text-xs">Rate / sqft</Label>
+  1905→                    <Input
+  1906→                      value={miscEstimate.falseCeiling.material ? formatINR(PRICES.falseCeilingMaterial[miscEstimate.falseCeiling.material]) : ''}
+  1907→                      disabled
+  1908→                      className="bg-white"
+  1909→                    />
+  1910→                  </div>
+  1911→                </CardContent>
+  1912→              </Card>
+  1913→
+  1914→              {/* Electrical Work */}
+  1915→              <Card className="bg-emerald-50 border-emerald-200">
+  1916→                <CardHeader className="pb-3">
+  1917→                  <div className="flex items-center justify-between">
+  1918→                    <CardTitle className="text-emerald-800 text-base">Electrical Work</CardTitle>
+  1919→                    <span className="text-sm font-semibold text-emerald-700">
+  1920→                      ₹{calculateElectricalTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1921→                    </span>
+  1922→                  </div>
+  1923→                </CardHeader>
+  1924→                <CardContent className="space-y-3">
+  1925→                  <div className="space-y-1.5">
+  1926→                    <Label className="text-xs">Light / Fitting Type</Label>
+  1927→                    <Select value={miscEstimate.electricalWork.lightType} onValueChange={(value) => updateMiscElectrical('lightType', value)}>
+  1928→                      <SelectTrigger className="w-full">
+  1929→                        <SelectValue placeholder="Select type" />
+  1930→                      </SelectTrigger>
+  1931→                      <SelectContent>
+  1932→                        <SelectItem value="Primary Light Point">Primary Light Point (₹750)</SelectItem>
+  1933→                        <SelectItem value="Secondary Light Point">Secondary Light Point (₹450)</SelectItem>
+  1934→                        <SelectItem value="Half Plug Point">Half Plug Point (₹400)</SelectItem>
+  1935→                        <SelectItem value="Full Plug Point">Full Plug Point (₹700)</SelectItem>
+  1936→                        <SelectItem value="Concealed Light Fitting">Concealed Light Fitting (₹150)</SelectItem>
+  1937→                        <SelectItem value="Fan Fitting">Fan Fitting (₹150)</SelectItem>
+  1938→                      </SelectContent>
+  1939→                    </Select>
+  1940→                  </div>
+  1941→                  <div className="grid grid-cols-2 gap-3">
+  1942→                    <div className="space-y-1.5">
+  1943→                      <Label className="text-xs">Quantity</Label>
+  1944→                      <Input type="number" placeholder="0" value={miscEstimate.electricalWork.quantity} onChange={(e) => updateMiscElectrical('quantity', e.target.value)} />
+  1945→                    </div>
+  1946→                    <div className="space-y-1.5">
+  1947→                      <Label className="text-xs">Rate / Unit</Label>
+  1948→                      <Input
+  1949→                        value={miscEstimate.electricalWork.lightType ? formatINR(PRICES.electricalRates[miscEstimate.electricalWork.lightType]) : ''}
+  1950→                        disabled
+  1951→                        className="bg-white"
+  1952→                      />
+  1953→                    </div>
+  1954→                  </div>
+  1955→                </CardContent>
+  1956→              </Card>
+  1957→
+  1958→              {/* Painting */}
+  1959→              <Card className="bg-rose-50 border-rose-200">
+  1960→                <CardHeader className="pb-3">
+  1961→                  <div className="flex items-center justify-between">
+  1962→                    <CardTitle className="text-rose-800 text-base">Painting</CardTitle>
+  1963→                    <span className="text-sm font-semibold text-rose-700">
+  1964→                      ₹{calculatePaintingTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+  1965→                    </span>
+  1966→                  </div>
+  1967→                </CardHeader>
+  1968→                <CardContent className="space-y-3">
+  1969→                  <div className="space-y-1.5">
+  1970→                    <Label className="text-xs">Paint Type</Label>
+  1971→                    <Select value={miscEstimate.painting.paintType} onValueChange={(value) => updateMiscPainting('paintType', value)}>
+  1972→                      <SelectTrigger className="w-full">
+  1973→                        <SelectValue placeholder="Select type" />
+  1974→                      </SelectTrigger>
+  1975→                      <SelectContent>
+  1976→                        <SelectItem value="Luster">Luster (₹38/sqft)</SelectItem>
+  1977→                        <SelectItem value="Texture">Texture (₹115/sqft)</SelectItem>
+  1978→                        <SelectItem value="Plastic">Plastic (₹33/sqft)</SelectItem>
+  1979→                        <SelectItem value="Distemper">Distemper (₹27/sqft)</SelectItem>
+  1980→                      </SelectContent>
+  1981→                    </Select>
+  1982→                  </div>
+  1983→                  <div className="grid grid-cols-2 gap-3">
+  1984→                    <div className="space-y-1.5">
+  1985→                      <Label className="text-xs">Total Area (sqft)</Label>
+  1986→                      <Input type="number" placeholder="0" value={miscEstimate.painting.totalArea} onChange={(e) => updateMiscPainting('totalArea', e.target.value)} />
+  1987→                    </div>
+  1988→                    <div className="space-y-1.5">
+  1989→                      <Label className="text-xs">Rate / sqft</Label>
+  1990→                      <Input
+  1991→                        value={miscEstimate.painting.paintType ? formatINR(PRICES.paintRates[miscEstimate.painting.paintType]) : ''}
+  1992→                        disabled
+  1993→                        className="bg-white"
+  1994→                      />
+  1995→                    </div>
+  1996→                  </div>
+  1997→                </CardContent>
+  1998→              </Card>
+  1999→            </div>
+  2000→
+  2001→            {/* Misc Cost Breakdown */}
+  2002→            {totalMiscCost > 0 && (
+  2003→              <Card>
+  2004→                <CardHeader className="bg-teal-50 border-b border-teal-100">
+  2005→                  <CardTitle className="text-teal-800">Miscellaneous Cost Breakdown</CardTitle>
+  2006→                </CardHeader>
+  2007→                <CardContent className="p-0">
+  2008→                  <Table>
+  2009→                    <TableHeader>
+  2010→                      <TableRow className="hover:bg-transparent">
+  2011→                        <TableHead className="font-semibold">Component</TableHead>
+  2012→                        <TableHead className="text-right font-semibold">Amount (₹)</TableHead>
+  2013→                      </TableRow>
+  2014→                    </TableHeader>
+  2015→                    <TableBody>
+  2016→                      {calculateFalseCeilingTotal() > 0 && (
+  2017→                        <TableRow>
+  2018→                          <TableCell className="font-medium">False Ceiling</TableCell>
+  2019→                          <TableCell className="text-right font-semibold">{calculateFalseCeilingTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  2020→                        </TableRow>
+  2021→                      )}
+  2022→                      {calculateElectricalTotal() > 0 && (
+  2023→                        <TableRow>
+  2024→                          <TableCell className="font-medium">Electrical Work</TableCell>
+  2025→                          <TableCell className="text-right font-semibold">{calculateElectricalTotal().toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+  2026→                        </TableRow>
+  2027→                      )}
+  2028→                      {calculatePaintingTotal() > 0 && (
+  2029→                        <TableRow>
+
+[showing lines 30-2029 of 2144; use offset=2030 with limit to continue reading]

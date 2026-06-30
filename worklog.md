@@ -68,3 +68,27 @@ Stage Summary:
 - Logo appears top-left, company name and address appear to its right
 - The Workbook (detailed calculation) sheet was left as-is since it does not have company branding
 
+---
+Task ID: 1
+Agent: Main Agent
+Task: Make Excel export logo movable and adjustable in size
+
+Work Log:
+- Added imports: Slider, Collapsible/CollapsibleContent/CollapsibleTrigger, ChevronDown
+- Added logoSettings state: { width: 350, height: 140, position: "center" }
+- Created collapsible "Export Logo Settings" card above the Grand Total banner with:
+  - Width slider (100–600px, step 10) with live value display
+  - Height slider (40–300px, step 10) with live value display
+  - Position select dropdown (Left / Center / Right)
+- Passed logoSettings in handleExportExcel body
+- Updated EstimateData interface to include optional logoSettings
+- Updated validateData to extract logoSettings with defaults
+- Updated logo embedding in API route to use dynamic width, height, and position
+  - Position maps: left→col 0.1, center→col 1.5, right→col 4.5
+- Lint passes clean, dev server healthy
+
+Stage Summary:
+- Logo in exported Excel is now fully adjustable: size via sliders, position via dropdown
+- Settings appear as a collapsible card in the Export section
+- Default values: 350×140px, centered
+
