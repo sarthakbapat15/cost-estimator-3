@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Workbook } from 'exceljs'
+import fs from 'fs'
+import path from 'path'
 
 interface EstimateData {
   clientInfo: {
@@ -493,15 +495,31 @@ export async function POST(request: NextRequest) {
     // ========================================
     const qs = workbook.addWorksheet('Quotation')
 
-    // Company Header
-    qs.mergeCells('A1:H1')
-    const c1 = qs.getCell('A1')
-    c1.value = '                                          PIONEER ENTERPRISES'
-    c1.font = { size: 16, bold: true, name: 'Calibri' }
-    c1.alignment = { horizontal: 'left' }
+    // Company Header with Logo
+    // Add logo image
+    const logoPath = path.join(process.cwd(), 'upload', 'pioneer 2.jpg')
+    let logoImageId: number | null = null
+    if (fs.existsSync(logoPath)) {
+      const logoBuffer = fs.readFileSync(logoPath)
+      logoImageId = workbook.addImage({
+        buffer: logoBuffer,
+        extension: 'jpeg',
+      })
+      qs.addImage(logoImageId, {
+        tl: { col: 0.1, row: 0.1 },
+        ext: { width: 140, height: 70 },
+      })
+    }
 
-    qs.mergeCells('A2:H2')
-    const c2 = qs.getCell('A2')
+    // Company name to the right of the logo
+    qs.mergeCells('C1:H1')
+    const c1 = qs.getCell('C1')
+    c1.value = 'PIONEER ENTERPRISES'
+    c1.font = { size: 16, bold: true, name: 'Calibri' }
+    c1.alignment = { horizontal: 'left', vertical: 'middle' }
+
+    qs.mergeCells('C2:H2')
+    const c2 = qs.getCell('C2')
     c2.value = 'GAT. NO.63, PLOT NO. 6/B, A/P SHINDEWADI, TAL. BHOR, DIST. PUNE-412205'
     c2.font = { size: 10, name: 'Calibri' }
 

@@ -46,3 +46,25 @@ Stage Summary:
 - All rates persisted to localStorage with 2-level deep merge for forward compatibility
 - Changed rates highlighted in amber in settings UI
 - Reset to Defaults button available
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix logo not displaying in exported Excel sheet
+
+Work Log:
+- Verified logo file exists at /home/z/my-project/upload/pioneer 2.jpg (112KB)
+- Read the Excel export API route at src/app/api/estimates/export/excel/route.ts
+- Found the header was using plain text "PIONEER ENTERPRISES" with no image embedding
+- Added `import fs from fs` and `import path from path` at the top of the file
+- Replaced the text-only header with image embedding using exceljs `workbook.addImage()` API
+- Read the logo file from disk using `fs.readFileSync()`, added it as a JPEG image to the workbook
+- Positioned logo at top-left (col 0.1, row 0.1, 140x70px)
+- Moved company name text to start from column C (right of the logo area) with vertical middle alignment
+- Moved address text to also start from column C
+- Lint passes cleanly, dev server running fine
+
+Stage Summary:
+- Logo now embedded in the Quotation sheet of the exported Excel file
+- Logo appears top-left, company name and address appear to its right
+- The Workbook (detailed calculation) sheet was left as-is since it does not have company branding
+
