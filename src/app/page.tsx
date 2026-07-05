@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, Fragment } from 'react'
-import { Slider } from '@/components/ui/slider'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -162,6 +160,7 @@ export default function Home() {
   })
 
   const [exporting, setExporting] = useState(false)
+  const [logoSettingsOpen, setLogoSettingsOpen] = useState(false)
   const [logoSettings, setLogoSettings] = useState({
     width: 350,
     height: 140,
@@ -1812,71 +1811,79 @@ export default function Home() {
             </div>
 
             {/* Logo Settings for Export */}
-            <Collapsible>
-              <Card>
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <Settings className="w-4 h-4" />
-                        Export Logo Settings
-                      </CardTitle>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
-                    </div>
-                    <CardDescription>Adjust logo size and position in exported Excel</CardDescription>
-                  </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <CardContent className="pt-0 space-y-5">
+            <Card>
+              <button
+                type="button"
+                className="w-full text-left"
+                onClick={() => setLogoSettingsOpen(!logoSettingsOpen)}
+              >
+                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      Export Logo Settings
+                    </CardTitle>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${logoSettingsOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                  <CardDescription>Adjust logo size and position in exported Excel</CardDescription>
+                </CardHeader>
+              </button>
+              {logoSettingsOpen && (
+                <CardContent className="pt-0 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     {/* Width */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm">Logo Width</Label>
-                        <span className="text-sm font-medium text-muted-foreground">{logoSettings.width}px</span>
-                      </div>
-                      <Slider
-                        value={[logoSettings.width]}
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Logo Width (px)</Label>
+                      <Input
+                        type="number"
                         min={100}
                         max={600}
                         step={10}
-                        onValueChange={([v]) => setLogoSettings(s => ({ ...s, width: v }))}
+                        value={logoSettings.width}
+                        onChange={(e) => {
+                          const v = Math.min(600, Math.max(100, Number(e.target.value) || 100))
+                          setLogoSettings(s => ({ ...s, width: v }))
+                        }}
+                        className="h-10"
                       />
                     </div>
                     {/* Height */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm">Logo Height</Label>
-                        <span className="text-sm font-medium text-muted-foreground">{logoSettings.height}px</span>
-                      </div>
-                      <Slider
-                        value={[logoSettings.height]}
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Logo Height (px)</Label>
+                      <Input
+                        type="number"
                         min={40}
                         max={300}
                         step={10}
-                        onValueChange={([v]) => setLogoSettings(s => ({ ...s, height: v }))}
+                        value={logoSettings.height}
+                        onChange={(e) => {
+                          const v = Math.min(300, Math.max(40, Number(e.target.value) || 40))
+                          setLogoSettings(s => ({ ...s, height: v }))
+                        }}
+                        className="h-10"
                       />
                     </div>
-                    {/* Position */}
-                    <div className="space-y-2">
-                      <Label className="text-sm">Logo Position</Label>
-                      <Select
-                        value={logoSettings.position}
-                        onValueChange={(v) => setLogoSettings(s => ({ ...s, position: v as 'left' | 'center' | 'right' }))}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="left">Left</SelectItem>
-                          <SelectItem value="center">Center</SelectItem>
-                          <SelectItem value="right">Right</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
+                  </div>
+                  {/* Position */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Logo Position</Label>
+                    <Select
+                      value={logoSettings.position}
+                      onValueChange={(v) => setLogoSettings(s => ({ ...s, position: v as 'left' | 'center' | 'right' }))}
+                    >
+                      <SelectTrigger className="w-full h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="left">Left</SelectItem>
+                        <SelectItem value="center">Center</SelectItem>
+                        <SelectItem value="right">Right</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
 
             {/* Grand Total Banner */}
             <Card className="bg-emerald-600 border-emerald-600">
