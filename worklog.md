@@ -92,3 +92,79 @@ Stage Summary:
 - Settings appear as a collapsible card in the Export section
 - Default values: 350×140px, centered
 
+---
+Task ID: 1
+Agent: Main Agent
+Task: Add "Add Custom Component" feature to Kitchen, Living Room, and Bedroom sections
+
+Work Log:
+- Discovered that types (CustomComponent interface), state (kitchenCustomComponents, livingRoomCustomComponents, bedroomCustomComponents), helpers (add/remove/update), and cost calculations were already partially implemented from a previous session
+- Kitchen custom component UI was already done
+- Added Living Room custom component UI with SF/HGL/Acrylic/Veneer finish rates
+- Added Bedroom custom component UI inside each tab (Master/Guest/Kids) with SF/HGL/Acrylic/Veneer finish rates using bedroomTallUnitFinish rates
+- Added custom component rows to Kitchen Cost Breakdown table (before total row)
+- Added custom component rows to Living Room Cost Breakdown table (before total row)
+- Added custom component rows to Bedroom Cost Breakdown table (nested under each bedroom category)
+- Added kitchenCustomComponents, livingRoomCustomComponents, bedroomCustomComponents to both Excel and PDF export payloads
+- Verified all 3 "Add Custom Component" buttons visible in browser (Kitchen, Living Room, Bedroom)
+- Verified custom component card renders with name input, height/width fields, finish dropdown, cost display, delete button
+- Lint passes clean
+
+Stage Summary:
+- Custom components available in all 3 sections: Kitchen, Living Room, and each Bedroom tab
+- Each custom component: name, height (mm), width (mm), finish type selector with rates, auto-calculated cost
+- Costs flow into section totals and grand total
+- Custom components appear in cost breakdown tables
+- Custom component data passed to export APIs
+
+---
+Task ID: 2
+Agent: Main
+Task: Add Miscellaneous section with False Ceiling, Electrical Work, and Painting components
+
+Work Log:
+- Removed old generic MiscellaneousItem interface/state/UI (name+amount list with Transportation Charges)
+- Added new types: CeilingType, CeilingMaterial, LightPointType, PaintType
+- Added MISC_PRICES constant with all rates (ceiling: 6 materials, electrical: 6 point types, painting: 4 types)
+- Added MiscellaneousEstimate interface with falseCeiling, electricalWork, painting sub-objects
+- Added miscEstimate state and updateMisc helper
+- Added calculation logic: falseCeilingCost (area×material rate), electricalWorkCost (rate×qty), paintingCost (rate×area)
+- Integrated totalMiscellaneousCost into grandTotal
+- Built 3 orange-themed cards with proper dropdowns showing rates:
+  - False Ceiling: Type dropdown (3 types) + Material dropdown (6 with ₹/sqft) + Length/Width inputs
+  - Electrical Work: Light Point Type dropdown (6 with ₹) + Quantity input
+  - Painting: Paint Type dropdown (4 with ₹/sqft) + Total Area input
+- Each card shows live calculation breakdown and cost
+- Updated consolidated estimate table to show 3 separate misc rows
+- Updated Excel export to write MISCELLANEOUS section with proper labels
+- Updated both Excel and PDF export payloads to use miscEstimate
+
+Stage Summary:
+- Miscellaneous section fully rebuilt with 3 structured components
+- All dropdowns verified with correct options and prices
+- Costs flow into grand total and consolidated table
+- Excel export includes MISCELLANEOUS section with calculated amounts
+
+---
+Task ID: 3
+Agent: Main
+Task: Add Postforming finish type with manual rate to all 17 finish dropdowns
+
+Work Log:
+- Added postformingRate state (string) and getEffectiveRate() helper to page.tsx
+- Updated 7 kitchen/living room calculation functions to use getEffectiveRate()
+- Updated 6 bedroom calculation functions (wardrobe, loft, windowSeat, studyTable, dresser, bed) to use getEffectiveRate()
+- Added PostformingRateInput reusable component (shows rate input when Postforming selected)
+- Added Postforming SelectItem + PostformingRateInput to 11 dropdowns in page.tsx
+- Updated bedroom-type-cards.tsx: added Postforming to TallUnitFinishSelect, Wardrobe, Loft dropdowns
+- Added postformingRate/onPostformingRateChange props to BedroomTypeCards interface
+- Passed props from page.tsx getBedroomCardsProps()
+
+Stage Summary:
+- All 17 finish dropdowns now have "Postforming" as an option
+- When Postforming is selected, a manual rate per sqft input appears
+- Single global postformingRate used across all sections
+- All cost calculations handle Postforming by using the manual rate
+- Excel export uses the frontend-calculated amounts so no changes needed there
+- Lint clean, no console errors, browser-verified
+

@@ -21,6 +21,11 @@ interface EstimateData {
     height: number
     position: 'left' | 'center' | 'right'
   }
+  miscEstimate?: {
+    falseCeiling: { type: string; material: string; height: string; width: string }
+    electricalWork: { lightPointType: string; quantity: string }
+    painting: { paintType: string; totalArea: string }
+  }
 }
 
 function validateData(body: any): EstimateData {
@@ -38,6 +43,7 @@ function validateData(body: any): EstimateData {
     components: body?.components || {},
     livingRoomEstimate: body?.livingRoomEstimate || undefined,
     logoSettings: body?.logoSettings || { width: 350, height: 140, position: 'center' },
+    miscEstimate: body?.miscEstimate || undefined,
   }
 }
 
@@ -647,6 +653,90 @@ export async function POST(request: NextRequest) {
     // Write KITCHEN section
     writeSection('KITCHEN', kitchenItems)
 
+    // MISCELLANEOUS section
+    const MISC_RATES: Record<string, Record<string, number>> = {
+      ceilingMaterial: { Gypsum: 105, Acrylic: 160, ACP: 180, Armstrong: 115, Glass: 350, PVC: 125 },
+      lightPoint: { 'Primary Light Point': 750, 'Secondary Light Point': 450, 'Half Plug Point': 400, 'Full Plug Point': 700, 'Concealed Light Fitting': 150, 'Fan Fitting': 150 },
+      paint: { 'Luster Paint': 38, 'Texture Paint': 115, 'Plastic Paint': 33, 'Distemper Paint': 27 },
+    }
+    const misc = validatedData.miscEstimate
+    let miscTotal = 0
+    const miscExportItems: Array<{ label: string; qty?: string; amount: number }> = []
+
+    if (misc) {
+      // False Ceiling
+      const fc = misc.falseCeiling || {}
+      if (fc.height && fc.width && fc.material) {
+        const sqft = (parseFloat(fc.height) * parseFloat(fc.width)) / 92903
+        const rate = MISC_RATES.ceilingMaterial[fc.material] || 0
+        const amt = Math.round(sqft * rate)
+        if (amt > 0) {
+          miscExportItems.push({
+            label: `False Ceiling (${fc.type || fc.material})`,
+            qty: sqft.toFixed(2) + ' sqft',
+            amount: amt,
+          })
+          miscTotal += amt
+        }
+      }
+      // Electrical Work
+      const ew = misc.electricalWork || {}
+      if (ew.lightPointType && ew.quantity) {
+        const rate = MISC_RATES.lightPoint[ew.lightPointType] || 0
+        const qty = parseFloat(ew.quantity) || 0
+        const amt = rate * qty
+        if (amt > 0) {
+          miscExportItems.push({
+            label: `Electrical - ${ew.lightPointType}`,
+            qty: qty + ' nos',
+            amount: amt,
+          })
+          miscTotal += amt
+        }
+      }
+      // Painting
+      const pt = misc.painting || {}
+      if (pt.paintType && pt.totalArea) {
+        const rate = MISC_RATES.paint[pt.paintType] || 0
+        const area = parseFloat(pt.totalArea) || 0
+        const amt = rate * area
+        if (amt > 0) {
+          miscExportItems.push({
+            label: `Painting - ${pt.paintType}`,
+            qty: area + ' sqft',
+            amount: amt,
+          })
+          miscTotal += amt
+        }
+      }
+    }
+
+    if (miscExportItems.length > 0) {
+      qs.mergeCells(`B${rowNum}:D${rowNum}`)
+      qs.getCell(`B${rowNum}`).value = 'MISCELLANEOUS'
+      qs.getCell(`B${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
+      rowNum++
+
+      miscExportItems.forEach((item) => {
+        qs.getCell(`A${rowNum}`).value = `${srNo}]`
+        qs.getCell(`A${rowNum}`).font = { name: 'Calibri' }
+
+        qs.mergeCells(`B${rowNum}:C${rowNum}`)
+        qs.getCell(`B${rowNum}`).value = item.label.toUpperCase()
+        qs.getCell(`B${rowNum}`).font = { name: 'Calibri' }
+
+        qs.getCell(`D${rowNum}`).value = item.amount
+        qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
+        qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
+        qs.getCell(`D${rowNum}`).font = { name: 'Calibri' }
+
+        srNo++
+        rowNum++
+      })
+
+      rowNum++
+    }
+
     // SUB TOTAL
     qs.mergeCells(`B${rowNum}:C${rowNum}`)
     qs.getCell(`B${rowNum}`).value = 'SUB TOTAL'
@@ -654,17 +744,6 @@ export async function POST(request: NextRequest) {
     qs.getCell(`D${rowNum}`).value = totalAmount
     qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
     qs.getCell(`D${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
-    rowNum++
-
-    // TRANSPORTATION CHARGES
-    const transportCharges = 3000
-    qs.mergeCells(`B${rowNum}:C${rowNum}`)
-    qs.getCell(`B${rowNum}`).value = 'TRANSPORTATION CHARGES'
-    qs.getCell(`B${rowNum}`).font = { name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = transportCharges
-    qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
-    qs.getCell(`D${rowNum}`).font = { name: 'Calibri' }
     qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
     rowNum++
 
@@ -680,7 +759,7 @@ export async function POST(request: NextRequest) {
     rowNum++
 
     // AMOUNT POST DISCOUNT
-    const postDiscount = totalAmount - discount + transportCharges
+    const postDiscount = totalAmount - discount + miscTotal
     qs.mergeCells(`B${rowNum}:C${rowNum}`)
     qs.getCell(`B${rowNum}`).value = 'AMOUNT POST DISCOUNT'
     qs.getCell(`B${rowNum}`).font = { bold: true, name: 'Calibri' }

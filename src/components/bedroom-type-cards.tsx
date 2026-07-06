@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 
 // ── Tall Unit Finish types (shared by window seat, study table, dresser, bed types 2-4) ──
-export type TallUnitFinish = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
+export type TallUnitFinish = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish' | 'Postforming'
 
 export const DEFAULT_TALL_UNIT_FINISH_RATES: Record<string, number> = {
   SF: 1250,
@@ -92,13 +92,18 @@ function TallUnitFinishSelect({
   onChange,
   id,
   rates,
+  postformingRate,
+  onPostformingRateChange,
 }: {
   value: string
   onChange: (v: string) => void
   id?: string
   rates: Record<string, number>
+  postformingRate: string
+  onPostformingRateChange: (v: string) => void
 }) {
   return (
+    <>
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="w-full" id={id}>
         <SelectValue placeholder="Select finish" />
@@ -109,8 +114,22 @@ function TallUnitFinishSelect({
             {key} (₹{rate.toLocaleString('en-IN')}/sqft)
           </SelectItem>
         ))}
+        <SelectItem value="Postforming">Postforming (Manual Rate)</SelectItem>
       </SelectContent>
     </Select>
+    {value === 'Postforming' && (
+      <div className="mt-1.5">
+        <Label className="text-xs">Rate per sqft (₹)</Label>
+        <Input
+          type="number"
+          placeholder="Enter rate"
+          value={postformingRate}
+          onChange={(e) => onPostformingRateChange(e.target.value)}
+          className="h-8 text-xs"
+        />
+      </div>
+    )}
+    </>
   )
 }
 
@@ -179,6 +198,8 @@ interface BedroomTypeCardsProps {
   onBedTypeChange: (value: string) => void
   onUpdateBed: (field: string, value: string) => void
   onUpdateHeadBoard: (field: string, value: string) => void
+  postformingRate: string
+  onPostformingRateChange: (v: string) => void
 }
 
 export default function BedroomTypeCards({
@@ -209,6 +230,8 @@ export default function BedroomTypeCards({
   onBedTypeChange,
   onUpdateBed,
   onUpdateHeadBoard,
+  postformingRate,
+  onPostformingRateChange,
 }: BedroomTypeCardsProps) {
   const showBedDimensions = bedroom.bed.typeOfBed && bedroom.bed.typeOfBed !== 'Open Bed with Legs'
   const isAutomaticBed = bedroom.bed.typeOfBed === 'Hydraulic (Automatic)' || bedroom.bed.typeOfBed === 'Pullout Trolly Bed'
@@ -255,9 +278,22 @@ export default function BedroomTypeCards({
                 <SelectItem value="SF">SF (₹1,550/sqft)</SelectItem>
                 <SelectItem value="HGL">HGL (₹1,650/sqft)</SelectItem>
                 <SelectItem value="Acrylic">Acrylic (₹2,150/sqft)</SelectItem>
+                <SelectItem value="Postforming">Postforming</SelectItem>
               </SelectContent>
             </Select>
           </div>
+          {bedroom.wardrobe.finish === 'Postforming' && (
+            <div className="mt-1.5">
+              <Label className="text-xs">Rate per sqft (₹)</Label>
+              <Input
+                type="number"
+                placeholder="Enter rate"
+                value={postformingRate}
+                onChange={(e) => onPostformingRateChange(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          )}
           <RateDisplay rate={prices.wardrobeFinish[bedroom.wardrobe.finish] || 0} formatINR={formatINR} />
           {bedroom.wardrobe.wardrobeType === 'Sliding' && (
             <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-fuchsia-200">
@@ -317,6 +353,7 @@ export default function BedroomTypeCards({
                     <SelectItem value="SF">SF (₹1,150/sqft)</SelectItem>
                     <SelectItem value="HGL">HGL (₹1,250/sqft)</SelectItem>
                     <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
+                    <SelectItem value="Postforming">Postforming</SelectItem>
                   </>
                 )}
                 {bedroom.loft.loftType === 'Box' && (
@@ -324,11 +361,24 @@ export default function BedroomTypeCards({
                     <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
                     <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
                     <SelectItem value="Acrylic">Acrylic (₹1,950/sqft)</SelectItem>
+                    <SelectItem value="Postforming">Postforming</SelectItem>
                   </>
                 )}
               </SelectContent>
             </Select>
           </div>
+          {bedroom.loft.finish === 'Postforming' && (
+            <div className="mt-1.5">
+              <Label className="text-xs">Rate per sqft (₹)</Label>
+              <Input
+                type="number"
+                placeholder="Enter rate"
+                value={postformingRate}
+                onChange={(e) => onPostformingRateChange(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          )}
           <RateDisplay
             rate={bedroom.loft.loftType && bedroom.loft.finish ? (prices.bedroomLoftFinish[bedroom.loft.loftType]?.[bedroom.loft.finish] || 0) : 0}
             formatINR={formatINR}
@@ -360,6 +410,8 @@ export default function BedroomTypeCards({
               onChange={(v) => onUpdateWindowSeat('finish', v)}
               id={`window-seat-finish-${category}`}
               rates={tallUnitFinishRates}
+              postformingRate={postformingRate}
+              onPostformingRateChange={onPostformingRateChange}
             />
           </div>
           <RateDisplay rate={tallUnitFinishRates[bedroom.windowSeat.finish] || 0} formatINR={formatINR} />
@@ -384,6 +436,8 @@ export default function BedroomTypeCards({
               onChange={onStudyTableFinishChange}
               id={`study-table-finish-${category}`}
               rates={tallUnitFinishRates}
+              postformingRate={postformingRate}
+              onPostformingRateChange={onPostformingRateChange}
             />
           </div>
           <RateDisplay rate={tallUnitFinishRates[bedroom.studyTable.finish] || 0} formatINR={formatINR} />
@@ -429,6 +483,8 @@ export default function BedroomTypeCards({
                 onChange={onDresserUnitFinishChange}
                 id={`dresser-finish-${category}`}
                 rates={tallUnitFinishRates}
+                postformingRate={postformingRate}
+                onPostformingRateChange={onPostformingRateChange}
               />
             </div>
             <div className="max-w-xs">
@@ -535,6 +591,8 @@ export default function BedroomTypeCards({
                       onChange={(v) => onUpdateBed('finish', v)}
                       id={`bed-finish-${category}`}
                       rates={tallUnitFinishRates}
+                      postformingRate={postformingRate}
+                      onPostformingRateChange={onPostformingRateChange}
                     />
                   </div>
                   <RateDisplay rate={tallUnitFinishRates[bedroom.bed.finish] || 0} formatINR={formatINR} />
