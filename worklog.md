@@ -168,3 +168,34 @@ Stage Summary:
 - Excel export uses the frontend-calculated amounts so no changes needed there
 - Lint clean, no console errors, browser-verified
 
+
+---
+Task ID: 6
+Agent: Main
+Task: Fix hardcoded prices in dropdown labels to reflect settings changes
+
+Work Log:
+- Identified that all SelectItem dropdown labels had hardcoded price strings (e.g., "SF (₹1,450/sqft)") that did not update when prices were changed in the Rate Settings dialog
+- The calculation logic already used the live `prices` state correctly, but the displayed labels were static
+- Fixed Kitchen section: Tandem Drawers, Dustbin BTD, Bottle Pullout, Wicker Basket brand dropdowns to use `Object.entries(prices.xxx)`
+- Fixed Kitchen section: Tall Unit, Pantry Unit finish dropdowns to use `Object.entries(prices.tallPantryFinish)`
+- Fixed Kitchen section: Pantry Unit accessories dropdown to use `Object.entries(prices.pantryAccessories)`
+- Fixed Kitchen section: Base Carcase disabled input to use `formatINR(prices.baseCarcase)` instead of hardcoded "₹1,650"
+- Fixed Kitchen section: Overhead Cabinet finish to use `Object.entries(prices.overheadCabinetFinish)`
+- Fixed Kitchen section: Overhead Loft type and finish dropdowns to use `Object.entries(prices.overheadLoft)` and `Object.entries(prices.overheadFinish)`
+- Fixed Living Room section: Chest of Drawers, Base Cabinet, Tall Unit, Shoe Rack finish dropdowns to use `Object.entries(prices.livingRoomFinish/livingRoomTallUnitFinish)`
+- Fixed Living Room section: Back Panel finish to use `Object.entries(prices.backPanelFinish)`
+- Fixed Living Room section: Sitting with Cushion disabled input to use `formatINR(prices.sittingWithCushion)` instead of hardcoded "₹1,350"
+- Fixed Bedroom component: Wardrobe finish to use `Object.entries(prices.wardrobeFinish)`
+- Fixed Bedroom component: Loft finishes to use `Object.entries(prices.bedroomLoftFinish[loftType])`
+- Fixed Bedroom component: Bed type "Open Bed with Legs" to show dynamic price
+- Fixed Bedroom component: Head Board types to use `Object.entries(prices.headBoardRates)`
+- Fixed Bedroom component: Sliding mechanism label to use `formatINR(prices.wardrobeSlidingMechanism)`
+- Miscellaneous section left as-is since MISC_PRICES are not editable from settings dialog
+- Verified all changes compile cleanly (lint passes, dev server compiles)
+- Verified with agent-browser that all dropdowns show correct dynamic prices
+
+Stage Summary:
+- All price labels in dropdown menus and disabled rate inputs now dynamically reflect the live `prices` state
+- When users change prices in the Rate Settings dialog, the dropdown option labels will immediately update to show the new prices
+- No remaining hardcoded prices in any settings-editable field

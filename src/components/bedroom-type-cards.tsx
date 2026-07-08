@@ -275,9 +275,9 @@ export default function BedroomTypeCards({
                 <SelectValue placeholder="Select finish" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="SF">SF (₹1,550/sqft)</SelectItem>
-                <SelectItem value="HGL">HGL (₹1,650/sqft)</SelectItem>
-                <SelectItem value="Acrylic">Acrylic (₹2,150/sqft)</SelectItem>
+                {Object.entries(prices.wardrobeFinish).map(([finish, rate]) => (
+                  <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                ))}
                 <SelectItem value="Postforming">Postforming</SelectItem>
               </SelectContent>
             </Select>
@@ -305,7 +305,7 @@ export default function BedroomTypeCards({
               />
               <div className="flex-1">
                 <Label htmlFor={`sliding-mechanism-${category}`} className="text-xs font-medium cursor-pointer">Sliding Mechanism (Add-on)</Label>
-                <p className="text-xs text-muted-foreground">₹15,000</p>
+                    <p className="text-xs text-muted-foreground">{formatINR(prices.wardrobeSlidingMechanism)}</p>
               </div>
             </div>
           )}
@@ -348,19 +348,11 @@ export default function BedroomTypeCards({
                 <SelectValue placeholder="Select finish" />
               </SelectTrigger>
               <SelectContent>
-                {bedroom.loft.loftType === 'Frame' && (
+                {bedroom.loft.loftType && prices.bedroomLoftFinish[bedroom.loft.loftType] && (
                   <>
-                    <SelectItem value="SF">SF (₹1,150/sqft)</SelectItem>
-                    <SelectItem value="HGL">HGL (₹1,250/sqft)</SelectItem>
-                    <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
-                    <SelectItem value="Postforming">Postforming</SelectItem>
-                  </>
-                )}
-                {bedroom.loft.loftType === 'Box' && (
-                  <>
-                    <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
-                    <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
-                    <SelectItem value="Acrylic">Acrylic (₹1,950/sqft)</SelectItem>
+                    {Object.entries(prices.bedroomLoftFinish[bedroom.loft.loftType]).map(([finish, rate]) => (
+                      <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                    ))}
                     <SelectItem value="Postforming">Postforming</SelectItem>
                   </>
                 )}
@@ -558,8 +550,8 @@ export default function BedroomTypeCards({
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select bed type" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Open Bed with Legs">Open Bed with Legs (₹35,000)</SelectItem>
+              <SelectContent>
+                    <SelectItem value="Open Bed with Legs">Open Bed with Legs (₹{prices.openBedPrice.toLocaleString('en-IN')})</SelectItem>
                     <SelectItem value="Hydraulic (Manual)">Hydraulic (Manual)</SelectItem>
                     <SelectItem value="Hydraulic (Automatic)">Hydraulic (Automatic)</SelectItem>
                     <SelectItem value="Pullout Trolly Bed">Pullout Trolly Bed</SelectItem>
@@ -619,8 +611,9 @@ export default function BedroomTypeCards({
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Laminated">Laminated (₹700/sqft)</SelectItem>
-                    <SelectItem value="Cushioned">Cushioned (₹850/sqft)</SelectItem>
+                    {Object.entries(prices.headBoardRates).map(([type, rate]) => (
+                      <SelectItem key={type} value={type}>{type} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

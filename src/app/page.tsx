@@ -1076,9 +1076,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Olive">Olive (₹8,000)</SelectItem>
-                          <SelectItem value="Blum">Blum (₹12,000)</SelectItem>
-                          <SelectItem value="Hettich">Hettich (₹12,000)</SelectItem>
+                          {Object.entries(prices.tandemDrawers).map(([brand, rate]) => (
+                            <SelectItem key={brand} value={brand}>{brand} (₹{rate.toLocaleString('en-IN')})</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1113,9 +1113,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Olive">Olive (₹7,500)</SelectItem>
-                          <SelectItem value="Blum">Blum (₹7,500)</SelectItem>
-                          <SelectItem value="Hettich">Hettich (₹7,500)</SelectItem>
+                          {Object.entries(prices.dustbinBTD).map(([brand, rate]) => (
+                            <SelectItem key={brand} value={brand}>{brand} (₹{rate.toLocaleString('en-IN')})</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1150,9 +1150,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Olive">Olive (₹8,000)</SelectItem>
-                          <SelectItem value="Blum">Blum (₹8,000)</SelectItem>
-                          <SelectItem value="Hettich">Hettich (₹8,000)</SelectItem>
+                          {Object.entries(prices.bottlePullout).map(([brand, rate]) => (
+                            <SelectItem key={brand} value={brand}>{brand} (₹{rate.toLocaleString('en-IN')})</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1187,8 +1187,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Olive">Olive (₹7,500)</SelectItem>
-                          <SelectItem value="Hettich">Hettich (₹7,500)</SelectItem>
+                          {Object.entries(prices.wickerBasket).map(([brand, rate]) => (
+                            <SelectItem key={brand} value={brand}>{brand} (₹{rate.toLocaleString('en-IN')})</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1233,10 +1234,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="SF">SF (₹1,450/sqft)</SelectItem>
-                          <SelectItem value="HGL">HGL (₹1,550/sqft)</SelectItem>
-                          <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
-                          <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,150/sqft)</SelectItem>
+                          {Object.entries(prices.tallPantryFinish).map(([finish, rate]) => (
+                            <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                          ))}
                           <SelectItem value="Postforming">Postforming</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1279,10 +1279,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="SF">SF (₹1,450/sqft)</SelectItem>
-                          <SelectItem value="HGL">HGL (₹1,550/sqft)</SelectItem>
-                          <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
-                          <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,150/sqft)</SelectItem>
+                          {Object.entries(prices.tallPantryFinish).map(([finish, rate]) => (
+                            <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                          ))}
                           <SelectItem value="Postforming">Postforming</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1295,8 +1294,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Pullout">Pullout (₹21,000)</SelectItem>
-                          <SelectItem value="Openable (6+6 basket)">Openable 6+6 (₹40,000)</SelectItem>
+                          {Object.entries(prices.pantryAccessories).map(([acc, rate]) => (
+                            <SelectItem key={acc} value={acc}>{acc === 'Openable (6+6 basket)' ? 'Openable 6+6' : acc} (₹{rate.toLocaleString('en-IN')})</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1326,7 +1326,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / sqft</Label>
-                      <Input value="₹1,650" disabled className="bg-white" />
+                      <Input value={formatINR(prices.baseCarcase)} disabled className="bg-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -1361,10 +1361,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="SF">SF (₹1,350/sqft)</SelectItem>
-                          <SelectItem value="HGL">HGL (₹1,475/sqft)</SelectItem>
-                          <SelectItem value="Acrylic">Acrylic (₹2,050/sqft)</SelectItem>
-                          <SelectItem value="Glass Acrylic">Glass Acrylic (₹2,250/sqft)</SelectItem>
+                          {Object.entries(prices.overheadCabinetFinish).map(([finish, rate]) => (
+                            <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                          ))}
                           <SelectItem value="Postforming">Postforming</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1401,8 +1400,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Frame Loft">Frame Loft (₹1,150)</SelectItem>
-                          <SelectItem value="Box Loft">Box Loft (₹1,250)</SelectItem>
+                          {Object.entries(prices.overheadLoft).map(([type, rate]) => (
+                            <SelectItem key={type} value={type}>{type} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1413,10 +1413,9 @@ export default function Home() {
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Acrylic">Acrylic (₹1,850)</SelectItem>
-                          <SelectItem value="Laminate">Laminate (₹1,200)</SelectItem>
-                          <SelectItem value="UV">UV (₹1,400)</SelectItem>
-                          <SelectItem value="PU">PU (₹1,600)</SelectItem>
+                          {Object.entries(prices.overheadFinish).map(([finish, rate]) => (
+                            <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                          ))}
                           <SelectItem value="Postforming">Postforming</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1662,10 +1661,9 @@ export default function Home() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
-                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
-                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
-                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+                        {Object.entries(prices.livingRoomFinish).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish === 'Veneer with polish' ? 'Veneer' : finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
                         <SelectItem value="Postforming">Postforming</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1702,10 +1700,9 @@ export default function Home() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
-                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
-                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
-                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+                        {Object.entries(prices.livingRoomFinish).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish === 'Veneer with polish' ? 'Veneer' : finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
                         <SelectItem value="Postforming">Postforming</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1742,10 +1739,9 @@ export default function Home() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
-                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
-                        <SelectItem value="Acrylic">Acrylic (₹1,850/sqft)</SelectItem>
-                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+                        {Object.entries(prices.livingRoomTallUnitFinish).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish === 'Veneer with polish' ? 'Veneer' : finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
                         <SelectItem value="Postforming">Postforming</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1782,10 +1778,9 @@ export default function Home() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="HGL">HGL (₹650/sqft)</SelectItem>
-                        <SelectItem value="SF">SF (₹550/sqft)</SelectItem>
-                        <SelectItem value="Acrylic">Acrylic (₹1,175/sqft)</SelectItem>
-                        <SelectItem value="Veneer">Veneer (₹950/sqft)</SelectItem>
+                        {Object.entries(prices.backPanelFinish).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish === 'Veneer' ? 'Veneer' : finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
                         <SelectItem value="Postforming">Postforming</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1874,10 +1869,9 @@ export default function Home() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SF">SF (₹1,250/sqft)</SelectItem>
-                        <SelectItem value="HGL">HGL (₹1,350/sqft)</SelectItem>
-                        <SelectItem value="Acrylic">Acrylic (₹1,550/sqft)</SelectItem>
-                        <SelectItem value="Veneer with polish">Veneer (₹1,750/sqft)</SelectItem>
+                        {Object.entries(prices.livingRoomFinish).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish === 'Veneer with polish' ? 'Veneer' : finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1906,7 +1900,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Rate / sqft</Label>
-                      <Input value="₹1,350" disabled className="bg-white" />
+                      <Input value={formatINR(prices.sittingWithCushion)} disabled className="bg-white" />
                     </div>
                   </div>
                 </CardContent>
