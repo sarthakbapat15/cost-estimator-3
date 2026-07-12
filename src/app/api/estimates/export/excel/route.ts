@@ -66,6 +66,7 @@ const PRICES = {
   sittingWithCushion: 1350,
   profileShutter: 350,
   baseCarcase: 1650,
+  kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
   overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 }
 }
 
@@ -259,6 +260,28 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
         totalSqft: sqft,
         rate: PRICES.baseCarcase,
         amount: sqft * PRICES.baseCarcase
+      })
+    }
+  }
+
+  // Kitchen Paneling
+  const kp = components.kitchenPaneling || {}
+  if (kp.height && kp.width && kp.tallPantryFinish) {
+    const sqft = calculateSqft(kp.height, kp.width)
+    const kpRate = kp.tallPantryFinish === 'Postforming'
+      ? (payload.postformingRate ? parseFloat(payload.postformingRate) : 0)
+      : (PRICES.kitchenPaneling[kp.tallPantryFinish as keyof typeof PRICES.kitchenPaneling] || 0)
+    if (sqft > 0 && kpRate > 0) {
+      items.push({
+        label: 'Kitchen Paneling',
+        subLabel: kp.tallPantryFinish,
+        l: parseFloat(kp.height) || 0,
+        b: parseFloat(kp.width) || 0,
+        sqft,
+        quantity: 1,
+        totalSqft: sqft,
+        rate: kpRate,
+        amount: sqft * kpRate
       })
     }
   }

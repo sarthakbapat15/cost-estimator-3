@@ -199,3 +199,28 @@ Stage Summary:
 - All price labels in dropdown menus and disabled rate inputs now dynamically reflect the live `prices` state
 - When users change prices in the Rate Settings dialog, the dropdown option labels will immediately update to show the new prices
 - No remaining hardcoded prices in any settings-editable field
+
+---
+Task ID: 7
+Agent: Main
+Task: Update countertop prices and add Kitchen Paneling component
+
+Work Log:
+- Changed DEFAULT_PRICES.countertopMaterial from { Granite: 1500, Quartz: 2000 } to { Granite: 550, Quartz: 650 }
+- Added kitchenPaneling rates to DEFAULT_PRICES: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 }
+- Added kitchenPaneling: ComponentState to KitchenEstimate interface
+- Added kitchenPaneling initial state in both useState and resetKitchenComponents
+- Added 'kitchenPaneling': 'Kitchen Paneling' to getComponentLabel
+- Added calculation case in calculateComponentTotal using getEffectiveRate (supports Postforming manual rate)
+- Added Kitchen Paneling UI card (fuchsia-50) right after Base Carcase with Height, Width, Finish dropdown, and PostformingRateInput
+- Added 4 rate entries to RATE_SECTIONS in rate-settings-dialog.tsx (SF, Gloss MR+, HGL, Acrylic)
+- Added kitchenPaneling to PRICES constant in Excel export route
+- Added kitchenPaneling export item logic in getKitchenItems function with Postforming support
+- Added postformingRate to the Excel export payload
+- Updated PRICES.countertopMaterial in export route (export file didn't have it originally, only used from frontend payload)
+
+Stage Summary:
+- Countertop prices updated: Granite ₹550/sqft, Quartz ₹650/sqft
+- New Kitchen Paneling component with 4 finishes (SF, Gloss MR+, HGL, Acrylic) + Postforming (manual)
+- Component appears in Kitchen tab, cost breakdown table, settings dialog, and Excel export
+- All prices in dropdowns are dynamic (reflect settings changes)

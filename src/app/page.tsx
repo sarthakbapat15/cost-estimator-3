@@ -29,8 +29,9 @@ const DEFAULT_PRICES = {
   ledgeShelf: 350,
   flutedPanel: 900,
   sittingWithCushion: 1350,
-  countertopMaterial: { Granite: 1500, Quartz: 2000 },
+  countertopMaterial: { Granite: 550, Quartz: 650 },
   baseCarcase: 1650,
+  kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
   overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 },
   bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
   bedroomWardrobeSlidingMechanism: 15000,
@@ -111,6 +112,7 @@ interface KitchenEstimate {
     tallUnit: ComponentState
     pantryUnit: ComponentState
     baseCarcase: ComponentState
+    kitchenPaneling: ComponentState
     overheadCabinet: ComponentState
     overheadLoft: ComponentState
     profileShutter: ComponentState
@@ -151,6 +153,7 @@ export default function Home() {
       tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
       pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
       baseCarcase: { height: '', width: '', quantity: '', price: '1650' },
+      kitchenPaneling: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
       overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
       overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
       profileShutter: { quantity: '', price: '' },
@@ -389,6 +392,13 @@ export default function Home() {
       case 'baseCarcase': {
         const baseCarcaseSqft = calculateSqft(comp.height, comp.width)
         return baseCarcaseSqft * prices.baseCarcase
+      }
+
+      case 'kitchenPaneling': {
+        const panelingSqft = calculateSqft(comp.height, comp.width)
+        const panelingFinish = comp.tallPantryFinish
+        const panelingRate = getEffectiveRate(panelingFinish, prices.kitchenPaneling)
+        return panelingSqft * panelingRate
       }
 
       case 'overheadCabinet': {
@@ -717,6 +727,7 @@ export default function Home() {
         tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
         pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
         baseCarcase: { height: '', width: '', quantity: '', price: '1650' },
+        kitchenPaneling: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
         overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
         overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
         profileShutter: { quantity: '', price: '' },
@@ -762,6 +773,7 @@ export default function Home() {
           livingRoomCustomComponents,
           bedroomCustomComponents,
           miscEstimate,
+          postformingRate,
         })
       })
 
@@ -837,6 +849,7 @@ export default function Home() {
       tallUnit: 'Tall Unit',
       pantryUnit: 'Pantry Unit',
       baseCarcase: 'Base Carcase',
+      kitchenPaneling: 'Kitchen Paneling',
       overheadCabinet: 'Overhead Cabinet',
       overheadLoft: 'Overhead Loft',
       profileShutter: 'Profile Shutter with Glass',
@@ -1328,6 +1341,45 @@ export default function Home() {
                       <Label className="text-xs">Rate / sqft</Label>
                       <Input value={formatINR(prices.baseCarcase)} disabled className="bg-white" />
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Kitchen Paneling */}
+              <Card className="bg-fuchsia-50 border-fuchsia-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-fuchsia-800 text-base">Kitchen Paneling</CardTitle>
+                    <span className="text-sm font-semibold text-fuchsia-700">
+                      ₹{calculateComponentTotal('kitchenPaneling').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Height (mm)</Label>
+                      <Input type="number" placeholder="0" value={estimate.components.kitchenPaneling.height} onChange={(e) => updateComponent('kitchenPaneling', 'height', e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Width (mm)</Label>
+                      <Input type="number" placeholder="0" value={estimate.components.kitchenPaneling.width} onChange={(e) => updateComponent('kitchenPaneling', 'width', e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-1.5">
+                    <Label className="text-xs">Finish</Label>
+                    <Select value={estimate.components.kitchenPaneling.tallPantryFinish} onValueChange={(value) => updateComponent('kitchenPaneling', 'tallPantryFinish', value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(prices.kitchenPaneling).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
+                        <SelectItem value="Postforming">Postforming</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <PostformingRateInput selectedFinish={estimate.components.kitchenPaneling.tallPantryFinish} />
                   </div>
                 </CardContent>
               </Card>
