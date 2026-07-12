@@ -1040,7 +1040,7 @@ export default function Home() {
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs">Rate / Unit</Label>
-                        <Input value="₹1,500" disabled className="bg-white" />
+                        <Input value={formatINR(prices.plyVerticals)} disabled className="bg-white" />
                       </div>
                     </div>
                   ) : (
@@ -1052,8 +1052,9 @@ export default function Home() {
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Granite">Granite</SelectItem>
-                            <SelectItem value="Quartz">Quartz</SelectItem>
+                            {Object.entries(prices.countertopMaterial).map(([mat, rate]) => (
+                              <SelectItem key={mat} value={mat}>{mat} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
