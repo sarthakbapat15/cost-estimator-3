@@ -65,6 +65,7 @@ const PRICES = {
   flutedPanel: 900,
   sittingWithCushion: 1350,
   profileShutter: 350,
+  countertopMaterial: { Granite: 550, Quartz: 650 },
   baseCarcase: 1650,
   kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
   overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 }
@@ -107,7 +108,7 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
     }
   } else {
     const sqft = calculateSqft(c1.height, c1.width)
-    const basePrice = c1.material === 'Quartz' ? 2000 : 1500
+    const basePrice = PRICES.countertopMaterial[c1.material as keyof typeof PRICES.countertopMaterial] || PRICES.countertopMaterial.Granite
     if (sqft > 0 && c1.height && c1.width) {
       items.push({
         label: 'Structure / Countertop',

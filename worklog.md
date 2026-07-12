@@ -224,3 +224,21 @@ Stage Summary:
 - New Kitchen Paneling component with 4 finishes (SF, Gloss MR+, HGL, Acrylic) + Postforming (manual)
 - Component appears in Kitchen tab, cost breakdown table, settings dialog, and Excel export
 - All prices in dropdowns are dynamic (reflect settings changes)
+---
+Task ID: 8
+Agent: Main
+Task: Fix granite/quartz prices still showing ₹1500 instead of ₹550/₹650
+
+Work Log:
+- Investigated the issue: frontend code at line 1055-1057 already used dynamic `Object.entries(prices.countertopMaterial).map(...)` 
+- Root cause: user had previously saved rate overrides to localStorage with old prices (Granite: 1500, Quartz: 2000). The `mergePrices` function applied these stale overrides on top of the new DEFAULT_PRICES
+- Fix 1: Added `RATE_VERSION = 'v3'` constant to page.tsx — when localStorage version doesn't match, stale overrides are automatically cleared
+- Fix 2: Updated `useState` initializer to check `localStorage.getItem('rateOverridesVersion')` and clear overrides on version mismatch
+- Fix 3: Updated `handleSaveRates` to also save `rateOverridesVersion` to localStorage
+- Fix 4: Fixed Excel export route.ts — added `countertopMaterial: { Granite: 550, Quartz: 650 }` to PRICES constant and replaced hardcoded `c1.material === 'Quartz' ? 2000 : 1500` with `PRICES.countertopMaterial[c1.material] || PRICES.countertopMaterial.Granite`
+- Verified via agent-browser: Material dropdown now shows "Granite (₹550/sqft)" and "Quartz (₹650/sqft)" correctly
+
+Stage Summary:
+- Added RATE_VERSION-based localStorage invalidation to prevent stale overrides from persisting across DEFAULT_PRICES changes
+- Excel export no longer has hardcoded countertop prices
+- Granite ₹550/sqft and Quartz ₹650/sqft now display correctly in the Full Modular kitchen section

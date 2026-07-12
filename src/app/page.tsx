@@ -45,6 +45,9 @@ const DEFAULT_PRICES = {
   bedroomHydraulicMechanismPrice: 25000,
 }
 
+// Bump this whenever DEFAULT_PRICES keys/values change so stale localStorage overrides are cleared
+const RATE_VERSION = 'v3'
+
 type KitchenType = 'Semi-Modular' | 'Full-Modular'
 type ServiceType = 'Kitchen Only' | 'Full Interior'
 type Brand = 'Olive' | 'Blum' | 'Hettich'
@@ -198,6 +201,13 @@ export default function Home() {
   const [prices, setPrices] = useState<typeof DEFAULT_PRICES>(() => {
     if (typeof window !== 'undefined') {
       try {
+        const savedVersion = localStorage.getItem('rateOverridesVersion')
+        if (savedVersion !== RATE_VERSION) {
+          // Version mismatch — clear stale overrides so new defaults take effect
+          localStorage.removeItem('rateOverrides')
+          localStorage.setItem('rateOverridesVersion', RATE_VERSION)
+          return { ...DEFAULT_PRICES }
+        }
         const saved = localStorage.getItem('rateOverrides')
         if (saved) return mergePrices(DEFAULT_PRICES, JSON.parse(saved))
       } catch { /* ignore */ }
@@ -232,6 +242,7 @@ export default function Home() {
     const merged = mergePrices(DEFAULT_PRICES, updated)
     setPrices(merged)
     localStorage.setItem('rateOverrides', JSON.stringify(updated))
+    localStorage.setItem('rateOverridesVersion', RATE_VERSION)
   }
 
   const handleResetRates = () => {
