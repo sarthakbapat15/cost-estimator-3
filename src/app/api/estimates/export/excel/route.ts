@@ -628,14 +628,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Qty
-        const qtyText = item.sqft ? item.sqft.toFixed(2) : (item.quantity ? String(item.quantity) : '1')
+        const qtyText = item.sqft ? (Math.round(item.sqft * 100) / 100).toFixed(2) : (item.quantity ? String(item.quantity) : '1')
         qs.getCell(`C${rowNum}`).value = qtyText
         qs.getCell(`C${rowNum}`).alignment = { horizontal: 'center' }
         qs.getCell(`C${rowNum}`).font = { name: 'Calibri' }
 
         // Amount
         if (item.amount > 0) {
-          qs.getCell(`D${rowNum}`).value = item.amount
+          qs.getCell(`D${rowNum}`).value = Math.round(item.amount)
           qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
           qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
           qs.getCell(`D${rowNum}`).font = { name: 'Calibri' }
@@ -708,7 +708,7 @@ export async function POST(request: NextRequest) {
       if (ew.lightPointType && ew.quantity) {
         const rate = MISC_RATES.lightPoint[ew.lightPointType] || 0
         const qty = parseFloat(ew.quantity) || 0
-        const amt = rate * qty
+        const amt = Math.round(rate * qty)
         if (amt > 0) {
           miscExportItems.push({
             label: `Electrical - ${ew.lightPointType}`,
@@ -723,7 +723,7 @@ export async function POST(request: NextRequest) {
       if (pt.paintType && pt.totalArea) {
         const rate = MISC_RATES.paint[pt.paintType] || 0
         const area = parseFloat(pt.totalArea) || 0
-        const amt = rate * area
+        const amt = Math.round(rate * area)
         if (amt > 0) {
           miscExportItems.push({
             label: `Painting - ${pt.paintType}`,
@@ -765,7 +765,7 @@ export async function POST(request: NextRequest) {
     qs.mergeCells(`B${rowNum}:C${rowNum}`)
     qs.getCell(`B${rowNum}`).value = 'SUB TOTAL'
     qs.getCell(`B${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = totalAmount
+    qs.getCell(`D${rowNum}`).value = Math.round(totalAmount)
     qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
     qs.getCell(`D${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
     qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
@@ -932,7 +932,7 @@ export async function POST(request: NextRequest) {
         ws.getCell(`D${wbRow}`).font = { name: 'Calibri' }
 
         // sq.ft
-        ws.getCell(`E${wbRow}`).value = item.sqft ? item.sqft.toFixed(2) : ''
+        ws.getCell(`E${wbRow}`).value = item.sqft ? (Math.round(item.sqft * 100) / 100).toFixed(2) : ''
         ws.getCell(`E${wbRow}`).font = { name: 'Calibri' }
 
         // Quantity
@@ -941,7 +941,7 @@ export async function POST(request: NextRequest) {
 
         // Total quantity Sq.Ft
         const totalQtySqft = item.sqft ? (item.sqft * (item.quantity || 1)) : (item.quantity || 0)
-        ws.getCell(`G${wbRow}`).value = totalQtySqft > 0 ? totalQtySqft.toFixed(2) : ''
+        ws.getCell(`G${wbRow}`).value = totalQtySqft > 0 ? (Math.round(totalQtySqft * 100) / 100).toFixed(2) : ''
         ws.getCell(`G${wbRow}`).font = { name: 'Calibri' }
 
         // Rate
@@ -949,7 +949,7 @@ export async function POST(request: NextRequest) {
         ws.getCell(`H${wbRow}`).font = { name: 'Calibri' }
 
         // Amount
-        ws.getCell(`I${wbRow}`).value = item.amount
+        ws.getCell(`I${wbRow}`).value = Math.round(item.amount)
         ws.getCell(`I${wbRow}`).numFmt = '"₹"#,##0'
         ws.getCell(`I${wbRow}`).font = { name: 'Calibri' }
         wbRow++
@@ -966,7 +966,7 @@ export async function POST(request: NextRequest) {
 
       // Section subtotal
       if (items.length > 0) {
-        const sectionTotal = items.reduce((sum, item) => sum + item.amount, 0)
+        const sectionTotal = Math.round(items.reduce((sum, item) => sum + item.amount, 0))
         ws.mergeCells(`B${wbRow}:H${wbRow}`)
         ws.getCell(`I${wbRow}`).value = sectionTotal
         ws.getCell(`I${wbRow}`).numFmt = '"₹"#,##0'
