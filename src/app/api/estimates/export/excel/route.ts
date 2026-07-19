@@ -23,8 +23,8 @@ interface EstimateData {
   }
   miscEstimate?: {
     falseCeiling: { type: string; material: string; height: string; width: string }
-    electricalWork: { lightPointType: string; quantity: string }
-    painting: { paintType: string; totalArea: string }
+    electricalWork: Array<{ id?: string; lightPointType: string; quantity: string }>
+    painting: Array<{ id?: string; paintType: string; totalArea: string }>
   }
 }
 
@@ -703,36 +703,40 @@ export async function POST(request: NextRequest) {
           miscTotal += amt
         }
       }
-      // Electrical Work
-      const ew = misc.electricalWork || {}
-      if (ew.lightPointType && ew.quantity) {
-        const rate = MISC_RATES.lightPoint[ew.lightPointType] || 0
-        const qty = parseFloat(ew.quantity) || 0
-        const amt = Math.round(rate * qty)
-        if (amt > 0) {
-          miscExportItems.push({
-            label: `Electrical - ${ew.lightPointType}`,
-            qty: qty + ' nos',
-            amount: amt,
-          })
-          miscTotal += amt
+      // Electrical Work (array)
+      const ewItems = Array.isArray(misc.electricalWork) ? misc.electricalWork : []
+      ewItems.forEach((ew: any) => {
+        if (ew.lightPointType && ew.quantity) {
+          const rate = MISC_RATES.lightPoint[ew.lightPointType] || 0
+          const qty = parseFloat(ew.quantity) || 0
+          const amt = Math.round(rate * qty)
+          if (amt > 0) {
+            miscExportItems.push({
+              label: `Electrical - ${ew.lightPointType}`,
+              qty: qty + ' nos',
+              amount: amt,
+            })
+            miscTotal += amt
+          }
         }
-      }
-      // Painting
-      const pt = misc.painting || {}
-      if (pt.paintType && pt.totalArea) {
-        const rate = MISC_RATES.paint[pt.paintType] || 0
-        const area = parseFloat(pt.totalArea) || 0
-        const amt = Math.round(rate * area)
-        if (amt > 0) {
-          miscExportItems.push({
-            label: `Painting - ${pt.paintType}`,
-            qty: area + ' sqft',
-            amount: amt,
-          })
-          miscTotal += amt
+      })
+      // Painting (array)
+      const ptItems = Array.isArray(misc.painting) ? misc.painting : []
+      ptItems.forEach((pt: any) => {
+        if (pt.paintType && pt.totalArea) {
+          const rate = MISC_RATES.paint[pt.paintType] || 0
+          const area = parseFloat(pt.totalArea) || 0
+          const amt = Math.round(rate * area)
+          if (amt > 0) {
+            miscExportItems.push({
+              label: `Painting - ${pt.paintType}`,
+              qty: area + ' sqft',
+              amount: amt,
+            })
+            miscTotal += amt
+          }
         }
-      }
+      })
     }
 
     if (miscExportItems.length > 0) {

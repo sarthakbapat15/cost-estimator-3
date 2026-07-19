@@ -98,10 +98,22 @@ const MISC_PRICES = {
   paint: { 'Luster Paint': 38, 'Texture Paint': 115, 'Plastic Paint': 33, 'Distemper Paint': 27 },
 }
 
+interface ElectricalWorkItem {
+  id: string
+  lightPointType: LightPointType | ''
+  quantity: string
+}
+
+interface PaintingItem {
+  id: string
+  paintType: PaintType | ''
+  totalArea: string
+}
+
 interface MiscellaneousEstimate {
   falseCeiling: { type: CeilingType | ''; material: CeilingMaterial | ''; height: string; width: string }
-  electricalWork: { lightPointType: LightPointType | ''; quantity: string }
-  painting: { paintType: PaintType | ''; totalArea: string }
+  electricalWork: ElectricalWorkItem[]
+  painting: PaintingItem[]
 }
 
 interface KitchenEstimate {
@@ -225,8 +237,8 @@ export default function Home() {
 
   const [miscEstimate, setMiscEstimate] = useState<MiscellaneousEstimate>({
     falseCeiling: { type: '', material: '', height: '', width: '' },
-    electricalWork: { lightPointType: '', quantity: '' },
-    painting: { paintType: '', totalArea: '' },
+    electricalWork: [],
+    painting: [],
   })
 
   const [postformingRate, setPostformingRate] = useState('')
@@ -288,7 +300,45 @@ export default function Home() {
   const updateMisc = (component: keyof MiscellaneousEstimate, field: string, value: string) => {
     setMiscEstimate(prev => ({
       ...prev,
-      [component]: { ...prev[component], [field]: value }
+      [component]: { ...(prev[component] as any), [field]: value }
+    }))
+  }
+
+  const addElectricalItem = () => {
+    setMiscEstimate(prev => ({
+      ...prev,
+      electricalWork: [...prev.electricalWork, { id: crypto.randomUUID(), lightPointType: '', quantity: '' }]
+    }))
+  }
+  const removeElectricalItem = (id: string) => {
+    setMiscEstimate(prev => ({
+      ...prev,
+      electricalWork: prev.electricalWork.filter(i => i.id !== id)
+    }))
+  }
+  const updateElectricalItem = (id: string, field: keyof ElectricalWorkItem, value: string) => {
+    setMiscEstimate(prev => ({
+      ...prev,
+      electricalWork: prev.electricalWork.map(i => i.id === id ? { ...i, [field]: value } : i)
+    }))
+  }
+
+  const addPaintingItem = () => {
+    setMiscEstimate(prev => ({
+      ...prev,
+      painting: [...prev.painting, { id: crypto.randomUUID(), paintType: '', totalArea: '' }]
+    }))
+  }
+  const removePaintingItem = (id: string) => {
+    setMiscEstimate(prev => ({
+      ...prev,
+      painting: prev.painting.filter(i => i.id !== id)
+    }))
+  }
+  const updatePaintingItem = (id: string, field: keyof PaintingItem, value: string) => {
+    setMiscEstimate(prev => ({
+      ...prev,
+      painting: prev.painting.map(i => i.id === id ? { ...i, [field]: value } : i)
     }))
   }
 
@@ -307,17 +357,19 @@ export default function Home() {
   })()
 
   const electricalWorkCost = (() => {
-    const ew = miscEstimate.electricalWork
-    const rate = ew.lightPointType ? (MISC_PRICES.lightPoint[ew.lightPointType as LightPointType] || 0) : 0
-    const qty = parseFloat(ew.quantity) || 0
-    return rate * qty
+    return miscEstimate.electricalWork.reduce((sum, ew) => {
+      const rate = ew.lightPointType ? (MISC_PRICES.lightPoint[ew.lightPointType as LightPointType] || 0) : 0
+      const qty = parseFloat(ew.quantity) || 0
+      return sum + (rate * qty)
+    }, 0)
   })()
 
   const paintingCost = (() => {
-    const p = miscEstimate.painting
-    const rate = p.paintType ? (MISC_PRICES.paint[p.paintType as PaintType] || 0) : 0
-    const area = parseFloat(p.totalArea) || 0
-    return rate * area
+    return miscEstimate.painting.reduce((sum, p) => {
+      const rate = p.paintType ? (MISC_PRICES.paint[p.paintType as PaintType] || 0) : 0
+      const area = parseFloat(p.totalArea) || 0
+      return sum + (rate * area)
+    }, 0)
   })()
 
   const totalMiscellaneousCost = falseCeilingCost + electricalWorkCost + paintingCost
@@ -2360,46 +2412,80 @@ export default function Home() {
               <CardDescription className="text-xs text-orange-600">Type of light / plug point × Quantity</CardDescription>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Type of Light Point</Label>
-                  <Select
-                    value={miscEstimate.electricalWork.lightPointType}
-                    onValueChange={(v) => updateMisc('electricalWork', 'lightPointType', v)}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Primary Light Point">Primary Light Point — ₹750</SelectItem>
-                      <SelectItem value="Secondary Light Point">Secondary Light Point — ₹450</SelectItem>
-                      <SelectItem value="Half Plug Point">Half Plug Point — ₹400</SelectItem>
-                      <SelectItem value="Full Plug Point">Full Plug Point — ₹700</SelectItem>
-                      <SelectItem value="Concealed Light Fitting">Concealed Light Fitting — ₹150</SelectItem>
-                      <SelectItem value="Fan Fitting">Fan Fitting — ₹150</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {miscEstimate.electricalWork.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-3">No items added yet</p>
+              )}
+              {miscEstimate.electricalWork.map((item, idx) => {
+                const itemRate = item.lightPointType ? (MISC_PRICES.lightPoint[item.lightPointType as LightPointType] || 0) : 0
+                const itemQty = parseFloat(item.quantity) || 0
+                const itemCost = itemRate * itemQty
+                return (
+                  <div key={item.id} className="rounded-lg border border-orange-100 bg-white p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-orange-700">#{idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeElectricalItem(item.id)}
+                        className="text-red-400 hover:text-red-600 p-0.5"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Type of Light Point</Label>
+                        <Select
+                          value={item.lightPointType}
+                          onValueChange={(v) => updateElectricalItem(item.id, 'lightPointType', v)}
+                        >
+                          <SelectTrigger className="h-9">
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Primary Light Point">Primary Light Point — ₹750</SelectItem>
+                            <SelectItem value="Secondary Light Point">Secondary Light Point — ₹450</SelectItem>
+                            <SelectItem value="Half Plug Point">Half Plug Point — ₹400</SelectItem>
+                            <SelectItem value="Full Plug Point">Full Plug Point — ₹700</SelectItem>
+                            <SelectItem value="Concealed Light Fitting">Concealed Light Fitting — ₹150</SelectItem>
+                            <SelectItem value="Fan Fitting">Fan Fitting — ₹150</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Quantity</Label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={item.quantity}
+                          onChange={(e) => updateElectricalItem(item.id, 'quantity', e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                    {itemCost > 0 && (
+                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-orange-50">
+                        <span>₹{itemRate}/unit × {itemQty} nos</span>
+                        <span className="font-semibold text-orange-800">{formatINR(itemCost)}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addElectricalItem}
+                className="w-full border-dashed border-orange-300 text-orange-700 hover:bg-orange-50 hover:text-orange-800"
+              >
+                <Plus className="w-4 h-4 mr-1.5" /> Add Item
+              </Button>
+              {electricalWorkCost > 0 && (
+                <div className="flex items-center justify-between pt-2 border-t border-orange-200">
+                  <span className="text-xs font-medium text-orange-700">Total Electrical</span>
+                  <span className="text-sm font-bold text-orange-800">{formatINR(electricalWorkCost)}</span>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Quantity</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={miscEstimate.electricalWork.quantity}
-                    onChange={(e) => updateMisc('electricalWork', 'quantity', e.target.value)}
-                    className="h-9"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-orange-100">
-                <span className="text-xs text-muted-foreground">
-                  {miscEstimate.electricalWork.lightPointType ? `₹${MISC_PRICES.lightPoint[miscEstimate.electricalWork.lightPointType as LightPointType]}/unit` : ''}
-                  {parseFloat(miscEstimate.electricalWork.quantity) > 0 ? ` × ${miscEstimate.electricalWork.quantity} nos` : ''}
-                </span>
-                <span className="text-sm font-bold text-orange-800">
-                  {formatINR(electricalWorkCost)}
-                </span>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -2410,44 +2496,78 @@ export default function Home() {
               <CardDescription className="text-xs text-orange-600">Paint type rate × Total area in sq.ft</CardDescription>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Type of Paint</Label>
-                  <Select
-                    value={miscEstimate.painting.paintType}
-                    onValueChange={(v) => updateMisc('painting', 'paintType', v)}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select paint type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Luster Paint">Luster Paint — ₹38/sqft</SelectItem>
-                      <SelectItem value="Texture Paint">Texture Paint — ₹115/sqft</SelectItem>
-                      <SelectItem value="Plastic Paint">Plastic Paint — ₹33/sqft</SelectItem>
-                      <SelectItem value="Distemper Paint">Distemper Paint — ₹27/sqft</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {miscEstimate.painting.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-3">No items added yet</p>
+              )}
+              {miscEstimate.painting.map((item, idx) => {
+                const itemRate = item.paintType ? (MISC_PRICES.paint[item.paintType as PaintType] || 0) : 0
+                const itemArea = parseFloat(item.totalArea) || 0
+                const itemCost = itemRate * itemArea
+                return (
+                  <div key={item.id} className="rounded-lg border border-orange-100 bg-white p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-orange-700">#{idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removePaintingItem(item.id)}
+                        className="text-red-400 hover:text-red-600 p-0.5"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Type of Paint</Label>
+                        <Select
+                          value={item.paintType}
+                          onValueChange={(v) => updatePaintingItem(item.id, 'paintType', v)}
+                        >
+                          <SelectTrigger className="h-9">
+                            <SelectValue placeholder="Select paint type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Luster Paint">Luster Paint — ₹38/sqft</SelectItem>
+                            <SelectItem value="Texture Paint">Texture Paint — ₹115/sqft</SelectItem>
+                            <SelectItem value="Plastic Paint">Plastic Paint — ₹33/sqft</SelectItem>
+                            <SelectItem value="Distemper Paint">Distemper Paint — ₹27/sqft</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Total Area (sq.ft)</Label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={item.totalArea}
+                          onChange={(e) => updatePaintingItem(item.id, 'totalArea', e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                    {itemCost > 0 && (
+                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-orange-50">
+                        <span>₹{itemRate}/sqft × {itemArea} sqft</span>
+                        <span className="font-semibold text-orange-800">{formatINR(itemCost)}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addPaintingItem}
+                className="w-full border-dashed border-orange-300 text-orange-700 hover:bg-orange-50 hover:text-orange-800"
+              >
+                <Plus className="w-4 h-4 mr-1.5" /> Add Item
+              </Button>
+              {paintingCost > 0 && (
+                <div className="flex items-center justify-between pt-2 border-t border-orange-200">
+                  <span className="text-xs font-medium text-orange-700">Total Painting</span>
+                  <span className="text-sm font-bold text-orange-800">{formatINR(paintingCost)}</span>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Total Area (sq.ft)</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={miscEstimate.painting.totalArea}
-                    onChange={(e) => updateMisc('painting', 'totalArea', e.target.value)}
-                    className="h-9"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-orange-100">
-                <span className="text-xs text-muted-foreground">
-                  {miscEstimate.painting.paintType ? `₹${MISC_PRICES.paint[miscEstimate.painting.paintType as PaintType]}/sqft` : ''}
-                  {parseFloat(miscEstimate.painting.totalArea) > 0 ? ` × ${miscEstimate.painting.totalArea} sqft` : ''}
-                </span>
-                <span className="text-sm font-bold text-orange-800">
-                  {formatINR(paintingCost)}
-                </span>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -2611,18 +2731,26 @@ export default function Home() {
                         <TableCell className="text-right font-semibold text-orange-800">{falseCeilingCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
                       </TableRow>
                     )}
-                    {electricalWorkCost > 0 && (
-                      <TableRow>
-                        <TableCell className="font-medium text-orange-800">Misc — Electrical Work</TableCell>
-                        <TableCell className="text-right font-semibold text-orange-800">{electricalWorkCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
-                      </TableRow>
-                    )}
-                    {paintingCost > 0 && (
-                      <TableRow>
-                        <TableCell className="font-medium text-orange-800">Misc — Painting</TableCell>
-                        <TableCell className="text-right font-semibold text-orange-800">{paintingCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
-                      </TableRow>
-                    )}
+                    {miscEstimate.electricalWork.filter(i => i.lightPointType && parseFloat(i.quantity) > 0).map((item) => {
+                      const rate = MISC_PRICES.lightPoint[item.lightPointType as LightPointType] || 0
+                      const qty = parseFloat(item.quantity) || 0
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium text-orange-800">Misc — Electrical: {item.lightPointType} × {qty}</TableCell>
+                          <TableCell className="text-right font-semibold text-orange-800">{Math.round(rate * qty).toLocaleString('en-IN')}</TableCell>
+                        </TableRow>
+                      )
+                    })}
+                    {miscEstimate.painting.filter(i => i.paintType && parseFloat(i.totalArea) > 0).map((item) => {
+                      const rate = MISC_PRICES.paint[item.paintType as PaintType] || 0
+                      const area = parseFloat(item.totalArea) || 0
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium text-orange-800">Misc — Painting: {item.paintType} × {area} sqft</TableCell>
+                          <TableCell className="text-right font-semibold text-orange-800">{Math.round(rate * area).toLocaleString('en-IN')}</TableCell>
+                        </TableRow>
+                      )
+                    })}
                     <TableRow className="bg-emerald-50 hover:bg-emerald-50">
                       <TableCell className="font-bold text-emerald-900">Grand Total</TableCell>
                       <TableCell className="text-right font-bold text-emerald-900 text-lg">{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
