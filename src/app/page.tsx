@@ -297,10 +297,10 @@ export default function Home() {
   }
 
   // ── Miscellaneous Helpers ──
-  const updateMisc = (component: keyof MiscellaneousEstimate, field: string, value: string) => {
+  const updateMisc = (field: keyof MiscellaneousEstimate['falseCeiling'], value: string) => {
     setMiscEstimate(prev => ({
       ...prev,
-      [component]: { ...(prev[component] as any), [field]: value }
+      falseCeiling: { ...prev.falseCeiling, [field]: value }
     }))
   }
 
@@ -2339,7 +2339,7 @@ export default function Home() {
                   <Label className="text-xs">Type of Ceiling</Label>
                   <Select
                     value={miscEstimate.falseCeiling.type}
-                    onValueChange={(v) => updateMisc('falseCeiling', 'type', v)}
+                    onValueChange={(v) => updateMisc('type', v)}
                   >
                     <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select type" />
@@ -2355,7 +2355,7 @@ export default function Home() {
                   <Label className="text-xs">Material</Label>
                   <Select
                     value={miscEstimate.falseCeiling.material}
-                    onValueChange={(v) => updateMisc('falseCeiling', 'material', v)}
+                    onValueChange={(v) => updateMisc('material', v)}
                   >
                     <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select material" />
@@ -2378,7 +2378,7 @@ export default function Home() {
                     type="number"
                     placeholder="0"
                     value={miscEstimate.falseCeiling.height}
-                    onChange={(e) => updateMisc('falseCeiling', 'height', e.target.value)}
+                    onChange={(e) => updateMisc('height', e.target.value)}
                     className="h-9"
                   />
                 </div>
@@ -2388,7 +2388,7 @@ export default function Home() {
                     type="number"
                     placeholder="0"
                     value={miscEstimate.falseCeiling.width}
-                    onChange={(e) => updateMisc('falseCeiling', 'width', e.target.value)}
+                    onChange={(e) => updateMisc('width', e.target.value)}
                     className="h-9"
                   />
                 </div>
