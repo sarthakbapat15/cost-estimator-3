@@ -262,3 +262,26 @@ Stage Summary:
 - Removed "ADD 18% GST" row from Quotation sheet
 - Grand Total now = sum of all items (kitchen + living room + miscellaneous) — all prices are GST-inclusive
 - Fixed Postforming rate lookup bug in Kitchen Paneling Excel export
+
+---
+Task ID: 2
+Agent: Main
+Task: Add discount selector with 10%, 15%, 20% options before Grand Total
+
+Work Log:
+- Added `selectedDiscount` state (default 0) in page.tsx
+- Added `discountAmount` and `discountedTotal` computed values
+- Added Discount card with Select dropdown (No Discount, 10%, 15%, 20%) before Grand Total banner
+- Updated Grand Total banner: shows strikethrough original price + discounted price + "Incl. X% discount" label when discount active
+- Added red Discount row in consolidated estimate table when discount > 0
+- Passed `discountPercent` to Excel export API
+- Updated Excel Quotation sheet: when discount > 0, shows SUB TOTAL → DISCOUNT OFFERED FLAT X% → AMOUNT POST DISCOUNT → GRAND TOTAL; when no discount, shows SUB TOTAL → GRAND TOTAL
+- Imported `Percent` icon from lucide-react
+- Verified: 20% on ₹8,525 = -₹1,705 → ₹6,820 ✓
+- Verified: 15% on ₹8,525 = -₹1,279 → ₹7,246 ✓
+- Verified: No Discount shows ₹8,525 with no strikethrough ✓
+- Excel export with discount returns 200 OK ✓
+
+Stage Summary:
+- Discount dropdown with 4 options (0%, 10%, 15%, 20%) added before Grand Total
+- Both UI and Excel export reflect the selected discount correctly

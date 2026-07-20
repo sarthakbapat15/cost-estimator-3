@@ -26,6 +26,7 @@ interface EstimateData {
     electricalWork: Array<{ id?: string; lightPointType: string; quantity: string }>
     painting: Array<{ id?: string; paintType: string; totalArea: string }>
   }
+  discountPercent?: number
 }
 
 function validateData(body: any): EstimateData {
@@ -44,6 +45,7 @@ function validateData(body: any): EstimateData {
     livingRoomEstimate: body?.livingRoomEstimate || undefined,
     logoSettings: body?.logoSettings || { width: 350, height: 140, position: 'center' },
     miscEstimate: body?.miscEstimate || undefined,
+    discountPercent: body?.discountPercent || 0,
   }
 }
 
@@ -766,29 +768,68 @@ export async function POST(request: NextRequest) {
     }
 
     // SUB TOTAL
+    const subTotal = Math.round(totalAmount + miscTotal)
     qs.mergeCells(`B${rowNum}:C${rowNum}`)
     qs.getCell(`B${rowNum}`).value = 'SUB TOTAL'
     qs.getCell(`B${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = Math.round(totalAmount + miscTotal)
+    qs.getCell(`D${rowNum}`).value = subTotal
     qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
     qs.getCell(`D${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
     qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
     rowNum++
 
-    // GRAND TOTAL (All Inclusive)
-    const grandTotal = Math.round(totalAmount + miscTotal)
-    qs.mergeCells(`B${rowNum}:C${rowNum}`)
-    qs.getCell(`B${rowNum}`).value = 'GRAND TOTAL (All Inclusive)'
-    qs.getCell(`B${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }
-    qs.getRow(rowNum).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD4E157' }
+    // DISCOUNT (if any)
+    const discountPct = validatedData.discountPercent || 0
+    if (discountPct > 0) {
+      const discountAmt = Math.round(subTotal * discountPct / 100)
+      qs.mergeCells(`B${rowNum}:C${rowNum}`)
+      qs.getCell(`B${rowNum}`).value = `DISCOUNT OFFERED FLAT ${discountPct}%`
+      qs.getCell(`B${rowNum}`).font = { name: 'Calibri' }
+      qs.getCell(`D${rowNum}`).value = -discountAmt
+      qs.getCell(`D${rowNum}`).numFmt = '"₹"-#,##0'
+      qs.getCell(`D${rowNum}`).font = { name: 'Calibri' }
+      qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
+      rowNum++
+
+      // AMOUNT POST DISCOUNT
+      const postDiscount = subTotal - discountAmt
+      qs.mergeCells(`B${rowNum}:C${rowNum}`)
+      qs.getCell(`B${rowNum}`).value = 'AMOUNT POST DISCOUNT'
+      qs.getCell(`B${rowNum}`).font = { bold: true, name: 'Calibri' }
+      qs.getCell(`D${rowNum}`).value = postDiscount
+      qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
+      qs.getCell(`D${rowNum}`).font = { bold: true, name: 'Calibri' }
+      qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
+      rowNum++
+
+      // GRAND TOTAL (All Inclusive)
+      qs.mergeCells(`B${rowNum}:C${rowNum}`)
+      qs.getCell(`B${rowNum}`).value = 'GRAND TOTAL (All Inclusive)'
+      qs.getCell(`B${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }
+      qs.getRow(rowNum).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFD4E157' }
+      }
+      qs.getCell(`D${rowNum}`).value = postDiscount
+      qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
+      qs.getCell(`D${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }
+      qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
+    } else {
+      // No discount — Grand Total = Sub Total
+      qs.mergeCells(`B${rowNum}:C${rowNum}`)
+      qs.getCell(`B${rowNum}`).value = 'GRAND TOTAL (All Inclusive)'
+      qs.getCell(`B${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }
+      qs.getRow(rowNum).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFD4E157' }
+      }
+      qs.getCell(`D${rowNum}`).value = subTotal
+      qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
+      qs.getCell(`D${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }
+      qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
     }
-    qs.getCell(`D${rowNum}`).value = grandTotal
-    qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
-    qs.getCell(`D${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
     rowNum += 2
 
     // TERMS & CONDITIONS

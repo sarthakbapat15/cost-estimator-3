@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Download, RotateCcw, Calculator, FileDown, IndianRupee, BedDouble, Settings, Plus, Trash2 } from 'lucide-react'
+import { Download, RotateCcw, Calculator, FileDown, IndianRupee, BedDouble, Settings, Plus, Trash2, Percent } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import BedroomTypeCards, { createEmptyBedroom, DEFAULT_TALL_UNIT_FINISH_RATES, type BedroomData } from '@/components/bedroom-type-cards'
 import RateSettingsDialog, { mergePrices } from '@/components/rate-settings-dialog'
@@ -209,6 +209,7 @@ export default function Home() {
     height: 140,
     position: 'center' as 'left' | 'center' | 'right',
   })
+  const [selectedDiscount, setSelectedDiscount] = useState(0)
 
   const [prices, setPrices] = useState<typeof DEFAULT_PRICES>(() => {
     if (typeof window !== 'undefined') {
@@ -765,6 +766,8 @@ export default function Home() {
   }
 
   const grandTotal = (clientInfo.serviceType === 'Full Interior' ? totalLivingRoomCost + totalBedroomCost : totalBedroomCost) + totalEstimatedCost + totalMiscellaneousCost
+  const discountAmount = Math.round(grandTotal * selectedDiscount / 100)
+  const discountedTotal = grandTotal - discountAmount
 
   const handleKitchenTypeChange = (value: KitchenType) => {
     setKitchenType(value)
@@ -837,6 +840,7 @@ export default function Home() {
           bedroomCustomComponents,
           miscEstimate,
           postformingRate,
+          discountPercent: selectedDiscount,
         })
       })
 
@@ -2663,13 +2667,50 @@ export default function Home() {
               )}
             </Card>
 
+            {/* Discount Selector */}
+            <Card>
+              <CardContent className="py-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Percent className="w-5 h-5 text-amber-600" />
+                    <Label className="text-sm font-medium">Discount</Label>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Select
+                      value={String(selectedDiscount)}
+                      onValueChange={(v) => setSelectedDiscount(Number(v))}
+                    >
+                      <SelectTrigger className="w-44 h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">No Discount</SelectItem>
+                        <SelectItem value="10">10%</SelectItem>
+                        <SelectItem value="15">15%</SelectItem>
+                        <SelectItem value="20">20%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {selectedDiscount > 0 && (
+                      <span className="text-sm font-semibold text-red-600">- {formatINR(discountAmount)}</span>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Grand Total Banner */}
             <Card className="bg-emerald-600 border-emerald-600">
               <CardContent className="py-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
                     <p className="text-emerald-100 text-sm">Total Estimated Cost</p>
-                    <p className="text-3xl font-bold text-white">{formatINR(grandTotal)}</p>
+                    {selectedDiscount > 0 && (
+                      <p className="text-emerald-200 text-xs line-through">{formatINR(grandTotal)}</p>
+                    )}
+                    <p className="text-3xl font-bold text-white">{formatINR(discountedTotal)}</p>
+                    {selectedDiscount > 0 && (
+                      <p className="text-emerald-200 text-xs mt-0.5">Incl. {selectedDiscount}% discount</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <Button onClick={handleExportPDF} disabled={exporting} variant="secondary" className="gap-2">
@@ -2751,9 +2792,15 @@ export default function Home() {
                         </TableRow>
                       )
                     })}
+                    {selectedDiscount > 0 && (
+                      <TableRow className="bg-red-50 hover:bg-red-50">
+                        <TableCell className="font-semibold text-red-700">Discount ({selectedDiscount}%)</TableCell>
+                        <TableCell className="text-right font-semibold text-red-700">- {discountAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+                      </TableRow>
+                    )}
                     <TableRow className="bg-emerald-50 hover:bg-emerald-50">
                       <TableCell className="font-bold text-emerald-900">Grand Total</TableCell>
-                      <TableCell className="text-right font-bold text-emerald-900 text-lg">{grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
+                      <TableCell className="text-right font-bold text-emerald-900 text-lg">{discountedTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
