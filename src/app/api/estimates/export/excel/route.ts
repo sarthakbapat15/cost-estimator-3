@@ -628,7 +628,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Qty
-        const qtyText = item.sqft ? (Math.round(item.sqft * 100) / 100).toFixed(2) : (item.quantity ? String(item.quantity) : '1')
+        const qtyText = item.sqft ? String(Math.round(item.sqft)) : (item.quantity ? String(Math.round(item.quantity)) : '1')
         qs.getCell(`C${rowNum}`).value = qtyText
         qs.getCell(`C${rowNum}`).alignment = { horizontal: 'center' }
         qs.getCell(`C${rowNum}`).font = { name: 'Calibri' }
@@ -697,7 +697,7 @@ export async function POST(request: NextRequest) {
         if (amt > 0) {
           miscExportItems.push({
             label: `False Ceiling (${fc.type || fc.material})`,
-            qty: sqft.toFixed(2) + ' sqft',
+            qty: Math.round(sqft) + ' sqft',
             amount: amt,
           })
           miscTotal += amt
@@ -903,7 +903,7 @@ export async function POST(request: NextRequest) {
         ws.getCell(`D${wbRow}`).font = { name: 'Calibri' }
 
         // sq.ft
-        ws.getCell(`E${wbRow}`).value = item.sqft ? (Math.round(item.sqft * 100) / 100).toFixed(2) : ''
+        ws.getCell(`E${wbRow}`).value = item.sqft ? Math.round(item.sqft) : ''
         ws.getCell(`E${wbRow}`).font = { name: 'Calibri' }
 
         // Quantity
@@ -912,7 +912,7 @@ export async function POST(request: NextRequest) {
 
         // Total quantity Sq.Ft
         const totalQtySqft = item.sqft ? (item.sqft * (item.quantity || 1)) : (item.quantity || 0)
-        ws.getCell(`G${wbRow}`).value = totalQtySqft > 0 ? (Math.round(totalQtySqft * 100) / 100).toFixed(2) : ''
+        ws.getCell(`G${wbRow}`).value = totalQtySqft > 0 ? Math.round(totalQtySqft) : ''
         ws.getCell(`G${wbRow}`).font = { name: 'Calibri' }
 
         // Rate
