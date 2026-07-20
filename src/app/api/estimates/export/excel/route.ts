@@ -270,7 +270,7 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
   if (kp.height && kp.width && kp.tallPantryFinish) {
     const sqft = calculateSqft(kp.height, kp.width)
     const kpRate = kp.tallPantryFinish === 'Postforming'
-      ? (payload.postformingRate ? parseFloat(payload.postformingRate) : 0)
+      ? (validatedData.components.postformingRate ? parseFloat(validatedData.components.postformingRate) : 0)
       : (PRICES.kitchenPaneling[kp.tallPantryFinish as keyof typeof PRICES.kitchenPaneling] || 0)
     if (sqft > 0 && kpRate > 0) {
       items.push({
@@ -769,47 +769,14 @@ export async function POST(request: NextRequest) {
     qs.mergeCells(`B${rowNum}:C${rowNum}`)
     qs.getCell(`B${rowNum}`).value = 'SUB TOTAL'
     qs.getCell(`B${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = Math.round(totalAmount)
+    qs.getCell(`D${rowNum}`).value = Math.round(totalAmount + miscTotal)
     qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
     qs.getCell(`D${rowNum}`).font = { bold: true, size: 12, name: 'Calibri' }
     qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
     rowNum++
 
-    // DISCOUNT OFFERED FLAT 20%
-    const discount = Math.round(totalAmount * 0.20)
-    qs.mergeCells(`B${rowNum}:C${rowNum}`)
-    qs.getCell(`B${rowNum}`).value = 'DISCOUNT OFFERED FLAT 20% '
-    qs.getCell(`B${rowNum}`).font = { name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = -discount
-    qs.getCell(`D${rowNum}`).numFmt = '"₹"-#,##0'
-    qs.getCell(`D${rowNum}`).font = { name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
-    rowNum++
-
-    // AMOUNT POST DISCOUNT
-    const postDiscount = totalAmount - discount + miscTotal
-    qs.mergeCells(`B${rowNum}:C${rowNum}`)
-    qs.getCell(`B${rowNum}`).value = 'AMOUNT POST DISCOUNT'
-    qs.getCell(`B${rowNum}`).font = { bold: true, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = postDiscount
-    qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
-    qs.getCell(`D${rowNum}`).font = { bold: true, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
-    rowNum++
-
-    // ADD 18% GST
-    const gstAmount = Math.round(postDiscount * 0.18)
-    qs.mergeCells(`B${rowNum}:C${rowNum}`)
-    qs.getCell(`B${rowNum}`).value = 'ADD 18% GST'
-    qs.getCell(`B${rowNum}`).font = { bold: true, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).value = gstAmount
-    qs.getCell(`D${rowNum}`).numFmt = '"₹"#,##0'
-    qs.getCell(`D${rowNum}`).font = { bold: true, name: 'Calibri' }
-    qs.getCell(`D${rowNum}`).alignment = { horizontal: 'right' }
-    rowNum++
-
     // GRAND TOTAL (All Inclusive)
-    const grandTotal = postDiscount + gstAmount
+    const grandTotal = Math.round(totalAmount + miscTotal)
     qs.mergeCells(`B${rowNum}:C${rowNum}`)
     qs.getCell(`B${rowNum}`).value = 'GRAND TOTAL (All Inclusive)'
     qs.getCell(`B${rowNum}`).font = { bold: true, size: 13, name: 'Calibri' }

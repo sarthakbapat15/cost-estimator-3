@@ -242,3 +242,23 @@ Stage Summary:
 - Added RATE_VERSION-based localStorage invalidation to prevent stale overrides from persisting across DEFAULT_PRICES changes
 - Excel export no longer has hardcoded countertop prices
 - Granite ₹550/sqft and Quartz ₹650/sqft now display correctly in the Full Modular kitchen section
+---
+Task ID: 1
+Agent: Main
+Task: Remove Discount and GST 18% columns from Excel export (prices are GST-inclusive)
+
+Work Log:
+- Read full Excel export route.ts to understand the Quotation sheet structure
+- Identified discount calculation (lines 778-798): 20% flat discount on subtotal
+- Identified GST calculation (lines 800-809): 18% GST added on post-discount amount
+- Removed both discount row and GST row from Quotation sheet
+- Updated SUB TOTAL to include miscTotal (kitchen + living room + miscellaneous)
+- Updated GRAND TOTAL to simply equal SUB TOTAL (no discount, no GST addition)
+- Also fixed latent bug: `payload.postformingRate` (undefined variable) → `validatedData.components.postformingRate` in Kitchen Paneling section
+- Ran lint — passed with no errors
+
+Stage Summary:
+- Removed "DISCOUNT OFFERED FLAT 20%" and "AMOUNT POST DISCOUNT" rows from Quotation sheet
+- Removed "ADD 18% GST" row from Quotation sheet
+- Grand Total now = sum of all items (kitchen + living room + miscellaneous) — all prices are GST-inclusive
+- Fixed Postforming rate lookup bug in Kitchen Paneling Excel export
