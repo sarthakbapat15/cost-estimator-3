@@ -70,7 +70,16 @@ const PRICES = {
   countertopMaterial: { Granite: 550, Quartz: 650 },
   baseCarcase: 1650,
   kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
-  overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 }
+  overheadCabinetFinish: { SF: 1550, HGL: 2150, Acrylic: 2650, 'Glass Acrylic': 2850 },
+  tallUnitFinishByDepth: {
+    '450mm': { SF: 2100, HGL: 2450, 'MR+': 2350, Acrylic: 2900 },
+    '600mm': { SF: 2125, 'MR+': 2375, HGL: 2500, Acrylic: 2950 },
+  },
+  overheadBoxLoftFinish: {
+    '450mm': { SF: 1625, HGL: 1875 },
+    '600mm': { SF: 1650, HGL: 2050 },
+  },
+  overheadFinish: { SF: 1125, HGL: 1450, Acrylic: 1850, Laminate: 1200, PU: 1600 },
 }
 
 const calculateSqft = (height: string, width: string): number => {
@@ -198,11 +207,18 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
   const tu = components.tallUnit || {}
   if (tu.height && tu.width && tu.tallPantryFinish) {
     const sqft = calculateSqft(tu.height, tu.width)
-    const rate = PRICES.tallPantryFinish[tu.tallPantryFinish as keyof typeof PRICES.tallPantryFinish] || 0
+    const depth = (tu.depth || '450mm') as '450mm' | '600mm'
+    let rate = 0
+    if (tu.tallPantryFinish === 'Postforming') {
+      rate = validatedData.components?.postformingRate ? parseFloat(validatedData.components.postformingRate) : 0
+    } else {
+      const depthPrices = PRICES.tallUnitFinishByDepth[depth]
+      rate = depthPrices?.[tu.tallPantryFinish as keyof typeof depthPrices] || 0
+    }
     if (sqft > 0 && rate > 0) {
       items.push({
         label: 'Tall Unit',
-        subLabel: `Carcass ${tu.tallPantryFinish}`,
+        subLabel: `${depth} ${tu.tallPantryFinish}`,
         l: parseFloat(tu.height) || 0,
         b: parseFloat(tu.width) || 0,
         sqft,
@@ -313,20 +329,36 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
   const ol = components.overheadLoft || {}
   if (ol.height && ol.width && ol.loftType) {
     const sqft = calculateSqft(ol.height, ol.width)
-    const basePrice = PRICES.overheadLoft[ol.loftType as keyof typeof PRICES.overheadLoft] || 0
-    const finishPrice = ol.finish ? (PRICES.overheadFinish[ol.finish as keyof typeof PRICES.overheadFinish] || 0) : 0
-    const totalRate = basePrice + finishPrice
-    if (sqft > 0 && totalRate > 0) {
+    let rate = 0
+    let subLabel = ''
+    if (ol.loftType === 'Box Loft') {
+      const depth = (ol.depth || '450mm') as '450mm' | '600mm'
+      if (ol.finish === 'Postforming') {
+        rate = validatedData.components?.postformingRate ? parseFloat(validatedData.components.postformingRate) : 0
+      } else {
+        const boxPrices = PRICES.overheadBoxLoftFinish[depth]
+        rate = boxPrices?.[ol.finish as keyof typeof boxPrices] || 0
+      }
+      subLabel = `${ol.loftType} ${depth} ${ol.finish || ''}`
+    } else {
+      const basePrice = PRICES.overheadLoft[ol.loftType as keyof typeof PRICES.overheadLoft] || 0
+      const finishPrice = ol.finish === 'Postforming'
+        ? (validatedData.components?.postformingRate ? parseFloat(validatedData.components.postformingRate) : 0)
+        : (PRICES.overheadFinish[ol.finish as keyof typeof PRICES.overheadFinish] || 0)
+      rate = basePrice + finishPrice
+      subLabel = `Carcass ${ol.loftType}`
+    }
+    if (sqft > 0 && rate > 0) {
       items.push({
         label: 'Overhead Loft',
-        subLabel: `Carcass ${ol.loftType}`,
+        subLabel,
         l: parseFloat(ol.height) || 0,
         b: parseFloat(ol.width) || 0,
         sqft,
         quantity: 1,
         totalSqft: sqft,
-        rate: totalRate,
-        amount: sqft * totalRate
+        rate,
+        amount: sqft * rate
       })
     }
   }

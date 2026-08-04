@@ -20,8 +20,16 @@ const DEFAULT_PRICES = {
   wickerBasket: { Olive: 7500, Hettich: 7500 },
   plyVerticals: 1500,
   overheadLoft: { 'Frame Loft': 1150, 'Box Loft': 1250 },
-  overheadFinish: { Acrylic: 1850, Laminate: 1200, UV: 1400, PU: 1600 },
+  overheadFinish: { SF: 1125, HGL: 1450, Acrylic: 1850, Laminate: 1200, PU: 1600 },
   tallPantryFinish: { SF: 1450, HGL: 1550, Acrylic: 1850, 'Glass Acrylic': 2150 },
+  tallUnitFinishByDepth: {
+    '450mm': { SF: 2100, HGL: 2450, 'MR+': 2350, Acrylic: 2900 },
+    '600mm': { SF: 2125, 'MR+': 2375, HGL: 2500, Acrylic: 2950 },
+  },
+  overheadBoxLoftFinish: {
+    '450mm': { SF: 1625, HGL: 1875 },
+    '600mm': { SF: 1650, HGL: 2050 },
+  },
   pantryAccessories: { Pullout: 21000, 'Openable (6+6 basket)': 40000 },
   livingRoomFinish: { SF: 1250, HGL: 1350, Acrylic: 1550, 'Veneer with polish': 1750 },
   livingRoomTallUnitFinish: { SF: 1250, HGL: 1350, Acrylic: 1850, 'Veneer with polish': 1750 },
@@ -32,7 +40,7 @@ const DEFAULT_PRICES = {
   countertopMaterial: { Granite: 550, Quartz: 650 },
   baseCarcase: 1650,
   kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
-  overheadCabinetFinish: { SF: 1350, HGL: 1475, Acrylic: 2050, 'Glass Acrylic': 2250 },
+  overheadCabinetFinish: { SF: 1550, HGL: 2150, Acrylic: 2650, 'Glass Acrylic': 2850 },
   bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
   bedroomWardrobeSlidingMechanism: 15000,
   bedroomLoftFinish: {
@@ -46,7 +54,7 @@ const DEFAULT_PRICES = {
 }
 
 // Bump this whenever DEFAULT_PRICES keys/values change so stale localStorage overrides are cleared
-const RATE_VERSION = 'v3'
+const RATE_VERSION = 'v4'
 
 type KitchenType = 'Semi-Modular' | 'Full-Modular'
 type ServiceType = 'Kitchen Only' | 'Full Interior'
@@ -54,8 +62,11 @@ type Brand = 'Olive' | 'Blum' | 'Hettich'
 type HandleType = 'TopEdge' | 'G Profile' | 'J Profile' | 'Regular Handle'
 type CountertopMaterial = 'Granite' | 'Quartz'
 type LoftType = 'Frame Loft' | 'Box Loft'
-type FinishType = 'Acrylic' | 'Laminate' | 'UV' | 'PU'
+type FinishType = 'SF' | 'HGL' | 'Acrylic' | 'Laminate' | 'PU'
+type TallUnitDepth = '450mm' | '600mm'
 type TallPantryFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Glass Acrylic'
+type TallUnitDepthFinishType = 'SF' | 'HGL' | 'MR+' | 'Acrylic'
+type BoxLoftFinishType = 'SF' | 'HGL'
 type AccessoriesType = 'Pullout' | 'Openable (6+6 basket)'
 type LivingRoomFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
 type TallUnitFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
@@ -77,6 +88,7 @@ interface ComponentState {
   handlePrice?: string
   runningFeet?: string
   overheadCabinetFinish?: OverheadCabinetFinishType
+  depth?: string
 }
 
 interface CustomComponent {
@@ -165,12 +177,12 @@ export default function Home() {
       dustbinBTD: { brand: '', quantity: '', price: '' },
       bottlePullout: { brand: '', quantity: '', price: '' },
       wickerBasket: { brand: '', quantity: '', price: '' },
-      tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
+      tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', depth: '' },
       pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
       baseCarcase: { height: '', width: '', quantity: '', price: '1650' },
       kitchenPaneling: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
       overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
-      overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
+      overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '', depth: '' },
       profileShutter: { quantity: '', price: '' },
       handles: { handleType: '', runningFeet: '', handlePrice: '' }
     }
@@ -461,8 +473,11 @@ export default function Home() {
 
       case 'tallUnit': {
         const tallSqft = calculateSqft(comp.height, comp.width)
-        const tallFinish = comp.tallPantryFinish
-        const rate = getEffectiveRate(tallFinish, prices.tallPantryFinish)
+        const depth = (comp.depth || '450mm') as TallUnitDepth
+        const tallFinish = comp.tallPantryFinish as TallUnitDepthFinishType
+        if (tallFinish === 'Postforming') return tallSqft * (parseFloat(postformingRate) || 0)
+        const depthPrices = prices.tallUnitFinishByDepth[depth]
+        const rate = depthPrices?.[tallFinish] || 0
         return tallSqft * rate
       }
 
@@ -503,6 +518,13 @@ export default function Home() {
         const loftSqft = calculateSqft(comp.height, comp.width)
         const loftType = comp.loftType as LoftType
         const finish = comp.finish
+        if (loftType === 'Box Loft') {
+          const depth = (comp.depth || '450mm') as TallUnitDepth
+          if (finish === 'Postforming') return loftSqft * (parseFloat(postformingRate) || 0)
+          const boxPrices = prices.overheadBoxLoftFinish[depth]
+          const rate = boxPrices?.[finish as BoxLoftFinishType] || 0
+          return loftSqft * rate
+        }
         if (loftType && prices.overheadLoft[loftType]) {
           const basePrice = prices.overheadLoft[loftType]
           const finishPrice = getEffectiveRate(finish, prices.overheadFinish)
@@ -818,12 +840,12 @@ export default function Home() {
         dustbinBTD: { brand: '', quantity: '', price: '' },
         bottlePullout: { brand: '', quantity: '', price: '' },
         wickerBasket: { brand: '', quantity: '', price: '' },
-        tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
+        tallUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', depth: '' },
         pantryUnit: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '', accessories: '' },
         baseCarcase: { height: '', width: '', quantity: '', price: '1650' },
         kitchenPaneling: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
         overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
-        overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '' },
+        overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '', depth: '' },
         profileShutter: { quantity: '', price: '' },
         handles: { handleType: '', runningFeet: '', handlePrice: '' }
       }
@@ -1337,13 +1359,25 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="space-y-1.5">
+                      <Label className="text-xs">Depth</Label>
+                      <Select value={estimate.components.tallUnit.depth || '450mm'} onValueChange={(value) => { updateComponent('tallUnit', 'depth', value); updateComponent('tallUnit', 'tallPantryFinish', '') }}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="450mm">450mm</SelectItem>
+                          <SelectItem value="600mm">600mm</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
                       <Label className="text-xs">Finish</Label>
                       <Select value={estimate.components.tallUnit.tallPantryFinish} onValueChange={(value) => updateComponent('tallUnit', 'tallPantryFinish', value)}>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(prices.tallPantryFinish).map(([finish, rate]) => (
+                          {Object.entries(prices.tallUnitFinishByDepth[estimate.components.tallUnit.depth || '450mm'] || {}).map(([finish, rate]) => (
                             <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
                           ))}
                           <SelectItem value="Postforming">Postforming</SelectItem>
@@ -1543,7 +1577,7 @@ export default function Home() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label className="text-xs">Loft Type</Label>
-                      <Select value={estimate.components.overheadLoft.loftType} onValueChange={(value) => updateComponent('overheadLoft', 'loftType', value)}>
+                      <Select value={estimate.components.overheadLoft.loftType} onValueChange={(value) => { updateComponent('overheadLoft', 'loftType', value); updateComponent('overheadLoft', 'finish', ''); updateComponent('overheadLoft', 'depth', '') }}>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
@@ -1554,21 +1588,53 @@ export default function Home() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Finish</Label>
-                      <Select value={estimate.components.overheadLoft.finish} onValueChange={(value) => updateComponent('overheadLoft', 'finish', value)}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(prices.overheadFinish).map(([finish, rate]) => (
-                            <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
-                          ))}
-                          <SelectItem value="Postforming">Postforming</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <PostformingRateInput selectedFinish={estimate.components.overheadLoft.finish} />
-                    </div>
+                    {estimate.components.overheadLoft.loftType === 'Box Loft' ? (
+                      <>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Depth</Label>
+                          <Select value={estimate.components.overheadLoft.depth || '450mm'} onValueChange={(value) => { updateComponent('overheadLoft', 'depth', value); updateComponent('overheadLoft', 'finish', '') }}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="450mm">450mm</SelectItem>
+                              <SelectItem value="600mm">600mm</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Finish</Label>
+                          <Select value={estimate.components.overheadLoft.finish} onValueChange={(value) => updateComponent('overheadLoft', 'finish', value)}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(prices.overheadBoxLoftFinish[estimate.components.overheadLoft.depth || '450mm'] || {}).map(([finish, rate]) => (
+                                <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                              ))}
+                              <SelectItem value="Postforming">Postforming</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <PostformingRateInput selectedFinish={estimate.components.overheadLoft.finish} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Finish</Label>
+                        <Select value={estimate.components.overheadLoft.finish} onValueChange={(value) => updateComponent('overheadLoft', 'finish', value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(prices.overheadFinish).map(([finish, rate]) => (
+                              <SelectItem key={finish} value={finish}>{finish} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                            ))}
+                            <SelectItem value="Postforming">Postforming</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <PostformingRateInput selectedFinish={estimate.components.overheadLoft.finish} />
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="space-y-1.5">
