@@ -13,6 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AppSettings {
+  id             String @id @default("singleton")
+  rateOverrides  String @default("{}")
+  rateVersion    String @default("")
+  updatedAt      DateTime @updatedAt
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -211,22 +211,37 @@ export default function Home() {
   })
   const [selectedDiscount, setSelectedDiscount] = useState(0)
 
-  const [prices, setPrices] = useState<typeof DEFAULT_PRICES>(() => {
-    if (typeof window !== 'undefined') {
+  const [prices, setPrices] = useState<typeof DEFAULT_PRICES>({ ...DEFAULT_PRICES })
+  const [ratesLoaded, setRatesLoaded] = useState(false)
+
+  // Load rates from DB on mount (falls back to localStorage)
+  useEffect(() => {
+    async function loadRates() {
       try {
-        const savedVersion = localStorage.getItem('rateOverridesVersion')
-        if (savedVersion !== RATE_VERSION) {
-          // Version mismatch — clear stale overrides so new defaults take effect
-          localStorage.removeItem('rateOverrides')
-          localStorage.setItem('rateOverridesVersion', RATE_VERSION)
-          return { ...DEFAULT_PRICES }
+        const res = await fetch('/api/settings/rates')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.overrides && data.version === RATE_VERSION) {
+            setPrices(mergePrices(DEFAULT_PRICES, data.overrides))
+          } else {
+            // DB version mismatch or empty — try localStorage fallback
+            const saved = localStorage.getItem('rateOverrides')
+            if (saved) setPrices(mergePrices(DEFAULT_PRICES, JSON.parse(saved)))
+          }
+        } else {
+          // API failed — fall back to localStorage
+          const saved = localStorage.getItem('rateOverrides')
+          if (saved) setPrices(mergePrices(DEFAULT_PRICES, JSON.parse(saved)))
         }
+      } catch {
         const saved = localStorage.getItem('rateOverrides')
-        if (saved) return mergePrices(DEFAULT_PRICES, JSON.parse(saved))
-      } catch { /* ignore */ }
+        if (saved) setPrices(mergePrices(DEFAULT_PRICES, JSON.parse(saved)))
+      } finally {
+        setRatesLoaded(true)
+      }
     }
-    return { ...DEFAULT_PRICES }
-  })
+    loadRates()
+  }, [])
 
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -251,15 +266,28 @@ export default function Home() {
     return rateMap[finish] || 0
   }
 
-  const handleSaveRates = (updated: Record<string, any>) => {
+  const handleSaveRates = async (updated: Record<string, any>) => {
     const merged = mergePrices(DEFAULT_PRICES, updated)
     setPrices(merged)
+    // Save to DB (syncs across devices)
+    try {
+      await fetch('/api/settings/rates', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ overrides: updated, version: RATE_VERSION }),
+      })
+    } catch { /* DB save failed — still works locally */ }
+    // Also keep localStorage as cache
     localStorage.setItem('rateOverrides', JSON.stringify(updated))
     localStorage.setItem('rateOverridesVersion', RATE_VERSION)
   }
 
-  const handleResetRates = () => {
+  const handleResetRates = async () => {
     setPrices({ ...DEFAULT_PRICES })
+    // Clear from DB
+    try {
+      await fetch('/api/settings/rates', { method: 'DELETE' })
+    } catch { /* ignore */ }
     localStorage.removeItem('rateOverrides')
   }
 

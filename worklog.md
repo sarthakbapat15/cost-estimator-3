@@ -285,3 +285,28 @@ Work Log:
 Stage Summary:
 - Discount dropdown with 4 options (0%, 10%, 15%, 20%) added before Grand Total
 - Both UI and Excel export reflect the selected discount correctly
+
+---
+Task ID: 3
+Agent: Main
+Task: Sync rate settings across devices via database
+
+Work Log:
+- Added `AppSettings` model to Prisma schema (SQLite) with `rateOverrides` (JSON string), `rateVersion`, `updatedAt`
+- Ran `bun run db:push` to create the table
+- Created `src/app/api/settings/rates/route.ts` with GET/PUT/DELETE endpoints
+  - GET: fetches overrides from DB, returns {overrides, version}
+  - PUT: upserts overrides to DB (creates singleton row if not exists)
+  - DELETE: resets overrides to empty in DB
+- Updated frontend `page.tsx`:
+  - Replaced localStorage-only rate loading with `useEffect` that fetches from `/api/settings/rates` on mount, falls back to localStorage if API fails
+  - Updated `handleSaveRates` to `async` — saves to both DB (PUT) and localStorage (cache)
+  - Updated `handleResetRates` to `async` — clears both DB (DELETE) and localStorage
+  - Added `useEffect` import
+- Tested: changed Ply Verticals to 9999, saved, verified DB shows `"plyVerticals": 9999`
+- Tested: reset via DELETE, confirmed DB returns `"overrides":null`
+
+Stage Summary:
+- Rate settings now persist in SQLite database (shared across all devices)
+- localStorage kept as fallback/cache for offline scenarios
+- All devices opening the app will get the same rates from the DB
