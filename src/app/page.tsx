@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Download, RotateCcw, Calculator, FileDown, IndianRupee, BedDouble, Settings, Plus, Trash2, Percent } from 'lucide-react'
+import { Download, RotateCcw, Calculator, FileDown, IndianRupee, BedDouble, Settings, Plus, Trash2, Percent, Save, FolderOpen } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import BedroomTypeCards, { createEmptyBedroom, DEFAULT_TALL_UNIT_FINISH_RATES, type BedroomData } from '@/components/bedroom-type-cards'
 import RateSettingsDialog, { mergePrices } from '@/components/rate-settings-dialog'
+import SavedEstimatesDialog from '@/components/saved-estimates-dialog'
 
 const DEFAULT_PRICES = {
   tandemDrawers: { Olive: 8000, Blum: 12000, Hettich: 12000 },
@@ -256,6 +257,8 @@ export default function Home() {
   }, [])
 
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [savedDialogOpen, setSavedDialogOpen] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   const [kitchenCustomComponents, setKitchenCustomComponents] = useState<CustomComponent[]>([])
   const [livingRoomCustomComponents, setLivingRoomCustomComponents] = useState<CustomComponent[]>([])
@@ -819,6 +822,71 @@ export default function Home() {
   const discountAmount = Math.round(grandTotal * selectedDiscount / 100)
   const discountedTotal = grandTotal - discountAmount
 
+  // Track unsaved changes via beforeunload
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
+
+  // Mark as having unsaved changes whenever relevant state changes
+  useEffect(() => {
+    const hasData = clientInfo.name || clientInfo.serviceType || kitchenType || grandTotal > 0
+    setHasUnsavedChanges(hasData)
+  }, [clientInfo, kitchenType, estimate, livingRoomEstimate, bedroomsEstimate, kitchenCustomComponents, livingRoomCustomComponents, bedroomCustomComponents, miscEstimate, selectedDiscount, postformingRate, grandTotal])
+
+  // ── Save / Load Handlers ──
+  const handleSaveEstimate = async (label: string) => {
+    const payload = {
+      clientInfo,
+      kitchenType,
+      estimate,
+      livingRoomEstimate,
+      bedroomsEstimate,
+      kitchenCustomComponents,
+      livingRoomCustomComponents,
+      bedroomCustomComponents,
+      miscEstimate,
+      selectedDiscount,
+      postformingRate,
+    }
+    const res = await fetch('/api/estimates/saved', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientName: clientInfo.name || 'Unnamed', label, data: payload, totalCost: grandTotal }),
+    })
+    if (!res.ok) throw new Error('Save failed')
+    setHasUnsavedChanges(false)
+  }
+
+  const handleLoadEstimate = async (id: string) => {
+    const res = await fetch(`/api/estimates/saved/${id}`)
+    if (!res.ok) throw new Error('Load failed')
+    const { data } = await res.json()
+    if (data.clientInfo) setClientInfo(data.clientInfo)
+    if (data.kitchenType) setKitchenType(data.kitchenType)
+    if (data.estimate) setEstimate(data.estimate)
+    if (data.livingRoomEstimate) setLivingRoomEstimate(data.livingRoomEstimate)
+    if (data.bedroomsEstimate) setBedroomsEstimate(data.bedroomsEstimate)
+    if (data.kitchenCustomComponents) setKitchenCustomComponents(data.kitchenCustomComponents)
+    if (data.livingRoomCustomComponents) setLivingRoomCustomComponents(data.livingRoomCustomComponents)
+    if (data.bedroomCustomComponents) setBedroomCustomComponents(data.bedroomCustomComponents)
+    if (data.miscEstimate) setMiscEstimate(data.miscEstimate)
+    if (typeof data.selectedDiscount === 'number') setSelectedDiscount(data.selectedDiscount)
+    if (typeof data.postformingRate === 'string') setPostformingRate(data.postformingRate)
+    setHasUnsavedChanges(false)
+  }
+
+  const handleDeleteEstimate = async (id: string) => {
+    const res = await fetch(`/api/estimates/saved?id=${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Delete failed')
+  }
+
   const handleKitchenTypeChange = (value: KitchenType) => {
     setKitchenType(value)
     setEstimate(prev => ({
@@ -1023,9 +1091,28 @@ export default function Home() {
                 <p className="text-emerald-100 text-sm">Calculate your kitchen & living room costs</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="text-white/80 hover:text-white hover:bg-white/10" onClick={() => setSettingsOpen(true)}>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/80 hover:text-white hover:bg-white/10 relative"
+                onClick={() => setSavedDialogOpen(true)}
+                title="Saved Estimates"
+              >
+                <FolderOpen className="w-5 h-5" />
+                {hasUnsavedChanges && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-400 rounded-full border-2 border-emerald-600" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/80 hover:text-white hover:bg-white/10"
+                onClick={() => setSettingsOpen(true)}
+              >
                 <Settings className="w-5 h-5" />
               </Button>
+            </div>
             {grandTotal > 0 && (
               <div className="hidden sm:flex items-center gap-2 bg-white/15 rounded-lg px-4 py-2">
                 <IndianRupee className="w-4 h-4" />
@@ -2912,6 +2999,16 @@ export default function Home() {
           <p>All prices in INR (₹)</p>
         </div>
       </footer>
+
+      <SavedEstimatesDialog
+        open={savedDialogOpen}
+        onOpenChange={setSavedDialogOpen}
+        onSave={handleSaveEstimate}
+        onLoad={handleLoadEstimate}
+        onDelete={handleDeleteEstimate}
+        hasUnsavedData={hasUnsavedChanges}
+        currentTotal={grandTotal}
+      />
 
       <RateSettingsDialog
         open={settingsOpen}

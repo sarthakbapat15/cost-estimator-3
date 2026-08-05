@@ -310,3 +310,25 @@ Stage Summary:
 - Rate settings now persist in SQLite database (shared across all devices)
 - localStorage kept as fallback/cache for offline scenarios
 - All devices opening the app will get the same rates from the DB
+---
+Task ID: 1
+Agent: Main
+Task: Add Save/Load Estimates feature so users can save their work and continue later
+
+Work Log:
+- Added SavedEstimate model to Prisma schema (id, clientName, label, data as JSON, totalCost, timestamps)
+- Pushed schema to SQLite and regenerated Prisma client
+- Created /api/estimates/saved route (GET=list, POST=create, DELETE=remove)
+- Created /api/estimates/saved/[id] route (GET=load single estimate)
+- Created SavedEstimatesDialog component with save/load/search/delete UI
+- Integrated into page.tsx: added Save/Load handlers, unsaved changes tracking, beforeunload warning, amber dot indicator
+- Added FolderOpen button to header with unsaved changes dot indicator
+- Tested end-to-end: save, list, search, load, delete confirmation all working
+
+Stage Summary:
+- Users can now click the folder icon in the header to save/load estimates
+- All estimate data (client info, kitchen, living room, bedrooms, misc, discount, custom components) is serialized as JSON in SQLite
+- Search filters by client name or estimate label
+- Unsaved changes warning (amber dot + browser beforeunload prompt)
+- Delete confirmation dialog prevents accidental deletion
+- Load confirmation dialog warns when overwriting unsaved data
