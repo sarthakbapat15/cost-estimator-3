@@ -42,6 +42,9 @@ const DEFAULT_PRICES = {
   baseCarcase: 1650,
   kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
   overheadCabinetFinish: { SF: 1550, HGL: 2150, Acrylic: 2650, 'Glass Acrylic': 2850 },
+  profileShutterGlass: { 'Clear Glass': 350, 'Fluted Glass': 450, 'Tinted Glass': 475, 'Frosted Glass': 525, 'Lacquered Glass': 750 },
+  magicCorner: { 'Type 1': 28000, 'Type 2': 38000, 'Type 3': 54000 },
+  rollingShutter: { PVC: 21000, Glass: 27000 },
   bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
   bedroomWardrobeSlidingMechanism: 15000,
   bedroomLoftFinish: {
@@ -73,6 +76,9 @@ type LivingRoomFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
 type TallUnitFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Veneer with polish'
 type BackPanelFinishType = 'HGL' | 'SF' | 'Acrylic' | 'Veneer'
 type OverheadCabinetFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Glass Acrylic'
+type ProfileShutterGlassType = 'Clear Glass' | 'Fluted Glass' | 'Tinted Glass' | 'Frosted Glass' | 'Lacquered Glass'
+type MagicCornerType = 'Type 1' | 'Type 2' | 'Type 3'
+type RollingShutterType = 'PVC' | 'Glass'
 
 interface ComponentState {
   height: string
@@ -144,6 +150,8 @@ interface KitchenEstimate {
     overheadCabinet: ComponentState
     overheadLoft: ComponentState
     profileShutter: ComponentState
+    magicCorner: ComponentState
+    rollingShutter: ComponentState
     handles: ComponentState
   }
 }
@@ -184,7 +192,9 @@ export default function Home() {
       kitchenPaneling: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
       overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
       overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '', depth: '' },
-      profileShutter: { quantity: '', price: '' },
+      profileShutter: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as ProfileShutterGlassType },
+      magicCorner: { brand: '', quantity: '', price: '' },
+      rollingShutter: { brand: '', quantity: '', price: '' },
       handles: { handleType: '', runningFeet: '', handlePrice: '' }
     }
   })
@@ -537,9 +547,26 @@ export default function Home() {
       }
 
       case 'profileShutter': {
-        const profileQty = parseFloat(comp.quantity) || 0
-        const profilePrice = parseFloat(comp.price) || 0
-        return profileQty * profilePrice
+        const sqft = calculateSqft(comp.height, comp.width)
+        const glassType = comp.tallPantryFinish as ProfileShutterGlassType
+        const rate = glassType ? (prices.profileShutterGlass[glassType] || 0) : 0
+        return sqft * rate
+      }
+
+      case 'magicCorner': {
+        const mcType = comp.brand as MagicCornerType
+        if (mcType && prices.magicCorner[mcType]) {
+          return prices.magicCorner[mcType]
+        }
+        return 0
+      }
+
+      case 'rollingShutter': {
+        const rsType = comp.brand as RollingShutterType
+        if (rsType && prices.rollingShutter[rsType]) {
+          return prices.rollingShutter[rsType]
+        }
+        return 0
       }
 
       case 'handles': {
@@ -914,7 +941,9 @@ export default function Home() {
         kitchenPaneling: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' },
         overheadCabinet: { height: '', width: '', quantity: '', price: '', overheadCabinetFinish: '' },
         overheadLoft: { height: '', width: '', quantity: '', loftType: '', finish: '', price: '', depth: '' },
-        profileShutter: { quantity: '', price: '' },
+        profileShutter: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as ProfileShutterGlassType },
+        magicCorner: { brand: '', quantity: '', price: '' },
+        rollingShutter: { brand: '', quantity: '', price: '' },
         handles: { handleType: '', runningFeet: '', handlePrice: '' }
       }
     }))
@@ -1038,6 +1067,8 @@ export default function Home() {
       overheadCabinet: 'Overhead Cabinet',
       overheadLoft: 'Overhead Loft',
       profileShutter: 'Profile Shutter with Glass',
+      magicCorner: 'Magic Corner',
+      rollingShutter: 'Rolling Shutter',
       handles: 'Handles'
     }
     return labels[component] || component
@@ -1742,20 +1773,105 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-fuchsia-800 text-base">Profile Shutter with Glass</CardTitle>
                     <span className="text-sm font-semibold text-fuchsia-700">
-                      ₹{calculateComponentTotal('profileShutter').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      {formatINR(calculateComponentTotal('profileShutter'))}
                     </span>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Quantity (nos)</Label>
-                      <Input type="number" placeholder="0" value={estimate.components.profileShutter.quantity} onChange={(e) => updateComponent('profileShutter', 'quantity', e.target.value)} />
+                      <Label className="text-xs">Height (mm)</Label>
+                      <Input type="number" placeholder="0" value={estimate.components.profileShutter.height} onChange={(e) => updateComponent('profileShutter', 'height', e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Price / sqft (₹)</Label>
-                      <Input type="number" placeholder="0" value={estimate.components.profileShutter.price} onChange={(e) => updateComponent('profileShutter', 'price', e.target.value)} />
+                      <Label className="text-xs">Width (mm)</Label>
+                      <Input type="number" placeholder="0" value={estimate.components.profileShutter.width} onChange={(e) => updateComponent('profileShutter', 'width', e.target.value)} />
                     </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Glass Finish</Label>
+                    <Select value={estimate.components.profileShutter.tallPantryFinish} onValueChange={(value) => updateComponent('profileShutter', 'tallPantryFinish', value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select glass type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(prices.profileShutterGlass).map(([glass, rate]) => (
+                          <SelectItem key={glass} value={glass}>{glass} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Rate / sqft</Label>
+                    <Input value={estimate.components.profileShutter.tallPantryFinish ? (prices.profileShutterGlass[estimate.components.profileShutter.tallPantryFinish as ProfileShutterGlassType] || 0).toLocaleString('en-IN') : ''} disabled className="bg-white" />
+                  </div>
+                  {calculateComponentTotal('profileShutter') > 0 && (
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-fuchsia-100">
+                      <span>{Math.round(calculateSqft(estimate.components.profileShutter.height, estimate.components.profileShutter.width))} sqft × ₹{prices.profileShutterGlass[estimate.components.profileShutter.tallPantryFinish as ProfileShutterGlassType]}/sqft</span>
+                      <span className="font-semibold text-fuchsia-700">{formatINR(calculateComponentTotal('profileShutter'))}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Magic Corner */}
+              <Card className="bg-sky-50 border-sky-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sky-800 text-base">Magic Corner</CardTitle>
+                    <span className="text-sm font-semibold text-sky-700">
+                      {formatINR(calculateComponentTotal('magicCorner'))}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Type</Label>
+                    <Select value={estimate.components.magicCorner.brand} onValueChange={(value) => updateComponent('magicCorner', 'brand', value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(prices.magicCorner).map(([type, rate]) => (
+                          <SelectItem key={type} value={type}>{type} — Olive ₹{rate.toLocaleString('en-IN')}/piece</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Fixed Price</Label>
+                    <Input value={estimate.components.magicCorner.brand ? formatINR(prices.magicCorner[estimate.components.magicCorner.brand as MagicCornerType] || 0) : ''} disabled className="bg-white" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Rolling Shutter */}
+              <Card className="bg-indigo-50 border-indigo-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-indigo-800 text-base">Rolling Shutter</CardTitle>
+                    <span className="text-sm font-semibold text-indigo-700">
+                      {formatINR(calculateComponentTotal('rollingShutter'))}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Type</Label>
+                    <Select value={estimate.components.rollingShutter.brand} onValueChange={(value) => updateComponent('rollingShutter', 'brand', value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(prices.rollingShutter).map(([type, rate]) => (
+                          <SelectItem key={type} value={type}>{type} — ₹{rate.toLocaleString('en-IN')}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Fixed Price</Label>
+                    <Input value={estimate.components.rollingShutter.brand ? formatINR(prices.rollingShutter[estimate.components.rollingShutter.brand as RollingShutterType] || 0) : ''} disabled className="bg-white" />
                   </div>
                 </CardContent>
               </Card>
@@ -1766,7 +1882,7 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lime-800 text-base">Handles</CardTitle>
                     <span className="text-sm font-semibold text-lime-700">
-                      ₹{calculateComponentTotal('handles').toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      {formatINR(calculateComponentTotal('handles'))}
                     </span>
                   </div>
                 </CardHeader>

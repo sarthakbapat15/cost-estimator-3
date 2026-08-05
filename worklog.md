@@ -332,3 +332,26 @@ Stage Summary:
 - Unsaved changes warning (amber dot + browser beforeunload prompt)
 - Delete confirmation dialog prevents accidental deletion
 - Load confirmation dialog warns when overwriting unsaved data
+---
+Task ID: 2
+Agent: Main
+Task: Update Profile Shutter, add Magic Corner and Rolling Shutter components in Kitchen
+
+Work Log:
+- Added profileShutterGlass, magicCorner, rollingShutter to DEFAULT_PRICES
+- Added ProfileShutterGlassType, MagicCornerType, RollingShutterType type aliases
+- Added magicCorner and rollingShutter to KitchenEstimate interface and initial state
+- Replaced Profile Shutter UI: removed quantity/price inputs, added Height/Width inputs + Glass Finish dropdown with 5 options (Clear ₹350, Fluted ₹450, Tinted ₹475, Frosted ₹525, Lacquered ₹750)
+- Added Magic Corner card with Type dropdown (Type 1 ₹28,000, Type 2 ₹38,000, Type 3 ₹54,000 — all Olive)
+- Added Rolling Shutter card with Type dropdown (PVC ₹21,000, Glass ₹27,000)
+- Updated calculateComponentTotal switch for all 3 components
+- Updated resetKitchenComponents, getComponentLabel
+- Profile Shutter calculation: sqft(H×W) × glass rate
+- Magic Corner/Rolling Shutter: fixed price per piece/type
+
+Stage Summary:
+- All 3 components work for both Semi-Modular and Full-Modular kitchen types
+- Profile Shutter: Height + Width + Glass finish dropdown (5 glass types)
+- Magic Corner: Type dropdown (3 types, fixed price, Olive brand)
+- Rolling Shutter: Type dropdown (PVC/Glass, fixed price)
+- Consolidated table shows correct individual amounts and total
