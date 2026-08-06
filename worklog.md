@@ -355,3 +355,27 @@ Stage Summary:
 - Magic Corner: Type dropdown (3 types, fixed price, Olive brand)
 - Rolling Shutter: Type dropdown (PVC/Glass, fixed price)
 - Consolidated table shows correct individual amounts and total
+---
+Task ID: 1
+Agent: Main Agent
+Task: Add Vanity Closing component to kitchen section
+
+Work Log:
+- Read page.tsx structure: DEFAULT_PRICES, types, interfaces, state, calculateComponentTotal, JSX rendering, reset, labels, Excel export
+- Added `vanityClosing` to DEFAULT_PRICES: `{ Frame: { SF: 1300, Gloss: 1400 }, Carcase: { SF: 1800, Gloss: 1900 } }`
+- Added `VanityClosingType` ('Frame' | 'Carcase') and `VanityClosingFinishType` ('SF' | 'Gloss') type definitions
+- Added `vanityClosing: ComponentState` to KitchenEstimate interface
+- Added initial state: `{ height: '', width: '', quantity: '', price: '', material: '' as VanityClosingType, tallPantryFinish: '' as VanityClosingFinishType }`
+- Added calculation case in `calculateComponentTotal` for 'vanityClosing': sqft calculation using height/width × rate from nested price object
+- Added to reset estimate state
+- Added 'Vanity Closing' to component labels map
+- Built full JSX card (rose-50 theme): Height/Width inputs, Type dropdown (Frame/Carcase), Finish dropdown (dynamic based on type, disabled until type selected, resets finish on type change), Rate display, calculation detail line
+- Added vanityClosing to Excel export PRICES and getKitchenItems function
+
+Stage Summary:
+- Vanity Closing component fully working in both Full-Modular and Semi-Modular kitchen types
+- Frame finishes: SF (₹1,300/sqft), Gloss (₹1,400/sqft)
+- Carcase finishes: SF (₹1,800/sqft), Gloss (₹1,900/sqft)
+- Per-sqft calculation: height × width ÷ 92,903 × rate
+- Browser tested: all interactions verified (type switching clears finish, totals calculate correctly)
+- Lint passes clean

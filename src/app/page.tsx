@@ -45,6 +45,10 @@ const DEFAULT_PRICES = {
   profileShutterGlass: { 'Clear Glass': 350, 'Fluted Glass': 450, 'Tinted Glass': 475, 'Frosted Glass': 525, 'Lacquered Glass': 750 },
   magicCorner: { 'Type 1': 28000, 'Type 2': 38000, 'Type 3': 54000 },
   rollingShutter: { PVC: 21000, Glass: 27000 },
+  vanityClosing: {
+    Frame: { SF: 1300, Gloss: 1400 },
+    Carcase: { SF: 1800, Gloss: 1900 },
+  },
   bedroomWardrobeFinish: { SF: 1550, HGL: 1650, Acrylic: 2150 },
   bedroomWardrobeSlidingMechanism: 15000,
   bedroomLoftFinish: {
@@ -79,6 +83,8 @@ type OverheadCabinetFinishType = 'SF' | 'HGL' | 'Acrylic' | 'Glass Acrylic'
 type ProfileShutterGlassType = 'Clear Glass' | 'Fluted Glass' | 'Tinted Glass' | 'Frosted Glass' | 'Lacquered Glass'
 type MagicCornerType = 'Type 1' | 'Type 2' | 'Type 3'
 type RollingShutterType = 'PVC' | 'Glass'
+type VanityClosingType = 'Frame' | 'Carcase'
+type VanityClosingFinishType = 'SF' | 'Gloss'
 
 interface ComponentState {
   height: string
@@ -152,6 +158,7 @@ interface KitchenEstimate {
     profileShutter: ComponentState
     magicCorner: ComponentState
     rollingShutter: ComponentState
+    vanityClosing: ComponentState
     handles: ComponentState
   }
 }
@@ -195,6 +202,7 @@ export default function Home() {
       profileShutter: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as ProfileShutterGlassType },
       magicCorner: { brand: '', quantity: '', price: '' },
       rollingShutter: { brand: '', quantity: '', price: '' },
+      vanityClosing: { height: '', width: '', quantity: '', price: '', material: '' as VanityClosingType, tallPantryFinish: '' as VanityClosingFinishType },
       handles: { handleType: '', runningFeet: '', handlePrice: '' }
     }
   })
@@ -565,6 +573,16 @@ export default function Home() {
         const rsType = comp.brand as RollingShutterType
         if (rsType && prices.rollingShutter[rsType]) {
           return prices.rollingShutter[rsType]
+        }
+        return 0
+      }
+
+      case 'vanityClosing': {
+        const vcType = comp.material as VanityClosingType
+        const vcFinish = comp.tallPantryFinish as VanityClosingFinishType
+        if (vcType && vcFinish && prices.vanityClosing[vcType]) {
+          const rate = prices.vanityClosing[vcType][vcFinish] || 0
+          return calculateSqft(comp.height, comp.width) * rate
         }
         return 0
       }
@@ -944,6 +962,7 @@ export default function Home() {
         profileShutter: { height: '', width: '', quantity: '', price: '', tallPantryFinish: '' as ProfileShutterGlassType },
         magicCorner: { brand: '', quantity: '', price: '' },
         rollingShutter: { brand: '', quantity: '', price: '' },
+        vanityClosing: { height: '', width: '', quantity: '', price: '', material: '' as VanityClosingType, tallPantryFinish: '' as VanityClosingFinishType },
         handles: { handleType: '', runningFeet: '', handlePrice: '' }
       }
     }))
@@ -1069,6 +1088,7 @@ export default function Home() {
       profileShutter: 'Profile Shutter with Glass',
       magicCorner: 'Magic Corner',
       rollingShutter: 'Rolling Shutter',
+      vanityClosing: 'Vanity Closing',
       handles: 'Handles'
     }
     return labels[component] || component
@@ -1873,6 +1893,70 @@ export default function Home() {
                     <Label className="text-xs">Fixed Price</Label>
                     <Input value={estimate.components.rollingShutter.brand ? formatINR(prices.rollingShutter[estimate.components.rollingShutter.brand as RollingShutterType] || 0) : ''} disabled className="bg-white" />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Vanity Closing */}
+              <Card className="bg-rose-50 border-rose-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-rose-800 text-base">Vanity Closing</CardTitle>
+                    <span className="text-sm font-semibold text-rose-700">
+                      {formatINR(calculateComponentTotal('vanityClosing'))}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Height (mm)</Label>
+                      <Input type="number" placeholder="0" value={estimate.components.vanityClosing.height} onChange={(e) => updateComponent('vanityClosing', 'height', e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Width (mm)</Label>
+                      <Input type="number" placeholder="0" value={estimate.components.vanityClosing.width} onChange={(e) => updateComponent('vanityClosing', 'width', e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Type</Label>
+                    <Select value={estimate.components.vanityClosing.material} onValueChange={(value) => {
+                      updateComponent('vanityClosing', 'material', value)
+                      updateComponent('vanityClosing', 'tallPantryFinish', '')
+                    }}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Frame">Frame</SelectItem>
+                        <SelectItem value="Carcase">Carcase</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Finish</Label>
+                    <Select value={estimate.components.vanityClosing.tallPantryFinish} onValueChange={(value) => updateComponent('vanityClosing', 'tallPantryFinish', value)} disabled={!estimate.components.vanityClosing.material}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={estimate.components.vanityClosing.material ? 'Select finish' : 'Select type first'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {estimate.components.vanityClosing.material && Object.entries(prices.vanityClosing[estimate.components.vanityClosing.material as VanityClosingType] || {}).map(([finish, rate]) => (
+                          <SelectItem key={finish} value={finish}>{finish} — ₹{Number(rate).toLocaleString('en-IN')}/sqft</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Rate (₹/sqft)</Label>
+                    <Input value={estimate.components.vanityClosing.material && estimate.components.vanityClosing.tallPantryFinish ? (prices.vanityClosing[estimate.components.vanityClosing.material as VanityClosingType]?.[estimate.components.vanityClosing.tallPantryFinish as VanityClosingFinishType] || 0).toLocaleString('en-IN') : ''} disabled className="bg-white" />
+                  </div>
+                  {calculateComponentTotal('vanityClosing') > 0 && (
+                    <div className="flex items-center justify-between pt-2 border-t border-rose-200">
+                      <span className="text-xs text-muted-foreground">
+                        {Math.round(calculateSqft(estimate.components.vanityClosing.height, estimate.components.vanityClosing.width))} sqft × ₹{prices.vanityClosing[estimate.components.vanityClosing.material as VanityClosingType]?.[estimate.components.vanityClosing.tallPantryFinish as VanityClosingFinishType]}/sqft
+                      </span>
+                      <span className="font-semibold text-fuchsia-700">{formatINR(calculateComponentTotal('vanityClosing'))}</span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

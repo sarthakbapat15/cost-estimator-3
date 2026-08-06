@@ -67,6 +67,10 @@ const PRICES = {
   flutedPanel: 900,
   sittingWithCushion: 1350,
   profileShutter: 350,
+  vanityClosing: {
+    Frame: { SF: 1300, Gloss: 1400 },
+    Carcase: { SF: 1800, Gloss: 1900 },
+  },
   countertopMaterial: { Granite: 550, Quartz: 650 },
   baseCarcase: 1650,
   kitchenPaneling: { SF: 800, 'Gloss (MR+)': 1150, HGL: 1350, Acrylic: 1450 },
@@ -375,6 +379,28 @@ function getKitchenItems(components: any, kitchenType: string): ExportItem[] {
       rate: psPrice,
       amount: psQty * psPrice
     })
+  }
+
+  // Vanity Closing
+  const vc = components.vanityClosing || {}
+  const vcType = vc.material as 'Frame' | 'Carcase' | undefined
+  const vcFinish = vc.tallPantryFinish as 'SF' | 'Gloss' | undefined
+  if (vcType && vcFinish && PRICES.vanityClosing[vcType]) {
+    const vcRate = PRICES.vanityClosing[vcType][vcFinish] || 0
+    const vcSqft = calculateSqft(vc.height, vc.width)
+    if (vcSqft > 0 && vcRate > 0) {
+      items.push({
+        label: 'Vanity Closing',
+        subLabel: `${vcType} — ${vcFinish}`,
+        l: parseFloat(vc.height) || 0,
+        b: parseFloat(vc.width) || 0,
+        sqft: Math.round(vcSqft),
+        quantity: 1,
+        totalSqft: Math.round(vcSqft),
+        rate: vcRate,
+        amount: vcSqft * vcRate
+      })
+    }
   }
 
   // Handles
