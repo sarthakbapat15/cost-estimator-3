@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/db'
+import { db } from '@/lib/db'
 
 // Ensures Vercel treats this route dynamically rather than trying to statically render it at build time
 export const dynamic = 'force-dynamic'
