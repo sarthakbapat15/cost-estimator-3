@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://turso.tech/blog/turso-cloud-debuts-the-new-developer-plan",
+    "name": "Turso Cloud Debuts the New Developer Plan",
+    "snippet": "Turso Cloud's free tier ・ upgrade for only $4.99 per month. allowance goes from 3GB/month to 10GB/month. Free tier will go live on March 31st ...",
+    "host_name": "turso.tech",
+    "rank": 0,
+    "date": "Mar 19, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://turso.tech/pricing",
+    "name": "Turso Database Pricing",
+    "snippet": "Turso pricing: free tier with 100 databases and 5GB storage. Developer plans from $4.99/mo with unlimited databases. Compare all plans.",
+    "host_name": "turso.tech",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/chiselstrike/turso-radically-increases-the-amount-of-databases-available-on-their-starter-and-scaler-plans-10a69ad94055",
+    "name": "Turso radically increases the amount of databases available on their",
+    "snippet": "Users on the starter plan can create up to 500 databases for free. On the Scaler plan, for $29 a month, users can create 10,000 databases, and ...",
+    "host_name": "medium.com",
+    "rank": 2,
+    "date": "Sep 25, 2023",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.freetiers.com/directory/turso",
+    "name": "[Infographic] Turso Free Tier – Pricing & Limits (2025) - FreeTiers",
+    "snippet": "100 databases maximum on free tier · 5 GB total storage across all databases · 500M reads and 10M writes per month combined · No SLA on free tier · Limited to ...",
+    "host_name": "www.freetiers.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://turso.tech/blog/databases-will-be-free",
+    "name": "Databases will be free - Turso",
+    "snippet": "our generous free tier offers 500 databases for free, and it quickly scales up to unlimited databases from there. we are going all-in Jan 21, ...",
+    "host_name": "turso.tech",
+    "rank": 4,
+    "date": "Nov 19, 2024",
+    "favicon": ""
+  }
+]
