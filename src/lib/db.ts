@@ -5,14 +5,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-let _db: PrismaClient | undefined
-
 export function getDb(): PrismaClient {
   if (globalForPrisma.prisma) return globalForPrisma.prisma
 
-  const dbUrl = process.env.DATABASE_URL || ''
+  // Look for TURSO_DATABASE_URL first, fallback to DATABASE_URL
+  const dbUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || ''
 
-  // If DATABASE_URL points to Turso (libsql://), use the adapter
+  // If URL points to Turso (libsql://), use the adapter
   if (dbUrl.startsWith('libsql://')) {
     const adapter = new PrismaLibSql({
       url: dbUrl,
@@ -20,7 +19,7 @@ export function getDb(): PrismaClient {
     })
     globalForPrisma.prisma = new PrismaClient({ adapter, log: ['error'] })
   } else {
-    // Local SQLite file
+    // Local SQLite fallback
     globalForPrisma.prisma = new PrismaClient({ log: ['query'] })
   }
 
