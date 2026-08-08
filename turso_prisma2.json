@@ -1,0 +1,21 @@
+{
+  "code": 200,
+  "data": {
+    "description": "",
+    "html": "<html><head><meta name=\"color-scheme\" content=\"light dark\"></head><body><pre style=\"word-wrap: break-word; white-space: pre-wrap;\">> ## Documentation Index\n> Fetch the complete documentation index at: https://docs.turso.tech/llms.txt\n> Use this file to discover all available pages before exploring further.\n\n# Prisma + Turso\n\n> Configure Prisma to work with your Turso database\n\n<img src=\"https://mintcdn.com/turso/7mjM7fXIfeZ8ZwNC/images/guides/prisma-banner.png?fit=max&auto=format&n=7mjM7fXIfeZ8ZwNC&q=85&s=ce5d303037fe9f45a7918d238def83f4\" alt=\"Prisma banner\" width=\"1133\" height=\"595\" data-path=\"images/guides/prisma-banner.png\" />\n\n## Prerequisites\n\nBefore you start, make sure you:\n\n* [Install the Turso CLI](/cli/installation)\n* [Sign up or login to Turso](/cli/authentication#signup)\n* Prisma versions 5.4.2 and later\n\n<Steps>\n  <Step title=\"Install the libSQL SDK and its Prisma driver\">\n    <CodeGroup>\n      ```bash npm theme={null}\n      npm install @libsql/client @prisma/adapter-libsql\n      ```\n\n      ```bash pnpm theme={null}\n      pnpm add @libsql/client @prisma/adapter-libsql\n      ```\n\n      ```bash yarn theme={null}\n      yarn add @libsql/client @prisma/adapter-libsql\n      ```\n    </CodeGroup>\n  </Step>\n\n  <Step title=\"Retrieve database credentials\">\n    <Snippet file=\"retrieve-database-credentials.mdx\" />\n  </Step>\n\n  <Step title=\"Enable the `driverAdapters` preview feature flag:\">\n    ```js prisma/schema.prisma theme={null}\n    generator client {\n      provider        = \"prisma-client-js\"\n      previewFeatures = [\"driverAdapters\"]\n    }\n\n    datasource db {\n      provider = \"sqlite\"\n      url      = \"file:./dev.db\"\n    }\n    ```\n  </Step>\n\n  <Step title=\"Generate Prisma client\">\n    <CodeGroup>\n      ```sh npm theme={null}\n      npx prisma generate\n      ```\n\n      ```sh pnpm theme={null}\n      pnpm dlx prisma generate\n      ```\n    </CodeGroup>\n  </Step>\n\n  <Step title=\"Update your Prisma Client Instance\">\n    <CodeGroup>\n      ```ts Node.js / Serverless theme={null}\n      import { PrismaClient } from \"@prisma/client\";\n      import { PrismaLibSQL } from \"@prisma/adapter-libsql\";\n\n      const adapter = new PrismaLibSQL({\n        url: process.env.TURSO_DATABASE_URL,\n        authToken: process.env.TURSO_AUTH_TOKEN,\n      })\n      const prisma = new PrismaClient({ adapter })\n      ```\n\n      ```ts Edge Runtimes theme={null}\n      import { PrismaClient } from \"@prisma/client\";\n      import { PrismaLibSQL } from \"@prisma/adapter-libsql\";\n\n      const adapter = new PrismaLibSQL({\n        url: process.env.TURSO_DATABASE_URL,\n        authToken: process.env.TURSO_AUTH_TOKEN,\n      })\n      const prisma = new PrismaClient({ adapter })\n      ```\n    </CodeGroup>\n  </Step>\n\n  <Step title=\"Database Migrations\">\n    Prisma Migrate and Introspection workflows are currently not supported when working with Turso — [learn more](https://www.prisma.io/docs/orm/overview/databases/turso#how-to-manage-schema-changes).\n\n    First, generate a migration file using prisma migrate dev against a local SQLite database\n\n    <CodeGroup>\n      ```sh npm theme={null}\n      npx prisma migrate dev --name init\n      ```\n\n      ```sh pnpm theme={null}\n      pnpm dlx prisma migrate dev --name init\n      ```\n    </CodeGroup>\n\n    Then, apply the migration to your Turso database using the Turso's CLI\n\n    ```bash theme={null}\n    turso db shell turso-prisma-db < ./prisma/migrations/20230922132717_init/migration.sql\n    ```\n\n    <Info>\n      Replace `20230922132717_init` with the name of your migration created from the `npx prisma migrate dev` command.\n    </Info>\n  </Step>\n\n  <Step title=\"Query\">\n    ```ts theme={null}\n    const response = await prisma.table_name.findMany();\n    ```\n  </Step>\n</Steps>\n</pre></body></html>",
+    "httpStatus": 200,
+    "httpStatusText": "",
+    "publishedTime": "Sat, 08 Aug 2026 04:21:54 GMT",
+    "title": "",
+    "url": "https://docs.turso.tech/sdk/ts/orm/prisma.md",
+    "usage": {
+      "tokens": 1013
+    }
+  },
+  "meta": {
+    "usage": {
+      "tokens": 1013
+    }
+  },
+  "status": 200
+}
