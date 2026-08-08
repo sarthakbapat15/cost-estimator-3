@@ -379,3 +379,29 @@ Stage Summary:
 - Per-sqft calculation: height × width ÷ 92,903 × rate
 - Browser tested: all interactions verified (type switching clears finish, totals calculate correctly)
 - Lint passes clean
+---
+Task ID: 2
+Agent: Main Agent
+Task: Switch from SQLite to Turso for Vercel deployment
+
+Work Log:
+- Installed @prisma/adapter-libsql package
+- Updated prisma/schema.prisma: added previewFeatures = ["driverAdapters"]
+- Created sync-turso.ts script to push schema to Turso (CREATE TABLE statements)
+- Ran schema sync - all 4 tables (AppSettings, User, Post, SavedEstimate) created on Turso
+- Verified Turso connection with direct query (AppSettings singleton row confirmed)
+- Discovered PrismaLibSql adapter takes {url, authToken} directly (no need for @libsql/client)
+- Rewrote src/lib/db.ts with lazy Proxy pattern:
+  - Checks if DATABASE_URL starts with 'libsql://' → uses PrismaLibSql adapter
+  - Otherwise falls back to local SQLite
+ - Lazy init via Proxy ensures env vars are loaded before PrismaClient creation
+- Removed @libsql/client (not needed, adapter handles it)
+- Verified dev server connects to Turso and returns 200 on API routes
+- .env configured for local dev (SQLite) with commented Turso vars as reference
+- Lint passes clean
+
+Stage Summary:
+- Turso database live at: libsql://pioneer-kitchens-sarthakbapat15.aws-ap-south-1.turso.io
+- All tables created and verified on Turso cloud
+- src/lib/db.ts uses intelligent routing: local SQLite in dev, Turso in production
+- To deploy: set DATABASE_URL and TURSO_AUTH_TOKEN in Vercel Environment Variables
