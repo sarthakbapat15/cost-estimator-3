@@ -86,6 +86,18 @@ export interface BedroomPrices {
   hydraulicMechanismPrice: number
 }
 
+// ── Helper to resolve effective rate including manual Postforming input ──
+const getEffectiveRate = (
+  finish: string,
+  ratesRecord?: Record<string, number>,
+  postformingRate?: string
+): number => {
+  if (finish === 'Postforming') {
+    return parseFloat(postformingRate || '0') || 0
+  }
+  return ratesRecord?.[finish] || 0
+}
+
 // ── Shared finish selector for tall-unit-finish components ──
 function TallUnitFinishSelect({
   value,
@@ -104,31 +116,32 @@ function TallUnitFinishSelect({
 }) {
   return (
     <>
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-full" id={id}>
-        <SelectValue placeholder="Select finish" />
-      </SelectTrigger>
-      <SelectContent>
-        {Object.entries(rates).map(([key, rate]) => (
-          <SelectItem key={key} value={key}>
-            {key} (₹{rate.toLocaleString('en-IN')}/sqft)
-          </SelectItem>
-        ))}
-        <SelectItem value="Postforming">Postforming (Manual Rate)</SelectItem>
-      </SelectContent>
-    </Select>
-    {value === 'Postforming' && (
-      <div className="mt-1.5">
-        <Label className="text-xs">Rate per sqft (₹)</Label>
-        <Input
-          type="number"
-          placeholder="Enter rate"
-          value={postformingRate}
-          onChange={(e) => onPostformingRateChange(e.target.value)}
-          className="h-8 text-xs"
-        />
-      </div>
-    )}
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-full" id={id}>
+          <SelectValue placeholder="Select finish" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(rates).map(([key, rate]) => (
+            <SelectItem key={key} value={key}>
+              {key} (₹{rate.toLocaleString('en-IN')}/sqft)
+            </SelectItem>
+          ))}
+          <SelectItem value="Postforming">Postforming (Manual Rate)</SelectItem>
+        </SelectContent>
+      </Select>
+      {value === 'Postforming' && (
+        <div className="mt-1.5">
+          <Label className="text-xs">Rate per sqft (₹)</Label>
+          <Input
+            type="number"
+            min="0"
+            placeholder="Enter rate"
+            value={postformingRate}
+            onChange={(e) => onPostformingRateChange(e.target.value)}
+            className="h-8 text-xs"
+          />
+        </div>
+      )}
     </>
   )
 }
@@ -149,11 +162,11 @@ function HWInputs({
     <div className="grid grid-cols-2 gap-3">
       <div className="space-y-1.5">
         <Label className="text-xs">Height (mm)</Label>
-        <Input type="number" placeholder="0" value={height} onChange={(e) => onHeight(e.target.value)} />
+        <Input type="number" min="0" placeholder="0" value={height} onChange={(e) => onHeight(e.target.value)} />
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs">Width (mm)</Label>
-        <Input type="number" placeholder="0" value={width} onChange={(e) => onWidth(e.target.value)} />
+        <Input type="number" min="0" placeholder="0" value={width} onChange={(e) => onWidth(e.target.value)} />
       </div>
     </div>
   )
@@ -287,6 +300,7 @@ export default function BedroomTypeCards({
               <Label className="text-xs">Rate per sqft (₹)</Label>
               <Input
                 type="number"
+                min="0"
                 placeholder="Enter rate"
                 value={postformingRate}
                 onChange={(e) => onPostformingRateChange(e.target.value)}
@@ -294,7 +308,10 @@ export default function BedroomTypeCards({
               />
             </div>
           )}
-          <RateDisplay rate={prices.wardrobeFinish[bedroom.wardrobe.finish] || 0} formatINR={formatINR} />
+          <RateDisplay
+            rate={getEffectiveRate(bedroom.wardrobe.finish, prices.wardrobeFinish, postformingRate)}
+            formatINR={formatINR}
+          />
           {bedroom.wardrobe.wardrobeType === 'Sliding' && (
             <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-fuchsia-200">
               <Checkbox
@@ -304,8 +321,10 @@ export default function BedroomTypeCards({
                 className="data-[state=checked]:bg-fuchsia-600 data-[state=checked]:border-fuchsia-600"
               />
               <div className="flex-1">
-                <Label htmlFor={`sliding-mechanism-${category}`} className="text-xs font-medium cursor-pointer">Sliding Mechanism (Add-on)</Label>
-                    <p className="text-xs text-muted-foreground">{formatINR(prices.wardrobeSlidingMechanism)}</p>
+                <Label htmlFor={`sliding-mechanism-${category}`} className="text-xs font-medium cursor-pointer">
+                  Sliding Mechanism (Add-on)
+                </Label>
+                <p className="text-xs text-muted-foreground">{formatINR(prices.wardrobeSlidingMechanism)}</p>
               </div>
             </div>
           )}
@@ -364,6 +383,7 @@ export default function BedroomTypeCards({
               <Label className="text-xs">Rate per sqft (₹)</Label>
               <Input
                 type="number"
+                min="0"
                 placeholder="Enter rate"
                 value={postformingRate}
                 onChange={(e) => onPostformingRateChange(e.target.value)}
@@ -372,7 +392,11 @@ export default function BedroomTypeCards({
             </div>
           )}
           <RateDisplay
-            rate={bedroom.loft.loftType && bedroom.loft.finish ? (prices.bedroomLoftFinish[bedroom.loft.loftType]?.[bedroom.loft.finish] || 0) : 0}
+            rate={
+              bedroom.loft.loftType
+                ? getEffectiveRate(bedroom.loft.finish, prices.bedroomLoftFinish[bedroom.loft.loftType], postformingRate)
+                : 0
+            }
             formatINR={formatINR}
           />
         </CardContent>
@@ -406,7 +430,10 @@ export default function BedroomTypeCards({
               onPostformingRateChange={onPostformingRateChange}
             />
           </div>
-          <RateDisplay rate={tallUnitFinishRates[bedroom.windowSeat.finish] || 0} formatINR={formatINR} />
+          <RateDisplay
+            rate={getEffectiveRate(bedroom.windowSeat.finish, tallUnitFinishRates, postformingRate)}
+            formatINR={formatINR}
+          />
         </CardContent>
       </Card>
 
@@ -432,7 +459,10 @@ export default function BedroomTypeCards({
               onPostformingRateChange={onPostformingRateChange}
             />
           </div>
-          <RateDisplay rate={tallUnitFinishRates[bedroom.studyTable.finish] || 0} formatINR={formatINR} />
+          <RateDisplay
+            rate={getEffectiveRate(bedroom.studyTable.finish, tallUnitFinishRates, postformingRate)}
+            formatINR={formatINR}
+          />
 
           <div className="space-y-2">
             <p className="text-xs font-semibold text-violet-700 uppercase tracking-wider">Base</p>
@@ -480,7 +510,10 @@ export default function BedroomTypeCards({
               />
             </div>
             <div className="max-w-xs">
-              <RateDisplay rate={tallUnitFinishRates[bedroom.dresserUnit.finish] || 0} formatINR={formatINR} />
+              <RateDisplay
+                rate={getEffectiveRate(bedroom.dresserUnit.finish, tallUnitFinishRates, postformingRate)}
+                formatINR={formatINR}
+              />
             </div>
           </div>
 
@@ -538,7 +571,7 @@ export default function BedroomTypeCards({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-stretch gap-6">
             {/* Bed Section */}
             <div className="space-y-3">
               <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Bed</p>
@@ -550,8 +583,10 @@ export default function BedroomTypeCards({
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select bed type" />
                   </SelectTrigger>
-              <SelectContent>
-                    <SelectItem value="Open Bed with Legs">Open Bed with Legs (₹{prices.openBedPrice.toLocaleString('en-IN')})</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="Open Bed with Legs">
+                      Open Bed with Legs (₹{prices.openBedPrice.toLocaleString('en-IN')})
+                    </SelectItem>
                     <SelectItem value="Hydraulic (Manual)">Hydraulic (Manual)</SelectItem>
                     <SelectItem value="Hydraulic (Automatic)">Hydraulic (Automatic)</SelectItem>
                     <SelectItem value="Pullout Trolly Bed">Pullout Trolly Bed</SelectItem>
@@ -587,7 +622,10 @@ export default function BedroomTypeCards({
                       onPostformingRateChange={onPostformingRateChange}
                     />
                   </div>
-                  <RateDisplay rate={tallUnitFinishRates[bedroom.bed.finish] || 0} formatINR={formatINR} />
+                  <RateDisplay
+                    rate={getEffectiveRate(bedroom.bed.finish, tallUnitFinishRates, postformingRate)}
+                    formatINR={formatINR}
+                  />
                   {isAutomaticBed && (
                     <div className="space-y-1.5">
                       <Label className="text-xs">Mechanism Cost</Label>
@@ -598,8 +636,8 @@ export default function BedroomTypeCards({
               )}
             </div>
 
-            {/* Divider */}
-            <div className="hidden md:block w-px bg-amber-200" />
+            {/* Vertical Divider Line */}
+            <div className="hidden md:block w-px bg-amber-200 self-stretch my-1" />
 
             {/* Head Board Section */}
             <div className="space-y-3">
@@ -612,7 +650,9 @@ export default function BedroomTypeCards({
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(prices.headBoardRates).map(([type, rate]) => (
-                      <SelectItem key={type} value={type}>{type} (₹{rate.toLocaleString('en-IN')}/sqft)</SelectItem>
+                      <SelectItem key={type} value={type}>
+                        {type} (₹{rate.toLocaleString('en-IN')}/sqft)
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -623,7 +663,10 @@ export default function BedroomTypeCards({
                 onHeight={(v) => onUpdateHeadBoard('length', v)}
                 onWidth={(v) => onUpdateHeadBoard('width', v)}
               />
-              <RateDisplay rate={prices.headBoardRates[bedroom.headBoard.headBoardType] || 0} formatINR={formatINR} />
+              <RateDisplay
+                rate={prices.headBoardRates[bedroom.headBoard.headBoardType] || 0}
+                formatINR={formatINR}
+              />
             </div>
           </div>
         </CardContent>
