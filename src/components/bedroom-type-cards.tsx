@@ -16,11 +16,11 @@ export const DEFAULT_TALL_UNIT_FINISH_RATES: Record<string, number> = {
   'Veneer with polish': 1750,
 }
 
-// ── Standard Bed Size Dimensions in mm (Length x Width) ──
-export const STANDARD_BED_SIZES: Record<string, { height: string; width: string }> = {
-  'King Size': { height: '1980', width: '1800' },  // 6.5 ft x 6 ft
-  'Queen Size': { height: '1980', width: '1500' }, // 6.5 ft x 5 ft
-  'Single Bed': { height: '1980', width: '900' },  // 6.5 ft x 3 ft
+// ── Standard Bed Size Dimensions in mm & Fixed Base Prices ──
+export const STANDARD_BED_SIZES: Record<string, { height: string; width: string; price?: number }> = {
+  'King Size': { height: '1980', width: '1800', price: 60000 },  // 6.5 ft x 6 ft
+  'Queen Size': { height: '1980', width: '1500', price: 55000 }, // 6.5 ft x 5 ft
+  'Single Bed': { height: '1980', width: '900' },                // 6.5 ft x 3 ft
 }
 
 // ── Data Interfaces ──
@@ -92,6 +92,8 @@ export interface BedroomPrices {
   headBoardRates: Record<string, number>
   openBedPrice: number
   hydraulicMechanismPrice: number
+  kingBedPrice?: number
+  queenBedPrice?: number
 }
 
 // ── Helper to resolve effective rate including manual Postforming input ──
@@ -256,6 +258,9 @@ export default function BedroomTypeCards({
 }: BedroomTypeCardsProps) {
   const showBedDimensions = bedroom.bed.typeOfBed && bedroom.bed.typeOfBed !== 'Open Bed with Legs'
   const isAutomaticBed = bedroom.bed.typeOfBed === 'Hydraulic (Automatic)' || bedroom.bed.typeOfBed === 'Pullout Trolly Bed'
+
+  const kingPrice = prices.kingBedPrice ?? STANDARD_BED_SIZES['King Size'].price ?? 60000
+  const queenPrice = prices.queenBedPrice ?? STANDARD_BED_SIZES['Queen Size'].price ?? 55000
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -620,23 +625,41 @@ export default function BedroomTypeCards({
                     <SelectValue placeholder="Select bed size" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="King Size">King Size (6 ft × 6.5 ft)</SelectItem>
-                    <SelectItem value="Queen Size">Queen Size (5 ft × 6.5 ft)</SelectItem>
+                    <SelectItem value="King Size">
+                      King Size (6 ft × 6.5 ft) — ₹{kingPrice.toLocaleString('en-IN')}
+                    </SelectItem>
+                    <SelectItem value="Queen Size">
+                      Queen Size (5 ft × 6.5 ft) — ₹{queenPrice.toLocaleString('en-IN')}
+                    </SelectItem>
                     <SelectItem value="Single Bed">Single Bed (3 ft × 6.5 ft)</SelectItem>
                     <SelectItem value="Custom">Custom Size</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
+              {/* Display Fixed Base Price when King or Queen is selected */}
+              {bedroom.bed.bedSize === 'King Size' && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs">King Bed Fixed Price</Label>
+                  <Input value={formatINR(kingPrice)} disabled className="bg-white" />
+                </div>
+              )}
+              {bedroom.bed.bedSize === 'Queen Size' && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Queen Bed Fixed Price</Label>
+                  <Input value={formatINR(queenPrice)} disabled className="bg-white" />
+                </div>
+              )}
+
               {/* Fixed Price Display for Open Bed */}
               {bedroom.bed.typeOfBed === 'Open Bed with Legs' && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Fixed Price</Label>
+                  <Label className="text-xs">Open Bed Fixed Price</Label>
                   <Input value={formatINR(prices.openBedPrice)} disabled className="bg-white" />
                 </div>
               )}
 
-              {/* Dimensions + Finish for other bed types */}
+              {/* Dimensions + Finish for non-open bed types */}
               {showBedDimensions && (
                 <>
                   <HWInputs
