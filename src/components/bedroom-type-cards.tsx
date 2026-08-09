@@ -16,6 +16,13 @@ export const DEFAULT_TALL_UNIT_FINISH_RATES: Record<string, number> = {
   'Veneer with polish': 1750,
 }
 
+// ── Standard Bed Size Dimensions in mm (Length x Width) ──
+export const STANDARD_BED_SIZES: Record<string, { height: string; width: string }> = {
+  'King Size': { height: '1980', width: '1800' },  // 6.5 ft x 6 ft
+  'Queen Size': { height: '1980', width: '1500' }, // 6.5 ft x 5 ft
+  'Single Bed': { height: '1980', width: '900' },  // 6.5 ft x 3 ft
+}
+
 // ── Data Interfaces ──
 export interface BedroomData {
   wardrobe: {
@@ -49,6 +56,7 @@ export interface BedroomData {
   }
   bed: {
     typeOfBed: string
+    bedSize: string
     height: string
     width: string
     finish: string
@@ -71,7 +79,7 @@ export const createEmptyBedroom = (): BedroomData => ({
     mirrorOnBackPanel: { height: '', width: '' },
     finish: '',
   },
-  bed: { typeOfBed: '', height: '', width: '', finish: '' },
+  bed: { typeOfBed: '', bedSize: '', height: '', width: '', finish: '' },
   headBoard: { length: '', width: '', headBoardType: '' },
 })
 
@@ -572,11 +580,12 @@ export default function BedroomTypeCards({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-stretch gap-6">
+            
             {/* Bed Section */}
             <div className="space-y-3">
               <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Bed</p>
 
-              {/* Type of Bed dropdown */}
+              {/* Type of Bed */}
               <div className="space-y-1.5">
                 <Label className="text-xs">Type of Bed</Label>
                 <Select value={bedroom.bed.typeOfBed} onValueChange={onBedTypeChange}>
@@ -594,7 +603,32 @@ export default function BedroomTypeCards({
                 </Select>
               </div>
 
-              {/* Open Bed: fixed price display */}
+              {/* Bed Size (King / Queen / Single / Custom) */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Bed Size</Label>
+                <Select
+                  value={bedroom.bed.bedSize || ''}
+                  onValueChange={(size) => {
+                    onUpdateBed('bedSize', size)
+                    if (STANDARD_BED_SIZES[size]) {
+                      onUpdateBed('height', STANDARD_BED_SIZES[size].height)
+                      onUpdateBed('width', STANDARD_BED_SIZES[size].width)
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select bed size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="King Size">King Size (6 ft × 6.5 ft)</SelectItem>
+                    <SelectItem value="Queen Size">Queen Size (5 ft × 6.5 ft)</SelectItem>
+                    <SelectItem value="Single Bed">Single Bed (3 ft × 6.5 ft)</SelectItem>
+                    <SelectItem value="Custom">Custom Size</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Fixed Price Display for Open Bed */}
               {bedroom.bed.typeOfBed === 'Open Bed with Legs' && (
                 <div className="space-y-1.5">
                   <Label className="text-xs">Fixed Price</Label>
@@ -602,7 +636,7 @@ export default function BedroomTypeCards({
                 </div>
               )}
 
-              {/* Dimensions + finish for options 2-4 */}
+              {/* Dimensions + Finish for other bed types */}
               {showBedDimensions && (
                 <>
                   <HWInputs
@@ -668,6 +702,7 @@ export default function BedroomTypeCards({
                 formatINR={formatINR}
               />
             </div>
+
           </div>
         </CardContent>
       </Card>
